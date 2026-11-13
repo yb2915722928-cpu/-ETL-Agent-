@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-11-13T12:40:32.921881+00:00",
+  "passed": [
+    "300-second subject/artifact-bound capability; unique queued Run, signed command and pending Outbox publicly queryable",
+    "real PostgreSQL concurrent identical requests return one201/one200 and same receipt; separate valid tokens/keys race one201/one409",
+    "same-key changed request409, consumed-token new-key replay409, unauthorized roles403, tenant isolation403; one accepted evidence event",
+    "P3 command remains metadata-only without data-plane mutation; GET/list expose exactly one Run per Preparation"
+  ],
+  "run_id": "8892282e-81f5-4365-b6d7-b8b7c9c2ef97"
+}
