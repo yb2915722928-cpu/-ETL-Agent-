@@ -210,7 +210,7 @@ onMounted(async () => {
       <template v-if="tab === 'projects'">
         <div class="section-intro"><p>你所属的项目 <span class="count">{{ projects.length }}</span></p><span class="muted">仅展示当前账号的有效项目成员关系</span></div>
         <div class="project-grid">
-          <button v-for="project in projects" :key="project.id" :class="['project-card', { selected: selected?.id === project.id }]" @click="run(() => loadProject(project))">
+          <button v-for="project in projects" :key="project.id" :class="['project-card', { selected: selected?.id === project.id }]" :disabled="busy" @click="run(() => loadProject(project))">
             <span class="project-icon">▦</span><span class="project-heading">{{ project.name }}</span><code>{{ project.slug }}</code>
             <div class="badges"><span v-for="role in project.roles" :key="role" class="badge">{{ roleNames[role] }}</span></div><span class="project-arrow">查看成员 ↗</span>
           </button>
