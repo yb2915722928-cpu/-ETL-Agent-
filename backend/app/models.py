@@ -75,3 +75,40 @@ class IdentityEvent(Base):
     actor_id: Mapped[str] = mapped_column(String(36))
     action: Mapped[str] = mapped_column(String(64))
     facts: Mapped[dict] = mapped_column(JSON)
+
+
+class EvidenceHead(Base):
+    __tablename__ = 'evidence_heads'
+    tenant_id: Mapped[str] = mapped_column(ForeignKey('tenants.id'), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(36), primary_key=True)
+    sequence: Mapped[int] = mapped_column(BigInteger, default=0)
+    event_hash: Mapped[str] = mapped_column(String(64), default='0' * 64)
+
+
+class EvidenceEvent(Base):
+    __tablename__ = 'evidence_events'
+    __table_args__ = (
+        UniqueConstraint('tenant_id', 'scope', 'sequence'),
+        UniqueConstraint('tenant_id', 'scope', 'source_event_id'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey('tenants.id'))
+    scope: Mapped[str] = mapped_column(String(36))
+    project_id: Mapped[str | None] = mapped_column(ForeignKey('projects.id'), nullable=True)
+    source_event_id: Mapped[str | None] = mapped_column(ForeignKey('identity_events.id'), nullable=True)
+    sequence: Mapped[int] = mapped_column(BigInteger)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    actor_id: Mapped[str] = mapped_column(ForeignKey('accounts.id'))
+    action: Mapped[str] = mapped_column(String(64))
+    facts: Mapped[dict] = mapped_column(JSON)
+    version_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    preparation_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    artifact_hashes: Mapped[dict] = mapped_column(JSON, default=dict)
+    previous_hash: Mapped[str] = mapped_column(String(64))
+    event_hash: Mapped[str] = mapped_column(String(64))
+
+
+class SchemaMigration(Base):
+    __tablename__ = 'schema_migrations'
+    name: Mapped[str] = mapped_column(String(100), primary_key=True)
