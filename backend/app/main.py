@@ -27,7 +27,11 @@ from .security import COOKIE, SESSION_TTL, append_event, hash_password, session_
 async def lifespan(app):
     from .evidence_signing import EvidenceSigner
     from .migrations import initialize_database
+    from .managed_secrets import SecretProvider
+    from .connector_policy import ResourcePolicy
     app.state.evidence_signer = EvidenceSigner()
+    app.state.secret_provider = SecretProvider()
+    app.state.connector_policy = ResourcePolicy()
     initialize_database()
     yield
 
@@ -321,3 +325,6 @@ def identity_events(tenant_id: str, db: Db, actor: Actor):
 
 from .evidence_api import register_evidence_routes
 register_evidence_routes(app, Db, Actor, tenant_admin, project_scope)
+
+from .connectors import register_connector_routes
+register_connector_routes(app, Db, Actor, project_scope)
