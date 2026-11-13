@@ -331,3 +331,6 @@ register_connector_routes(app, Db, Actor, project_scope)
 
 from .studio import register_studio_routes
 register_studio_routes(app, Db, Actor, project_scope)
+
+from .versions import register_version_routes
+register_version_routes(app, Db, Actor, project_scope)
