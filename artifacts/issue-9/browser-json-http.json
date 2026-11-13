@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-13T12:56:06.503411+00:00",
+  "passed": [
+    "actual JavaScript JSON.parse/stringify roundtrip of signed Capability still accepts through public Commit; browser-normalized request remains idempotent",
+    "300-second subject/artifact-bound capability; unique queued Run, signed command and pending Outbox publicly queryable",
+    "real PostgreSQL concurrent identical requests return one201/one200 and same receipt; separate valid tokens/keys race one201/one409",
+    "same-key changed request409, consumed-token new-key replay409, unauthorized roles403, tenant isolation403; one accepted evidence event",
+    "P3 command remains metadata-only without data-plane mutation; GET/list expose exactly one Run per Preparation"
+  ],
+  "run_id": "63cf393d-087a-4459-bc30-4ea844e2104f",
+  "red_before_fix": "Same public HTTP test using actual Node JSON.parse/stringify returned [403,403], detail 签名、格式或可信密钥核验失败. Python-only request roundtrip had passed.",
+  "fix_scope": "Producer normalizes whole-valued floats before sign/store/return; signing_bytes and verify_envelope unchanged; no legacy payload rewrite or verification fallback."
+}

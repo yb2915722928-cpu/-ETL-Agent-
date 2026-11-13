@@ -350,3 +350,6 @@ register_version_routes(app, Db, Actor, project_scope)
 
 from .preparations import register_preparation_routes
 register_preparation_routes(app, Db, Actor, project_scope)
+
+from .execution import register_execution_routes
+register_execution_routes(app, Db, Actor, project_scope)
