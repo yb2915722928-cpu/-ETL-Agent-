@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-11-13T08:55:31.066045+00:00",
+  "phase": "studio-persistence",
+  "passed": [
+    "candidate, revision, plan and review artifacts survive restart; current gates still pass"
+  ],
+  "limits": "manual deterministic review only; no model, engine submission, quality execution, freeze or publication"
+}

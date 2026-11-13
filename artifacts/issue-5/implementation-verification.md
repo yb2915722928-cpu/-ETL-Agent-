@@ -22,6 +22,6 @@ HTTP 服务为临时 `etl-issue5-review`，仅绑定127.0.0.1:8005，复用已�
 - `npm run build`：合入#6后通过，17模块，JS114.34kB/gzip41.59kB；没有新增前端依赖。
 - `git diff --check`：通过；docs合并冲突保留#4初始化入口并更新为#5完整支持类型。
 - `prepare_postgresql_csv_demo.py --initialize` 已在现有真实PG幂等执行；`docker compose ... config --no-env-resolution --quiet` 通过，卷名与现有真实源一致。没有为验证提炼入口重建源卷，不宣称冷机器完整安装。
-- 中文ConnectionsPanel已具备PG与CSV登记/错误/字段/统计/脱敏样本入口；正式8080浏览器交互与正式整栈部署由父集成会话另行验收，不能用Vite构建替代浏览器结果。
+- 父集成会话已在正式8000/8080部署并复验PG/CSV公开接口：[PG整栈](http-postgresql.json)、[CSV整栈](http-csv.json)。真实Chrome通过PG登记/探查、原生numeric类型、跨行CSV上传与脱敏、坏UTF-8安全源/行/列诊断及无成功档案；页面无已知密码或原始敏感值，无浏览器异常，见[浏览器结果](browser.json)、[正常CSV](csv-valid.png)、[失败CSV](csv-failure.png)。
 
 私有bootstrap、源密码、cookie、完整HTTP连接/档案状态和原CSV均仅在忽略的`.runtime`，不在这些安全结论文件。CSV无schema时保留text类型而不猜测；最多2 MiB、64列、五条样本，UTF-8/英文唯一表头为明确支持范围。PG白名单/只读检查保守拒绝继承角色与可执行业务函数；它面向专用只读账号，未声明支持所有生产授权布局。源停服与文件异常已恢复，根整栈及其他worker服务保持运行。
