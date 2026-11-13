@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-11-13T08:40:57.936681+00:00",
+  "phase": "persistence",
+  "kinds": [
+    "mysql",
+    "doris"
+  ],
+  "passed": [
+    "persisted immutable profiles and encrypted credentials survive restart; original credential re-probes real server"
+  ]
+}

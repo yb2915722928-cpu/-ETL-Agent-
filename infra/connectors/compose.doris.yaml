@@ -1,0 +1,44 @@
+name: etl-connectors-doris
+services:
+  doris:
+    image: etl-connectors-doris-runtime:3.0.8-jdk17.0.20
+    pull_policy: never
+    container_name: etl-connector-doris
+    environment:
+      DORIS_NETWORK_IP: 172.20.0.10
+    mem_limit: 4g
+    cpus: 4
+    ulimits:
+      nofile:
+        soft: 655350
+        hard: 655350
+    ports:
+      - '127.0.0.1:19030:9030'
+      - '127.0.0.1:18030:8030'
+      - '127.0.0.1:18040:8040'
+    volumes:
+      - doris_home:/opt/apache-doris
+      - ./doris-start.sh:/run/connector/doris-start.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, 'curl -fsS http://127.0.0.1:8030/api/health >/dev/null && curl -fsS http://127.0.0.1:8040/api/health >/dev/null']
+      interval: 5s
+      timeout: 5s
+      start_period: 90s
+      retries: 50
+    networks:
+      isolated:
+        ipv4_address: 172.20.0.10
+        aliases: [connector-doris]
+      control:
+        aliases: [connector-doris]
+volumes:
+  doris_home:
+    external: true
+    name: etl-connectors_doris_home
+networks:
+  isolated:
+    external: true
+    name: etl-connectors
+  control:
+    external: true
+    name: etl-agent_default

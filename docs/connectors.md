@@ -25,7 +25,7 @@ GitHub #4 实现 MySQL 源与 Doris 目标，#5 扩展 PostgreSQL 源与项目�
 
 `direction` 由类型确定：MySQL、PostgreSQL、CSV 为 `source`、Doris 为 `target`。PostgreSQL 资源额外必填 `schema`（例如 `public`），与 database 一起约束固定表读取。主机、端口、库、账号和表均来自部署白名单；HTTP 只接收资源 ID、显示名称与密码，不能提交 SQL/URL/主机/表/预算。资源指纹覆盖完整规范化配置。每次登记/探查重新读取策略；既有连接对应策略消失或指纹改变返回 409，需登记新连接。数据库策略是当前单个部署的固定资源授权集合，数据库候选集合共享，连接及其凭据和档案严格按租户/项目隔离。CSV 候选资源额外检查项目白名单。它不是网络防火墙；生产部署还需按对应受管资源限制 API 容器网络出口。
 
-真实环境私有配置 `.runtime/connectors/secrets.json` 已存在时，可运行 `python scripts/generate_connector_resources.py` 生成无密码白名单。默认生成已实现的 MySQL/Doris/PostgreSQL；`--kinds` 可限制类型，PostgreSQL 从私有配置读取 schema。未知类型会阻止启动，页面也不提供未知连接器的探查操作。外部账号必须只有 SELECT（MySQL 允许 SHOW VIEW/USAGE）；Doris 允许内建 `normal: Usage_priv` 调度查询，其他写权限与继承角色均拒绝。真实只读权限检查先于业务表读取。
+真实外部环境的最小初始化/固定依赖入口见 [infra/connectors](../infra/connectors/README.md)。真实环境私有配置 `.runtime/connectors/secrets.json` 已存在时，可运行 `python scripts/generate_connector_resources.py` 生成无密码白名单。默认生成已实现的 MySQL/Doris/PostgreSQL；`--kinds` 可限制类型，PostgreSQL 从私有配置读取 schema。未知类型会阻止启动，页面也不提供未知连接器的探查操作。外部账号必须只有 SELECT（MySQL 允许 SHOW VIEW/USAGE）；Doris 允许内建 `normal: Usage_priv` 调度查询，其他写权限与继承角色均拒绝。真实只读权限检查先于业务表读取。
 
 ## 公共接口与持久化契约
 

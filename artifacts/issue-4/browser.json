@@ -1,0 +1,8 @@
+{
+  "passed": [
+    "maker registers MySQL and Doris through actual form; credential fields clear after save",
+    "real probes display schema, decimal types, approximate statistics and masked samples",
+    "page contains no known credential or synthetic raw sensitive values"
+  ],
+  "pageErrors": []
+}
