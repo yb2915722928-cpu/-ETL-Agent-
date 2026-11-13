@@ -62,12 +62,16 @@ class Membership(Base):
 
 class IdentityEvent(Base):
     __tablename__ = 'identity_events'
-    __table_args__ = (UniqueConstraint('tenant_id', 'sequence'),)
+    __table_args__ = (
+        UniqueConstraint('tenant_id', 'sequence'),
+        ForeignKeyConstraint(['actor_id', 'tenant_id'], ['accounts.id', 'accounts.tenant_id']),
+        ForeignKeyConstraint(['project_id', 'tenant_id'], ['projects.id', 'projects.tenant_id']),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     tenant_id: Mapped[str] = mapped_column(ForeignKey('tenants.id'))
-    project_id: Mapped[str | None] = mapped_column(ForeignKey('projects.id'), nullable=True)
+    project_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     sequence: Mapped[int] = mapped_column(BigInteger)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    actor_id: Mapped[str] = mapped_column(ForeignKey('accounts.id'))
+    actor_id: Mapped[str] = mapped_column(String(36))
     action: Mapped[str] = mapped_column(String(64))
     facts: Mapped[dict] = mapped_column(JSON)
