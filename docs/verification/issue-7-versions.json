@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-13T09:14:57.756038+00:00",
+  "phase": "versions",
+  "passed": [
+    "current Candidate freezes; concurrent repeats reuse the same immutable version; every saved artifact and manifest digest recomputes from exact download bytes",
+    "real re-probe, name, timestamps and input-array order leave execution SHA256/HOCON/DAG unchanged; Profile references stay separate and bundle digest binds them",
+    "mapping/quality/budget revisions change execution digest and named Diff sections; stale revision and PUT/PATCH/DELETE rejected; earlier frozen bytes remain identical",
+    "freeze rechecks current deployed whitelist even for an already-frozen, saved-passed candidate; removal blocks reuse without altering history; isolated policy restored",
+    "read/download/Diff enforce tenant and project scope; current Maker and membership revocation take effect; audit evidence retains version/artifact bindings and denied mutations/freezes; no known plaintext secrets returned"
+  ],
+  "limits": "immutable manual review artifacts only; no engine, model, preparation or publication"
+}
