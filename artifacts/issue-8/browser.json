@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-13T12:08:49.299Z",
+  "preparation_id": "51cc1023-07f9-4475-a05d-32c6a56c0cbf",
+  "rejected_preparation_id": "b6fa3911-e88d-443c-b6ce-01d1db9dae87",
+  "passed": [
+    "Chinese console creates frozen preparation with selected version and operation",
+    "Maker self-approval action unavailable; independent data and security accounts approve through their own browser sessions",
+    "Approved state, named decisions and fixed expiry match public API",
+    "Rejection is visible and disables further approval",
+    "Auditor can inspect facts without approval actions"
+  ],
+  "page_errors": []
+}

@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-11-13T12:22:09.247607+00:00",
+  "preparation_id": "15b92cee-d3c0-449a-bff7-731d1bb66ae5",
+  "passed": [
+    "real synthetic MySQL ALTER without reprobe is rejected by managed Schema check",
+    "no new persisted Profile required to detect external drift",
+    "managed check denial and approval denial persist in same transaction",
+    "fixture schema restored and approval succeeds"
+  ],
+  "boundary": "temporary nullable column in existing isolated synthetic connector fixture; restored in finally; no application data values changed"
+}
