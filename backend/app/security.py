@@ -4,9 +4,7 @@ import hmac
 import os
 
 import redis
-from sqlalchemy import select
-
-from .models import IdentityEvent, Tenant
+from .evidence import append_event  # compatibility for existing identity callers
 
 sessions = redis.Redis.from_url(os.environ['REDIS_URL'], decode_responses=True, socket_connect_timeout=3, socket_timeout=3)
 COOKIE = 'etl_session'
@@ -27,20 +25,3 @@ def verify_password(password: str, encoded: str) -> bool:
 
 def session_key(token: str) -> str:
     return 'etl:session:' + hashlib.sha256(token.encode()).hexdigest()
-
-
-def append_event(db, actor, action: str, facts: dict, project_id: str | None = None):
-    """Append ordered identity facts within the caller's PostgreSQL transaction.
-
-    The tenant row serializes sequence allocation. Callers pass explicit safe
-    facts, never request bodies, password hashes, cookies or credentials.
-    V02 can extend this one append seam with chain/checkpoint fields.
-    """
-    tenant = db.scalar(select(Tenant).where(Tenant.id == actor.tenant_id).with_for_update().execution_options(populate_existing=True))
-    tenant.evidence_seq += 1
-    event = IdentityEvent(tenant_id=tenant.id, project_id=project_id,
-                          sequence=tenant.evidence_seq, actor_id=actor.id,
-                          action=action, facts=facts)
-    db.add(event)
-    db.flush()
-    return event

@@ -33,7 +33,8 @@ def main():
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     output = directory / f'bootstrap-{args.tenant}.json'
     credentials = json.loads(output.read_text(encoding='utf-8')) if output.exists() else {'tenant': args.tenant, 'accounts': {}}
-    Base.metadata.create_all(engine)
+    from .migrations import initialize_database
+    initialize_database()
     with Session.begin() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.slug == args.tenant))
         if tenant is None:

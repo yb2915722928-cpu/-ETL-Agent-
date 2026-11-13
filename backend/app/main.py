@@ -25,7 +25,10 @@ from .security import COOKIE, SESSION_TTL, append_event, hash_password, session_
 
 @asynccontextmanager
 async def lifespan(app):
-    Base.metadata.create_all(engine)
+    from .evidence_signing import EvidenceSigner
+    from .migrations import initialize_database
+    app.state.evidence_signer = EvidenceSigner()
+    initialize_database()
     yield
 
 
@@ -314,3 +317,7 @@ def identity_events(tenant_id: str, db: Db, actor: Actor):
     return [{'id': e.id, 'sequence': e.sequence, 'occurred_at': e.occurred_at,
              'actor_id': e.actor_id, 'project_id': e.project_id, 'action': e.action, 'facts': e.facts}
             for e in db.scalars(select(IdentityEvent).where(IdentityEvent.tenant_id == tenant_id).order_by(IdentityEvent.sequence))]
+
+
+from .evidence_api import register_evidence_routes
+register_evidence_routes(app, Db, Actor, tenant_admin, project_scope)

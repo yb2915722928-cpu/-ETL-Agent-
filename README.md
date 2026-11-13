@@ -2,7 +2,7 @@
 
 面向异构数据集成的受管 ETL 控制面：自然语言需求经结构化计划、确定性门禁、独立审批和单次授权，交由 SeaTunnel 执行，再依据质量报告完成受管发布与恢复。
 
-当前实现为 **V01 / #2：身份、租户与项目协作切片**：Vue 中文控制台、FastAPI、PostgreSQL 持久身份与事务审计、Redis 会话，以及可重复初始化和公开 HTTP 验证。其余 ETL、模型规划、审批、执行、发布和证据签名能力仍按后续工单实施。
+当前实现覆盖 **V01 / #2：身份、租户与项目协作** 和 **V02 / #3：审计导出与独立验签**：Vue 中文控制台、FastAPI、PostgreSQL 持久身份与事务证据链、Redis 会话、Ed25519 签名检查点与独立离线 CLI，以及可重复初始化和公开 HTTP 验证。其余 ETL、模型规划、审批、执行和发布能力仍按后续工单实施。审计接口、迁移、可信边界和验证命令见[证据说明](docs/evidence.md)。
 
 ## 启动 V01
 
@@ -24,7 +24,7 @@ docker compose -f compose.yaml -f compose.aliyun.yaml exec -T api python -m app.
 
 控制台提供登录、项目选择与创建、项目成员增删和角色编辑、账号创建/禁用/密码重置。点击“刷新权限”从服务端重新读取身份与项目；每个受保护 API 请求都会重新读取 PostgreSQL 中的启用状态和成员角色，Redis 仅保存会话到账号 ID 的映射。浏览器界面是否显示按钮不构成授权依据。
 
-[健康接口](http://127.0.0.1:8000/api/health)执行 PostgreSQL `SELECT 1` 和 Redis `PING`，返回实际服务/运行时版本、数据库大小、Redis 内存以及容器可见 CPU、内存与磁盘资源；依赖不可用时返回 503。资源数值为当前容器可见事实，不是性能基准。API 与 Web 仅绑定本机 8000/8080，数据库和 Redis 不映射宿主端口；通过 HTTPS 反向代理部署时，在本地环境配置 `COOKIE_SECURE=true`。此切片采用首次建表初始化，后续模型演进需引入数据库迁移。
+[健康接口](http://127.0.0.1:8000/api/health)执行 PostgreSQL `SELECT 1` 和 Redis `PING`，返回实际服务/运行时版本、数据库大小、Redis 内存以及容器可见 CPU、内存与磁盘资源；依赖不可用时返回 503。资源数值为当前容器可见事实，不是性能基准。API 与 Web 仅绑定本机 8000/8080，数据库和 Redis 不映射宿主端口；通过 HTTPS 反向代理部署时，在本地环境配置 `COOKIE_SECURE=true`。V02 使用增量迁移回填旧身份事件，保留既有数据库和身份；升级前重新运行初始化脚本补充签名密钥，并停止旧 API 写入者，详见[迁移与密钥说明](docs/evidence.md)。
 
 ## 公开 API 与持久化验证
 
@@ -46,7 +46,7 @@ docker compose -f compose.yaml -f compose.aliyun.yaml exec -T api python -m app.
 python scripts/verify_identity.py --recheck
 ```
 
-`down` 保留持久卷；不要加 `-v`，否则会删除数据库和会话数据。可选参数 `--url` 指定已启动服务，`--output` 将不含密码的结果 JSON 写入验收文件。身份变更与本地审计事实使用同一个 PostgreSQL 事务提交，事件包含租户内序号、操作者、项目与安全字段；V02 再实现哈希链、签名与导出。
+`down` 保留持久卷；不要加 `-v`，否则会删除数据库和会话数据。可选参数 `--url` 指定已启动服务，`--output` 将不含密码的结果 JSON 写入验收文件。身份变更与本地审计事实使用同一个 PostgreSQL 事务提交，事件包含租户内序号、操作者、项目与安全字段；V02 已将相同事务追加扩展为租户及项目独立哈希链、签名检查点与导出，见[证据验签与 HTTP 验证入口](docs/evidence.md)。
 
 ## 阅读入口
 
