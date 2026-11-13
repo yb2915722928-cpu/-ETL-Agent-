@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
-mkdir -p "$PGDATA"
-chown postgres:postgres "$PGDATA"
+mkdir -p "$PGDATA" /run/postgresql
+chown postgres:postgres "$PGDATA" /run/postgresql
 chmod 700 "$PGDATA"
 if [ ! -f "$PGDATA/PG_VERSION" ]; then
     printf '%s\n' "$POSTGRES_PASSWORD" > /tmp/pg-password
