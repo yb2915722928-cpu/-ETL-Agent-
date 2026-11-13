@@ -1,0 +1,27 @@
+# All base files and packages are downloaded from Aliyun; no Docker Hub pull.
+services:
+  postgres:
+    image: etl-agent-aliyun-postgres:3.22.2
+    build:
+      context: .
+      dockerfile: infra/aliyun/runtime.Dockerfile
+      target: postgres
+  redis:
+    image: etl-agent-aliyun-redis:3.22.2
+    build:
+      context: .
+      dockerfile: infra/aliyun/runtime.Dockerfile
+      target: redis
+    user: root
+  api:
+    image: etl-agent-aliyun-api:3.22.2
+    build:
+      context: .
+      dockerfile: infra/aliyun/runtime.Dockerfile
+      target: api
+  web:
+    image: etl-agent-aliyun-web:3.22.2
+    build:
+      context: .
+      dockerfile: infra/aliyun/runtime.Dockerfile
+      target: web
