@@ -19,6 +19,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session as DbSession
 
 from .db import Base, Session, engine
+from .evidence import lock_tenant
 from .models import Account, IdentityEvent, Membership, Project, Tenant
 from .security import COOKIE, SESSION_TTL, append_event, hash_password, session_key, sessions, verify_password
 
@@ -166,7 +167,7 @@ def project_scope(db, actor, tenant_id, project_id, manage=False):
     tenant_scope(actor, tenant_id)
     membership = db.scalar(select(Membership).where(
         Membership.project_id == project_id, Membership.account_id == actor.id,
-        Membership.tenant_id == tenant_id))
+        Membership.tenant_id == tenant_id).execution_options(populate_existing=True))
     if membership is None or not membership.roles:
         raise HTTPException(403, '不属于此项目或项目角色已撤销')
     if manage and Role.project_admin.value not in membership.roles:
@@ -177,6 +178,15 @@ def project_scope(db, actor, tenant_id, project_id, manage=False):
 def account_view(account):
     return {'id': account.id, 'username': account.username, 'display_name': account.display_name,
             'enabled': account.enabled, 'tenant_admin': account.tenant_admin}
+
+
+def lock_identity_mutation(db, actor):
+    # Same entry lock as Prepare/Approve/Commit: revocation cannot pass a
+    # concurrent authorization that still sees the old account or membership.
+    lock_tenant(db, actor.tenant_id)
+    db.refresh(actor)
+    if not actor.enabled:
+        raise HTTPException(401, '账号已禁用')
 
 
 def owned_account(db, tenant_id, account_id):
@@ -254,6 +264,7 @@ def create_account(tenant_id: str, body: AccountInput, db: Db, actor: Actor):
 
 @app.patch('/api/tenants/{tenant_id}/accounts/{account_id}')
 def update_account(tenant_id: str, account_id: str, body: AccountPatch, db: Db, actor: Actor):
+    lock_identity_mutation(db, actor)
     tenant_admin(actor, tenant_id)
     account = owned_account(db, tenant_id, account_id)
     changes = {'target_account_id': account.id}
@@ -287,9 +298,10 @@ def eligible_accounts(tenant_id: str, project_id: str, db: Db, actor: Actor):
 
 @app.put('/api/tenants/{tenant_id}/projects/{project_id}/members/{account_id}')
 def set_member(tenant_id: str, project_id: str, account_id: str, body: MemberInput, db: Db, actor: Actor):
+    lock_identity_mutation(db, actor)
     project_scope(db, actor, tenant_id, project_id, manage=True)
     owned_account(db, tenant_id, account_id)
-    member = db.get(Membership, (project_id, account_id))
+    member = db.get(Membership, (project_id, account_id), populate_existing=True)
     roles = sorted({role.value for role in body.roles})
     before = member.roles[:] if member else []
     if member is None:
@@ -305,8 +317,9 @@ def set_member(tenant_id: str, project_id: str, account_id: str, body: MemberInp
 
 @app.delete('/api/tenants/{tenant_id}/projects/{project_id}/members/{account_id}')
 def remove_member(tenant_id: str, project_id: str, account_id: str, db: Db, actor: Actor):
+    lock_identity_mutation(db, actor)
     project_scope(db, actor, tenant_id, project_id, manage=True)
-    member = db.get(Membership, (project_id, account_id))
+    member = db.get(Membership, (project_id, account_id), populate_existing=True)
     if member is None or member.tenant_id != tenant_id:
         raise HTTPException(404, '项目成员不存在')
     previous = member.roles[:]
@@ -334,3 +347,6 @@ register_studio_routes(app, Db, Actor, project_scope)
 
 from .versions import register_version_routes
 register_version_routes(app, Db, Actor, project_scope)
+
+from .preparations import register_preparation_routes
+register_preparation_routes(app, Db, Actor, project_scope)

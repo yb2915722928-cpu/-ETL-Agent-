@@ -4,6 +4,7 @@ import AuditPanel from './AuditPanel.vue'
 import ConnectionsPanel from './ConnectionsPanel.vue'
 import StudioPanel from './StudioPanel.vue'
 import VersionsPanel from './VersionsPanel.vue'
+import PreparationsPanel from './PreparationsPanel.vue'
 
 const roleNames = {
   project_admin: '项目管理员', maker: 'Maker · 申请人', data_checker: '数据 Checker',
@@ -201,6 +202,7 @@ onMounted(async () => {
       <button :class="['nav', { active: tab === 'connections' }]" @click="tab = 'connections'">⇄ <span>连接与资产</span></button>
       <button :class="['nav', { active: tab === 'studio' }]" @click="tab = 'studio'">◇ <span>手工集成 Studio</span></button>
       <button :class="['nav', { active: tab === 'versions' }]" @click="tab = 'versions'">▤ <span>冻结版本与 Diff</span></button>
+      <button :class="['nav', { active: tab === 'preparations' }]" @click="tab = 'preparations'">✓ <span>准备单与独立审批</span></button>
       <button :class="['nav', { active: tab === 'audit' }]" @click="tab = 'audit'">≡ <span>审计与证据</span></button>
       <div class="scope-note"><span>当前交付 / V01–V03 · V05</span><p>项目协作、受管连接探查与手工计划审查。</p></div>
       <div class="user-card"><div class="avatar">{{ identity.account.display_name.slice(0, 1) }}</div>
@@ -209,8 +211,8 @@ onMounted(async () => {
       <button class="logout" :disabled="busy" @click="signOut">退出登录 ↗</button>
     </aside>
     <section class="content">
-      <header class="topbar"><div><span class="breadcrumb">工作空间 / {{ tab === 'projects' ? '项目协作' : tab === 'audit' ? '审计证据' : tab === 'connections' ? '连接与资产' : tab === 'studio' ? '手工集成 Studio' : tab === 'versions' ? '冻结版本与 Diff' : '身份管理' }}</span>
-        <h1>{{ tab === 'projects' ? '项目与成员' : tab === 'audit' ? '审计与证据' : tab === 'connections' ? '连接与资产' : tab === 'studio' ? '手工集成 Studio' : tab === 'versions' ? '冻结版本与 Diff' : '账号管理' }}</h1></div>
+      <header class="topbar"><div><span class="breadcrumb">工作空间 / {{ tab === 'projects' ? '项目协作' : tab === 'audit' ? '审计证据' : tab === 'connections' ? '连接与资产' : tab === 'studio' ? '手工集成 Studio' : tab === 'versions' ? '冻结版本与 Diff' : tab === 'preparations' ? '准备单与独立审批' : '身份管理' }}</span>
+        <h1>{{ tab === 'projects' ? '项目与成员' : tab === 'audit' ? '审计与证据' : tab === 'connections' ? '连接与资产' : tab === 'studio' ? '手工集成 Studio' : tab === 'versions' ? '冻结版本与 Diff' : tab === 'preparations' ? '准备单与独立审批' : '账号管理' }}</h1></div>
         <button class="secondary" :disabled="busy" @click="run(refresh)">↻ 刷新权限</button>
       </header>
       <p v-if="error" class="notice error" role="alert">{{ error }}</p>
@@ -246,6 +248,7 @@ onMounted(async () => {
       <ConnectionsPanel v-else-if="tab === 'connections'" :api="api" :tenant-id="identity.tenant.id" :projects="projects" />
       <StudioPanel v-else-if="tab === 'studio'" :api="api" :tenant-id="identity.tenant.id" :account-id="identity.account.id" :projects="projects" />
       <VersionsPanel v-else-if="tab === 'versions'" :api="api" :tenant-id="identity.tenant.id" :projects="projects" />
+      <PreparationsPanel v-else-if="tab === 'preparations'" :api="api" :tenant-id="identity.tenant.id" :account-id="identity.account.id" :projects="projects" />
       <AuditPanel v-else-if="tab === 'audit'" :api="api" :tenant-id="identity.tenant.id" :tenant-admin="isTenantAdmin" :projects="projects" />
       <template v-else-if="isTenantAdmin">
         <p class="muted">管理本租户的独立账号。禁用账号或撤销管理资格后，现有会话在下一次请求立即受限。</p>
