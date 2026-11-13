@@ -15,7 +15,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import uvicorn
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import sessionmaker
 
 from app import execution, main, preparations
@@ -188,6 +188,14 @@ def run():
         public = main.app.state.evidence_signer.public['public_key']
         command = accepted['managed_command']
         assert verify_envelope(command, public, COMMAND_FORMAT)['run_id'] == accepted['id']
+        # Cloned root commands include pre-fix float payloads signed before
+        # browser-safe issuance. Their exact stored signatures must remain valid.
+        with session() as db:
+            persisted = db.scalars(select(execution.ManagedCommand)).all()
+            assert len(persisted) > 1
+            for stored in persisted:
+                assert verify_envelope(stored.envelope, public, COMMAND_FORMAT)['run_id'] == stored.run_id
+        passed.append('all persisted pre-fix and new ManagedCommand envelopes retain exact signature validity after producer-only whole-number normalization')
         for envelope, format_ in ((command, CAPABILITY_FORMAT), (body['capability'], COMMAND_FORMAT)):
             try:
                 verify_envelope(envelope, public, format_)

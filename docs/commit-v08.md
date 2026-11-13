@@ -15,7 +15,7 @@ Operator 对有效 Preparation 签发五分钟 Ed25519 Capability，再显式提
 
 Capability 签名绑定租户/项目、当前操作员、Preparation 及冻结 SHA、版本/执行/Bundle/各制品 SHA、工具/风险/环境、源目标资源及 Schema/凭据版本、有效预算、授权操作与策略/编译器版本。签发和 Commit 均重查 Maker/两名 Checker/Operator 当前启用账号和职责、24 小时准备单时效、审批与本地冻结事实，并通过受管只读出口实时核对外部 Schema/权限。P3 仅能得到 `metadata.read` 能力，不能授权 ETL 写入；P2 命令使用冻结后收紧的预算。
 
-签名载荷采用排序、紧凑 UTF-8 JSON，格式分别为 `etl-capability-v1` 和 `etl-managed-command-v1`。部署沿用现有 Ed25519 种子；格式和 key ID 一起被签名，拒绝两种载荷替代。Capability `issued_at`/`expires_at` 为 Unix 秒，固定相差 300 秒，截止时刻拒绝。签名令牌不写入证据，证据仅保存 jti、冻结指纹、命令 ID 和安全状态。受管检查结束后再次核验准备单及 Capability 截止时间，以完成时刻记录接受和消费，避免检查耗时穿过有效期。
+签名载荷采用排序、紧凑 UTF-8 JSON（`sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False`）。签发前递归将字典/列表中的整数值浮点数转换为整数（例如 `2.0→2,-0.0→0`），并将转换后的同一载荷存储、返回和签名，保证 JavaScript `JSON.parse`/`JSON.stringify` 往返不改变签名字节；非整数浮点值保留。此为当前受限载荷的规范，不声称 RFC8785。验签仍精确使用存储/收到的载荷，不转换旧载荷，已接受旧命令的签名保持有效。格式分别为 `etl-capability-v1` 和 `etl-managed-command-v1`。部署沿用现有 Ed25519 种子；格式和 key ID 一起被签名，拒绝两种载荷替代。Capability `issued_at`/`expires_at` 为 Unix 秒，固定相差 300 秒，截止时刻拒绝。签名令牌不写入证据，证据仅保存 jti、冻结指纹、命令 ID 和安全状态。受管检查结束后再次核验准备单及 Capability 截止时间，以完成时刻记录接受和消费，避免检查耗时穿过有效期。
 
 ## 原子接受及重试
 

@@ -18,8 +18,20 @@ def signing_bytes(payload):
     return json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode('utf-8')
 
 
+def _whole_numbers(value):
+    # JSON.parse/stringify renders 2.0 and -0.0 as 2 and 0. Store and sign
+    # that representation up front; verification of persisted envelopes stays exact.
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, dict):
+        return {key: _whole_numbers(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_whole_numbers(item) for item in value]
+    return value
+
+
 def sign_envelope(signer, payload):
-    payload = {**payload, 'key_id': signer.public['key_id']}
+    payload = _whole_numbers({**payload, 'key_id': signer.public['key_id']})
     return {'payload': payload, 'signature': base64.b64encode(signer.key.sign(signing_bytes(payload))).decode()}
 
 

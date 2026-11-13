@@ -5,10 +5,17 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 import json
+import subprocess
 from pathlib import Path
 from uuid import uuid4
 
 from verify_identity import Client, private_write
+
+
+def javascript_roundtrip(value):
+    program = "let s='';process.stdin.setEncoding('utf8');process.stdin.on('data',x=>s+=x);process.stdin.on('end',()=>process.stdout.write(JSON.stringify(JSON.parse(s))))"
+    result = subprocess.run(['node', '-e', program], input=json.dumps(value), capture_output=True, text=True, check=True)
+    return json.loads(result.stdout)
 
 
 def commit_response(client, path, body):
@@ -44,12 +51,12 @@ def run(url, runtime, recheck=False):
     assert payload['expires_at'] - payload['issued_at'] == 300
     assert payload['subject'] == credentials['accounts']['operator']['id']
     assert payload['artifact_hashes'] == row['frozen']['artifact_hashes']
-    body = {'capability': capability['capability'], 'idempotency_key': str(uuid4())}
+    body = javascript_roundtrip({'capability': capability['capability'], 'idempotency_key': str(uuid4())})
     parallel_operator = Client(url, [])
     parallel_operator.login(credentials, 'operator')
     with ThreadPoolExecutor(max_workers=2) as pool:
         responses = list(pool.map(lambda client: commit_response(client, path, body), (operator, parallel_operator)))
-    assert sorted(status for status, _ in responses) == [200, 201]
+    assert sorted(status for status, _ in responses) == [200, 201], [(status, receipt.get('detail')) for status, receipt in responses]
     accepted = responses[0][1]
     assert responses[1][1] == accepted
     changed_capability = operator.call('POST', path + '/commit', {**body, 'idempotency_key': str(uuid4())}, 409)
@@ -83,7 +90,8 @@ def run(url, runtime, recheck=False):
     assert readonly['managed_command']['payload']['authorized_operation']['data_plane_mutation'] is False
     assert sum(run['preparation_id'] == trial['id'] for run in auditor.call('GET', scope + '/runs')) == 1
     private_write(state_file, accepted)
-    return {'passed': ['300-second subject/artifact-bound capability; unique queued Run, signed command and pending Outbox publicly queryable',
+    return {'passed': ['actual JavaScript JSON.parse/stringify roundtrip of signed Capability still accepts through public Commit; browser-normalized request remains idempotent',
+        '300-second subject/artifact-bound capability; unique queued Run, signed command and pending Outbox publicly queryable',
         'real PostgreSQL concurrent identical requests return one201/one200 and same receipt; separate valid tokens/keys race one201/one409',
         'same-key changed request409, consumed-token new-key replay409, unauthorized roles403, tenant isolation403; one accepted evidence event',
         'P3 command remains metadata-only without data-plane mutation; GET/list expose exactly one Run per Preparation'], 'run_id': accepted['id']}
