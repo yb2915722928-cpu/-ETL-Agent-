@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-11-13T12:05:45.139051+00:00",
+  "phase": "preparations",
+  "passed": [
+    "P1 independently approved in concurrent PostgreSQL transactions; immutable frozen facts and exactly 24h expiry; unauthorized/self/incorrect-slot approval denied",
+    "P2 requires dual approval; same account cannot fill both slots; current Checker revocation invalidates; rejection is terminal; bounded P3 auto-authorizes and unknown tool is P0 denied",
+    "tenant isolation, immutable Preparation and approval/denial evidence exposed through public API"
+  ],
+  "limits": "V07 authorization facts only; no execution or capability issuance"
+}
