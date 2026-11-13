@@ -19,4 +19,15 @@ if not any(line.startswith('EVIDENCE_SIGNING_KEY=') for line in existing.splitli
         os.chmod(env, 0o600)
         handle.write(('' if existing.endswith('\n') else '\n') + 'EVIDENCE_SIGNING_KEY='
                      + base64.b64encode(secrets.token_bytes(32)).decode() + '\n')
-print('Local .env and private .runtime directory ready; existing secrets and evidence signing key preserved.')
+existing = env.read_text(encoding='utf-8')
+if not any(line.startswith('SECRET_MASTER_KEY=') for line in existing.splitlines()):
+    with env.open('a', encoding='utf-8') as handle:
+        os.chmod(env, 0o600)
+        handle.write(('' if existing.endswith('\n') else '\n') + 'SECRET_MASTER_KEY='
+                     + base64.b64encode(secrets.token_bytes(32)).decode() + '\n')
+connectors = runtime / 'connectors'
+connectors.mkdir(exist_ok=True, mode=0o700)
+resources = connectors / 'resources.json'
+if not resources.exists():
+    resources.write_text('{}\n', encoding='utf-8')
+print('Local deployment ready; existing secrets preserved. Configure connector resource allowlist before probing.')

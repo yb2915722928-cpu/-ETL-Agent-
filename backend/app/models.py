@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     ARRAY, BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey,
-    ForeignKeyConstraint, Integer, JSON, String, UniqueConstraint, func,
+    ForeignKeyConstraint, Integer, JSON, LargeBinary, String, UniqueConstraint, func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -107,6 +107,64 @@ class EvidenceEvent(Base):
     artifact_hashes: Mapped[dict] = mapped_column(JSON, default=dict)
     previous_hash: Mapped[str] = mapped_column(String(64))
     event_hash: Mapped[str] = mapped_column(String(64))
+
+
+class SecretReference(Base):
+    __tablename__ = 'secret_references'
+    __table_args__ = (
+        UniqueConstraint('id', 'tenant_id', 'project_id', 'version'),
+        ForeignKeyConstraint(['project_id', 'tenant_id'], ['projects.id', 'projects.tenant_id']),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    tenant_id: Mapped[str] = mapped_column(String(36))
+    project_id: Mapped[str] = mapped_column(String(36))
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    nonce: Mapped[bytes] = mapped_column(LargeBinary)
+    ciphertext: Mapped[bytes] = mapped_column(LargeBinary)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Connection(Base):
+    __tablename__ = 'connections'
+    __table_args__ = (
+        UniqueConstraint('id', 'tenant_id', 'project_id'),
+        ForeignKeyConstraint(['project_id', 'tenant_id'], ['projects.id', 'projects.tenant_id']),
+        ForeignKeyConstraint(['secret_reference_id', 'tenant_id', 'project_id', 'secret_version'],
+                             ['secret_references.id', 'secret_references.tenant_id', 'secret_references.project_id', 'secret_references.version']),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    tenant_id: Mapped[str] = mapped_column(String(36))
+    project_id: Mapped[str] = mapped_column(String(36))
+    name: Mapped[str] = mapped_column(String(100))
+    resource_id: Mapped[str] = mapped_column(String(64))
+    kind: Mapped[str] = mapped_column(String(32))
+    direction: Mapped[str] = mapped_column(String(16))
+    resource_fingerprint: Mapped[str] = mapped_column(String(64))
+    secret_reference_id: Mapped[str] = mapped_column(String(36))
+    secret_version: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(32), default='registered')
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class MetadataProfile(Base):
+    __tablename__ = 'metadata_profiles'
+    __table_args__ = (
+        ForeignKeyConstraint(['connection_id', 'tenant_id', 'project_id'],
+                             ['connections.id', 'connections.tenant_id', 'connections.project_id']),
+        ForeignKeyConstraint(['secret_reference_id', 'tenant_id', 'project_id', 'secret_version'],
+                             ['secret_references.id', 'secret_references.tenant_id', 'secret_references.project_id', 'secret_references.version']),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    tenant_id: Mapped[str] = mapped_column(String(36))
+    project_id: Mapped[str] = mapped_column(String(36))
+    connection_id: Mapped[str] = mapped_column(String(36))
+    secret_reference_id: Mapped[str] = mapped_column(String(36))
+    secret_version: Mapped[int] = mapped_column(Integer)
+    resource_id: Mapped[str] = mapped_column(String(64))
+    resource_fingerprint: Mapped[str] = mapped_column(String(64))
+    schema_hash: Mapped[str] = mapped_column(String(64))
+    content: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class SchemaMigration(Base):
