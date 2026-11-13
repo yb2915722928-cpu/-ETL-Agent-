@@ -2,7 +2,50 @@
 
 面向异构数据集成的受管 ETL 控制面：自然语言需求经结构化计划、确定性门禁、独立审批和单次授权，交由 SeaTunnel 执行，再依据质量报告完成受管发布与恢复。
 
-当前交付是**用户已确认的首版规格与实施前规划**。仓库尚未提供可运行业务代码、Compose 配置或测试成绩；文档中的运行环境与流程是后续交付要求，不代表已经运行通过。
+当前实现为 **V01 / #2：身份、租户与项目协作切片**：Vue 中文控制台、FastAPI、PostgreSQL 持久身份与事务审计、Redis 会话，以及可重复初始化和公开 HTTP 验证。其余 ETL、模型规划、审批、执行、发布和证据签名能力仍按后续工单实施。
+
+## 启动 V01
+
+需要 Docker Desktop（Linux 容器）和 Python 3。所有下载使用阿里云：基础 rootfs 与 Alpine 包来自 `mirrors.aliyun.com`，Python 包来自阿里云 PyPI，前端包来自 `registry.npmmirror.com`。[阿里云构建配置](infra/aliyun/runtime.Dockerfile)从本地构建基础镜像，不依赖 Docker Hub 镜像拉取。
+
+在仓库根目录执行：
+
+```powershell
+python scripts/init_local.py
+python infra/aliyun/build_base.py
+docker compose -f compose.yaml -f compose.aliyun.yaml up -d --build
+docker compose -f compose.yaml -f compose.aliyun.yaml exec -T api python -m app.bootstrap
+```
+
+打开 http://127.0.0.1:8080 。租户标识为 `demo`，六个独立账号为 `admin`、`maker`、`data_checker`、`security_checker`、`operator`、`auditor`。每个账号的随机初始密码保存在本地私有初始化文件 `.runtime/bootstrap-demo.json`，请用本地编辑器读取；初始化命令只输出路径。数据库密码保存在忽略提交的 `.env`。不要将这些文件、密码或会话 Cookie 放进截图、日志或验收材料。
+
+[初始化脚本](backend/app/bootstrap.py)重复运行保留既有密码、禁用状态、租户管理员标志及已有项目的成员角色。撤销成员后再次初始化不会恢复授权。`admin` 是租户管理员，也是初始项目的项目管理员；租户管理员管理账号和创建项目，管理某个项目的成员仍需当前项目的 `project_admin` 成员身份。五个业务角色属于独立账号，可以查看自己的项目与成员，不能管理账号或成员。角色用于后续业务工单授权，V01 不模拟尚未实现的审批或执行操作。
+
+控制台提供登录、项目选择与创建、项目成员增删和角色编辑、账号创建/禁用/密码重置。点击“刷新权限”从服务端重新读取身份与项目；每个受保护 API 请求都会重新读取 PostgreSQL 中的启用状态和成员角色，Redis 仅保存会话到账号 ID 的映射。浏览器界面是否显示按钮不构成授权依据。
+
+[健康接口](http://127.0.0.1:8000/api/health)执行 PostgreSQL `SELECT 1` 和 Redis `PING`，返回实际服务/运行时版本、数据库大小、Redis 内存以及容器可见 CPU、内存与磁盘资源；依赖不可用时返回 503。资源数值为当前容器可见事实，不是性能基准。API 与 Web 仅绑定本机 8000/8080，数据库和 Redis 不映射宿主端口；通过 HTTPS 反向代理部署时，在本地环境配置 `COOKIE_SECURE=true`。此切片采用首次建表初始化，后续模型演进需引入数据库迁移。
+
+## 公开 API 与持久化验证
+
+[验证脚本](scripts/verify_identity.py)仅使用 Python 标准库和真实 HTTP 接口；不替换 PostgreSQL、Redis 或授权逻辑。先增加第二个租户以验证越权，再运行一次主流程：
+
+```powershell
+docker compose -f compose.yaml -f compose.aliyun.yaml exec -T api python -m app.bootstrap --tenant isolation --project private
+python scripts/verify_identity.py
+```
+
+覆盖独立角色登录、租户/项目/账号 ID 越权、项目管理员独立授权、现有会话立即撤权与禁用、密码和校验错误脱敏、带 actor 的连续审计顺序，以及失败写入不产生成功审计事实。脚本创建带随机后缀的验证账号与私有项目，原六个演示账号保持可用；生成的验证密码只保存于忽略提交的 `.runtime/verification-state.json`。
+
+保留命名卷重建服务后，重新运行初始化并复查原账号 ID、原密码、成员角色和历史审计事件：
+
+```powershell
+docker compose -f compose.yaml -f compose.aliyun.yaml down
+docker compose -f compose.yaml -f compose.aliyun.yaml up -d
+docker compose -f compose.yaml -f compose.aliyun.yaml exec -T api python -m app.bootstrap
+python scripts/verify_identity.py --recheck
+```
+
+`down` 保留持久卷；不要加 `-v`，否则会删除数据库和会话数据。可选参数 `--url` 指定已启动服务，`--output` 将不含密码的结果 JSON 写入验收文件。身份变更与本地审计事实使用同一个 PostgreSQL 事务提交，事件包含租户内序号、操作者、项目与安全字段；V02 再实现哈希链、签名与导出。
 
 ## 阅读入口
 
