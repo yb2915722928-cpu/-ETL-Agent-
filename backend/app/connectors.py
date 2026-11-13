@@ -15,6 +15,7 @@ from .connector_policy import fingerprint, resource_view
 from .connector_probe import POLICY_VERSION, ProbeFailure, inspect_resource
 from .csv_probe import MAX_CSV_BYTES, SourceParseFailure
 from .csv_storage import inspect_stored_csv, save_csv
+from .operation_authorization import operation_authorizer
 from .evidence import append_event
 from .models import Connection, MetadataProfile, SecretReference, new_id
 
@@ -61,14 +62,7 @@ def profile_view(profile):
 def register_connector_routes(app, Db, Actor, project_scope):
     prefix = '/api/tenants/{tenant_id}/projects/{project_id}'
 
-    def authorize(db, actor, tenant_id, project_id, write=False):
-        try:
-            member = project_scope(db, actor, tenant_id, project_id)
-            if write and 'maker' not in member.roles:
-                raise HTTPException(403, '仅当前项目Maker可登记连接和进行P3探查')
-        except HTTPException as error:
-            append_event(db, actor, 'connector.denied', {'reason': 'scope_or_role_denied', 'write': write})
-            return JSONResponse(status_code=error.status_code, content={'detail': error.detail})
+    authorize = operation_authorizer(project_scope, 'connector.denied', '仅当前项目Maker可登记连接和进行P3探查')
 
     @app.get(prefix + '/connector-resources')
     def resources(tenant_id: str, project_id: str, request: Request, db: Db, actor: Actor):

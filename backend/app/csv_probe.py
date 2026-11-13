@@ -32,6 +32,35 @@ def inspect_csv(data, source_ref):
     except UnicodeDecodeError as error:
         prefix = data[:error.start].decode('utf-8-sig')
         fail(prefix.count('\n') + 1, len(prefix.rsplit('\n', 1)[-1]) + 1, '文件必须为有效 UTF-8')
+    # csv.reader(strict=True) still permits quotes in unquoted fields.
+    state, line, column = 'start', 1, 1
+    for char in text:
+        if state == 'quoted':
+            if char == '"':
+                state = 'closed'
+        elif state == 'closed':
+            if char == '"':
+                state = 'quoted'  # doubled quote within the quoted field
+            elif char == ',':
+                state = 'start'
+            elif char in '\r\n':
+                state = 'start'
+            else:
+                fail(line, column, '引号闭合后须为分隔符或换行')
+        elif char == '"':
+            if state != 'start':
+                fail(line, column, '未加引号字段中存在裸引号')
+            state = 'quoted'
+        elif char == ',' or char in '\r\n':
+            state = 'start'
+        else:
+            state = 'unquoted'
+        if char == '\n':
+            line, column = line + 1, 1
+        else:
+            column += 1
+    if state == 'quoted':
+        fail(line, column, '引号未闭合，无法完整读取')
     reader = csv.reader(io.StringIO(text, newline=''), strict=True)
     try:
         headers = next(reader, None)

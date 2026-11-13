@@ -10,6 +10,7 @@ from sqlalchemy import DateTime, ForeignKeyConstraint, Integer, JSON, String, Un
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .db import Base
+from .operation_authorization import operation_authorizer
 from .evidence import append_event
 from .models import new_id
 from .studio import get_candidate
@@ -70,14 +71,7 @@ def get_version(db, tenant_id, project_id, version_id):
 def register_version_routes(app, Db, Actor, project_scope):
     prefix = '/api/tenants/{tenant_id}/projects/{project_id}/versions'
 
-    def authorize(db, actor, tenant_id, project_id, write=False):
-        try:
-            member = project_scope(db, actor, tenant_id, project_id)
-            if write and 'maker' not in member.roles:
-                raise HTTPException(403, '仅当前项目 Maker 可冻结候选')
-        except HTTPException as error:
-            append_event(db, actor, 'version.denied', {'reason': 'scope_or_role_denied', 'write': write})
-            return JSONResponse(status_code=error.status_code, content={'detail': error.detail})
+    authorize = operation_authorizer(project_scope, 'version.denied', '仅当前项目 Maker 可冻结候选')
 
     @app.post(prefix, status_code=201)
     def freeze(tenant_id: str, project_id: str, body: FreezeInput, request: Request, db: Db, actor: Actor):
