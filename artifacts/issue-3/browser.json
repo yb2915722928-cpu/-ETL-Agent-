@@ -1,0 +1,8 @@
+{
+  "passed": [
+    "auditor logs in and reads real project chain",
+    "three browser download controls produce evidence/checkpoint/key JSON",
+    "event details and trust-boundary guidance visible"
+  ],
+  "pageErrors": []
+}

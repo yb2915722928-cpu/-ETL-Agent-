@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-13T08:05:26.377527+00:00",
+  "phase": "evidence",
+  "passed": [
+    "all historical V01 facts preserved in ordered signed tenant chain",
+    "auditor exports complete project-only chain; independent CLI verifies signatures and external checkpoint",
+    "maker, other tenant, foreign project ID and unjoined project export/checkpoint requests rejected",
+    "actual modification, deletion, reordering, signature forgery and tail removal rejected with located errors",
+    "replayed valid old prefix passes alone but fails against separately retained later checkpoint; later export preserves older checkpoint",
+    "rejected transaction produces no success event; project access revoked for existing admin session"
+  ]
+}
