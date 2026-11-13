@@ -1,0 +1,13 @@
+{
+  "kind": "postgresql",
+  "server_version": "PostgreSQL 17.11 on x86_64-alpine-linux-musl, compiled by cc (Alpine 14.2.0) 14.2.0, 64-bit",
+  "tables": [
+    "customers",
+    "orders"
+  ],
+  "passed": [
+    "real schema/types/statistics/masked samples",
+    "safe credential failure",
+    "real writable admin account rejected"
+  ]
+}

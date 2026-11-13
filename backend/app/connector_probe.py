@@ -29,6 +29,11 @@ def identifier(value):
 
 
 def inspect_resource(resource, password):
+    if resource['kind'] == 'postgresql':
+        from .postgres_probe import inspect_postgresql
+        return inspect_postgresql(resource, password)
+    if resource['kind'] not in ('mysql', 'doris'):
+        raise ProbeFailure('schema_unavailable')
     started = time.monotonic()
     queries = 0
     try:

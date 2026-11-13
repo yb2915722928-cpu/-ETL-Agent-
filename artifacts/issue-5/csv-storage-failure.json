@@ -1,0 +1,7 @@
+{
+  "passed": [
+    "real managed file temporarily unavailable: HTTP502 external_unavailable and safe source_ref, no new profile",
+    "real managed bytes altered: HTTP422 SourceParseFailure, no new profile",
+    "original bytes restored and re-probe succeeded"
+  ]
+}
