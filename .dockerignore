@@ -1,0 +1,9 @@
+.git
+.worktrees
+.venv
+.runtime
+.env
+artifacts
+**/node_modules
+**/dist
+**/__pycache__
