@@ -15,9 +15,11 @@ RUN apk add --no-cache python3 py3-pip libpq && python3 -m venv /venv
 ENV PATH=/venv/bin:$PATH PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev linux-headers \
+    && pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt \
+    && apk del .build-deps
 COPY backend/app ./app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
 
 FROM etl-agent-aliyun-base:3.22.2 AS frontend-build
 RUN apk add --no-cache nodejs npm
