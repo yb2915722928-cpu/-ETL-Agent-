@@ -1,4 +1,4 @@
-# 真实 MySQL / Doris 验收资源
+# 真实 MySQL / Doris / PostgreSQL 与 CSV 验收资源
 
 这些入口从 2026-11-13 已实际运行的独立环境提炼，服务真实数据库，不替代成模拟驱动。初始化只操作 `etl-connector-*` 与 `etl-connectors_*` 新资源，复用既有私有凭据与卷；不要删除控制面卷或将 `.runtime/connectors` 整目录提交。脚本在仓库根运行，须先启动平台以建立 `etl-agent_default` 网络。
 
@@ -30,5 +30,7 @@ Java为Alibaba Dragonwell Standard17.0.20.0.21+8，官方[OSS下载](https://dra
 独立网络固定 `172.20.0.0/16`，Doris为172.20.0.10，BE心跳9050。MySQL同时接该网和平台网。若部署机已有冲突子网，需同时修改受管Compose/初始化BE地址，不能只改一个地址后宣称可用。Doris容器限制4GiB/4CPU，FE堆1GiB、BE内存1536MiB/JNI堆512MiB；使用官方SKIP_CHECK_ULIMIT，不更改宿主sysctl。该设置只验证小型合成样本，不代表生产容量/性能结果。
 
 `prepare_connector_doris.py`首次固定凭据后保护默认root/admin，注册BE、等待FE/BE Alive、建立真实UNIQUE KEY单桶单副本表与只读账号。重复执行仍使用原凭据，样本按UNIQUE KEY覆盖相同键，不累计行数。它执行真实只读SELECT及CREATE拒绝检查，再保存不含密码的健康报告；SHOW GRANTS中的Password列仅为Yes/No。
+
+PostgreSQL/CSV 的入口是 `scripts/prepare_postgresql_csv_demo.py`（`--directory` 指定私有运行目录）和 `infra/connectors/postgresql.compose.yaml`，完整命令与格式/项目白名单契约见 [V04说明](../../docs/connectors.md#v04postgresql-与受管-csv)。PG 与控制库使用独立容器、账号和 `etl-connectors_postgres_data` 卷；沿用上文固定 PG 镜像。`--initialize` 已在真实现有源上幂等运行，Compose 已通过配置检查，未重建并行验收环境。
 
 提炼入口已做Python语法及Compose配置核验；已有实例上的真实驱动验证见 [V03边界记录](../../artifacts/issue-4/implementation-verification.md)。不为验证提炼脚本而重建正在被集成验收使用的容器。本说明分别记录已运行的原始依赖和提炼后入口，不把未重新冷启动的整套脚本宣称为新的完整环境验收。

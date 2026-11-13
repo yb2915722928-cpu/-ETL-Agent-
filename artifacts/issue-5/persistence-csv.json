@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-11-13T09:10:53.365342+00:00",
+  "phase": "persistence",
+  "passed": [
+    "same managed file and immutable profile survive restart; full-file re-probe succeeds"
+  ]
+}

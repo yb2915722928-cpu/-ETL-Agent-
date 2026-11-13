@@ -1,0 +1,8 @@
+{
+  "passed": [
+    "manual profile/table/mapping/quality/budget form; over-budget gate blocks artifacts",
+    "candidate saves; read-only same-source HOCON/DAG/plan downloads and clipboard work",
+    "editing the plan hides stale review artifacts until revalidated"
+  ],
+  "pageErrors": []
+}

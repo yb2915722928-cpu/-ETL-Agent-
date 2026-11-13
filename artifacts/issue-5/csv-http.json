@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-11-13T08:44:58.254402+00:00",
+  "phase": "csv-http",
+  "passed": [
+    "two valid files produce full schema/text types/complete counts/masked samples; three corrupt batches fail without profiles and return safe source/line/column",
+    "bounded upload; maker authorization before body; tenant/project/root whitelist isolation; live role revocation; safe signed evidence; raw files have no read API"
+  ]
+}

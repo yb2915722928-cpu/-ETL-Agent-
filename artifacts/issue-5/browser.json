@@ -1,0 +1,9 @@
+{
+  "passed": [
+    "real PostgreSQL registration and native types through Chinese console",
+    "managed quoted multiline CSV uploads, complete scan and masked samples",
+    "invalid UTF-8 shows explicit safe source/line/column failure and no profile",
+    "page contains no known credential or raw sensitive value"
+  ],
+  "pageErrors": []
+}

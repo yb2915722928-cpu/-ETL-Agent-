@@ -128,6 +128,7 @@ class Connection(Base):
     __tablename__ = 'connections'
     __table_args__ = (
         UniqueConstraint('id', 'tenant_id', 'project_id'),
+        CheckConstraint("(kind='csv' AND secret_reference_id IS NULL AND secret_version IS NULL AND storage_id IS NOT NULL AND source_sha256 IS NOT NULL AND source_bytes IS NOT NULL) OR (kind<>'csv' AND secret_reference_id IS NOT NULL AND secret_version IS NOT NULL AND storage_id IS NULL)", name='connection_source_shape'),
         ForeignKeyConstraint(['project_id', 'tenant_id'], ['projects.id', 'projects.tenant_id']),
         ForeignKeyConstraint(['secret_reference_id', 'tenant_id', 'project_id', 'secret_version'],
                              ['secret_references.id', 'secret_references.tenant_id', 'secret_references.project_id', 'secret_references.version']),
@@ -140,8 +141,11 @@ class Connection(Base):
     kind: Mapped[str] = mapped_column(String(32))
     direction: Mapped[str] = mapped_column(String(16))
     resource_fingerprint: Mapped[str] = mapped_column(String(64))
-    secret_reference_id: Mapped[str] = mapped_column(String(36))
-    secret_version: Mapped[int] = mapped_column(Integer)
+    secret_reference_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    secret_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    storage_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    source_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    source_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[str] = mapped_column(String(32), default='registered')
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -158,8 +162,8 @@ class MetadataProfile(Base):
     tenant_id: Mapped[str] = mapped_column(String(36))
     project_id: Mapped[str] = mapped_column(String(36))
     connection_id: Mapped[str] = mapped_column(String(36))
-    secret_reference_id: Mapped[str] = mapped_column(String(36))
-    secret_version: Mapped[int] = mapped_column(Integer)
+    secret_reference_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    secret_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     resource_id: Mapped[str] = mapped_column(String(64))
     resource_fingerprint: Mapped[str] = mapped_column(String(64))
     schema_hash: Mapped[str] = mapped_column(String(64))

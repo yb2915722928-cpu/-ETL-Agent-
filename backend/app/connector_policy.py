@@ -16,13 +16,20 @@ class ResourcePolicy:
     def resources(self):
         resources = json.loads(self.path.read_text(encoding='utf-8'))
         for resource_id, resource in resources.items():
-            if resource['kind'] not in ('mysql', 'doris'):
+            if resource['kind'] not in ('mysql', 'doris', 'postgresql', 'csv'):
                 raise ValueError('连接白名单类型不合法或尚未实现')
-            resource['direction'] = 'source' if resource['kind'] == 'mysql' else 'target'
+            resource['direction'] = 'target' if resource['kind'] == 'doris' else 'source'
+            if resource['kind'] == 'csv':
+                root = Path(resource['root'])
+                if not root.is_absolute() or not resource['projects'] or not all(isinstance(p, str) and p for p in resource['projects']):
+                    raise ValueError('CSV白名单需要绝对受管目录和明确项目ID')
+                resource['database'], resource['tables'] = 'managed_csv', ['data']
+            elif resource['kind'] == 'postgresql':
+                identifier(resource['schema'])
             if not re.fullmatch(r'[a-zA-Z_][a-zA-Z0-9_-]{0,63}', resource_id):
                 raise ValueError('连接白名单资源ID不合法')
             identifier(resource['database'])
-            if not resource['host'] or not 1 <= resource['port'] <= 65535 or not resource['username']:
+            if resource['kind'] != 'csv' and (not resource['host'] or not 1 <= resource['port'] <= 65535 or not resource['username']):
                 raise ValueError('连接白名单地址或账号不合法')
             if not 1 <= len(resource['tables']) <= MAX_TABLES or len(set(resource['tables'])) != len(resource['tables']):
                 raise ValueError('连接白名单表数必须为1至8且不得重复')
