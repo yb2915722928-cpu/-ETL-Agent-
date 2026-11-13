@@ -1,0 +1,12 @@
+{
+  "stage": "prerequisite resolver check; not worker acceptance",
+  "command": "docker run --rm --entrypoint /venv/bin/pip etl-agent-aliyun-api:3.22.2 install --dry-run --index-url https://mirrors.aliyun.com/pypi/simple/ celery[redis]==5.6.2 kombu==5.6.2 redis==6.2.0",
+  "exit_code": 0,
+  "python": "3.12.16",
+  "postgresql_server": "17.11",
+  "redis_server": "8.0.4",
+  "existing_redis_client": "6.2.0",
+  "resolved_celery": "5.6.2",
+  "resolved_kombu": "5.6.2",
+  "result": "Resolver accepts Celery Redis transport alongside the existing redis client; actual service execution remains to be verified in #10."
+}
