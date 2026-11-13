@@ -102,7 +102,7 @@ CSV 白名单示例（`projects` 是实际项目 UUID 列表；`root` 必须绝�
 
 上传时先检查 Maker、当前项目与资源白名单，再有限读取请求体，最多 2 MiB。服务端生成 storage_id 与 SHA-256，不接受文件路径/URL/外部 storage_id；不使用浏览器原文件名。路径必须留在白名单根目录的租户/项目子目录，API 没有原始文件读取/下载接口。Compose 现有 `.runtime:/run/identity` 挂载持久保存文件；升级保留此目录和控制库卷。原文保留在受限运行目录用于再次探查，API/模型/日志/证据只见脱敏内容和安全存储引用，备份与宿主权限由部署者管理。
 
-格式契约：严格 UTF-8（允许 BOM）、逗号分隔、首行 1–64 个唯一英文字母/数字/下划线字段名（不能数字开头）；支持标准双引号转义和带引号的跨行字段。无外部 schema 的 CSV 字段类型为 `text`，空字段标记 nullable，不猜测日期/金额。探查先完整扫描整批再产出档案；`complete_file_scan` 的行数/字节是全文件事实，最多五行样本全列遮蔽。编码错误、CSV 语法错误、行宽不一致、文件过大或存储摘要改变都让整批以 `SourceParseFailure` 失败，不跳过坏行，不产生新档案。422 返回安全 `source_ref=csv:<storage_id>`、物理行号、字段序号/解码列号（解析器无法定位字段时为 1）；固定原因不含坏值。文件缺失/访问失败和 PG 停服返回 502 `external_unavailable` 与安全 source_ref。中文页展示错误及位置，保留 failed 状态。
+格式契约：严格 UTF-8（允许 BOM）、逗号分隔、首行 1–64 个唯一英文字母/数字/下划线字段名（不能数字开头）；支持标准双引号转义和带引号的跨行字段。无外部 schema 的 CSV 字段类型为 `text`，空字段标记 nullable，不猜测日期/金额。探查先完整扫描整批再产出档案；`complete_file_scan` 的行数/字节是全文件事实，最多五行样本全列遮蔽。编码错误、CSV 语法错误、行宽不一致、文件过大或存储摘要改变都让整批以 `SourceParseFailure` 失败，不跳过坏行，不产生新档案。422 返回安全 `source_ref=csv:<storage_id>`、物理行号、字段序号/解码列号（解析器无法定位字段时为 1）；固定原因不含坏值。文件缺失/访问失败同样返回 422 `SourceParseFailure`，安全 source_ref 和初始位置（行 1、列 1），不暴露宿主路径；PG 停服返回 502 `external_unavailable`。中文页展示错误及位置，保留 failed 状态。
 
 复现独立源（与控制 PostgreSQL/账号/数据卷分离）：
 
@@ -115,7 +115,6 @@ python scripts/prepare_postgresql_csv_demo.py --initialize
 python scripts/generate_connector_resources.py --csv-project <project-uuid>
 # 重启 API 以应用白名单，并保持原主密钥与数据目录
 python scripts/verify_connector_probe.py --kind postgresql --secrets .runtime/connectors/secrets.json --output artifacts/issue-5/postgresql-probe.json
-python scripts/verify_csv_probe.py --output artifacts/issue-5/csv-probe.json
 python scripts/verify_connectors_http.py --kinds postgresql --state .runtime/pg-verification.json --output artifacts/issue-5/postgresql-http.json
 python scripts/verify_csv_http.py --output artifacts/issue-5/csv-http.json
 # 保留目录与数据卷重启 API 后：

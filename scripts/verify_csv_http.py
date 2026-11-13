@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--fixtures', type=Path, default=Path('.runtime/connectors/csv'))
     parser.add_argument('--state', type=Path, default=Path('.runtime/csv-verification.json'))
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--managed-root', type=Path, help='Local managed CSV root for the file-access failure check')
     parser.add_argument('--recheck', action='store_true')
     args = parser.parse_args()
     credentials = json.loads(args.credentials.read_text(encoding='utf-8'))
@@ -70,15 +71,18 @@ def main():
             assert auditor.call('GET', base + '/profiles/' + profile['id']) == profile
             maker.call('GET', path + '/file', expected=404)
             state['connections'].append({'connection': connection, 'profile': profile})
-        for filename in ['invalid-unclosed-quote.csv', 'invalid-row-width.csv', 'invalid-utf8.csv']:
-            connection = upload(maker, base, (args.fixtures / filename).read_bytes())
+        invalid_files = [(name, (args.fixtures / name).read_bytes()) for name in
+                         ['invalid-unclosed-quote.csv', 'invalid-row-width.csv', 'invalid-utf8.csv']]
+        invalid_files.append(('invalid-bare-quote.csv', b'id,name\n1,bad"quote\n'))
+        for filename, data in invalid_files:
+            connection = upload(maker, base, data)
             path = base + '/connections/' + connection['id']
             error = maker.call('POST', path + '/probe', {}, expected=422)
             assert error['code'] == 'SourceParseFailure' and error['source_ref'] == 'csv:' + connection['storage_id']
             assert error['line'] >= 1 and error['column'] >= 1
             assert maker.call('GET', path)['status'] == 'failed'
             assert maker.call('GET', path + '/profiles') == []
-        passed.append('two valid files produce full schema/text types/complete counts/masked samples; three corrupt batches fail without profiles and return safe source/line/column')
+        passed.append('two valid files produce full schema/text types/complete counts/masked samples; four corrupt batches including bare quote fail without profiles and return safe source/line/column')
         upload(maker, base, b'x' * (2 * 1024 * 1024 + 1), expected=413)
         upload(auditor, base, b'email\ncsv-sensitive-sentinel', expected=403)
         upload(maker, base, b'a\nx', resource_id='../../host-file', expected=403)
@@ -105,6 +109,25 @@ def main():
         evidence = admin.call('GET', f"/api/tenants/{credentials['tenant_id']}/evidence/export")
         assert not any(v in json.dumps(evidence, ensure_ascii=False) for v in forbidden)
         assert any(e['facts'].get('code') == 'SourceParseFailure' for e in evidence['events'])
+        if args.managed_root:
+            connection = first['connection']
+            root = args.managed_root.resolve()
+            stored = (root / credentials['tenant_id'] / credentials['project_id'] / (connection['storage_id'] + '.csv')).resolve()
+            assert stored.is_relative_to(root) and stored.is_file(), 'Expected managed fixture file'
+            temporary = stored.with_suffix('.unavailable')
+            assert not temporary.exists(), 'Unexpected temporary fixture'
+            profiles = maker.call('GET', base + '/connections/' + connection['id'] + '/profiles')
+            stored.rename(temporary)
+            try:
+                error = maker.call('POST', base + '/connections/' + connection['id'] + '/probe', {}, expected=422)
+                assert error['code'] == 'SourceParseFailure'
+                assert error['source_ref'] == 'csv:' + connection['storage_id']
+                assert error['line'] == 1 and error['column'] == 1
+                assert maker.call('GET', base + '/connections/' + connection['id'] + '/profiles') == profiles
+            finally:
+                temporary.rename(stored)
+            maker.call('POST', base + '/connections/' + connection['id'] + '/probe', {}, expected=201)
+            passed.append('actual missing managed file returns SourceParseFailure and safe initial location without a new profile; restored file re-probes')
         private_write(args.state, state)
         passed.append('bounded upload; maker authorization before body; tenant/project/root whitelist isolation; live role revocation; safe signed evidence; raw files have no read API')
     report = {'checked_at': datetime.now(timezone.utc).isoformat(), 'phase': 'persistence' if args.recheck else 'csv-http', 'passed': passed}
