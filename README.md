@@ -13,7 +13,8 @@
 ```powershell
 python scripts/init_local.py
 python infra/aliyun/build_base.py
-docker compose -f compose.yaml -f compose.aliyun.yaml up -d --build
+python infra/aliyun/build_runtime.py
+docker compose -f compose.yaml -f compose.aliyun.yaml up -d --no-build
 docker compose -f compose.yaml -f compose.aliyun.yaml exec -T api python -m app.bootstrap
 ```
 
@@ -75,4 +76,4 @@ CSV 等源输入无法可靠解析时整批失败，业务脏数据仅在可靠�
 
 ## 协作
 
-仓库采用单一领域语境，见 [领域文档约定](docs/agents/domain.md)。正式规格与工单后端为 [GitHub Issues](https://github.com/yb2915722928-cpu/-ETL-Agent-/issues)，规则见 [工单约定](docs/agents/issue-tracker.md) 和 [分诊标签](docs/agents/triage-labels.md)。正式规格已发布为 [GitHub #1](https://github.com/yb2915722928-cpu/-ETL-Agent-/issues/1)，标记 ready-for-agent。经用户确认，28 张纵向实施子票已发布为 #2–#29，全部关联 #1 并标记 ready-for-agent，35 条直接阻塞边已核对；对应关系见[真实票号映射](docs/planning/ticket-map-v1.md)。当前仅 [V01 / #2](https://github.com/yb2915722928-cpu/-ETL-Agent-/issues/2) 无阻塞。T00–T13 保留为早期技术主题参考，不作为另一套待发布工单。工单就绪不表示功能已实现或真实链路已验收。
+仓库采用单一领域语境，见 [领域文档约定](docs/agents/domain.md)。正式规格与工单后端为 [GitHub Issues](https://github.com/yb2915722928-cpu/-ETL-Agent-/issues)，规则见 [工单约定](docs/agents/issue-tracker.md) 和 [分诊标签](docs/agents/triage-labels.md)。正式规格已发布为 [GitHub #1](https://github.com/yb2915722928-cpu/-ETL-Agent-/issues/1)，标记 ready-for-agent。经用户确认，28 张纵向实施子票已发布为 #2–#29，全部关联 #1 并标记 ready-for-agent，35 条直接阻塞边已核对；对应关系见[真实票号映射](docs/planning/ticket-map-v1.md)。[V01 / #2](https://github.com/yb2915722928-cpu/-ETL-Agent-/issues/2) 已完成本票功能及真实服务验收，见[验收记录](artifacts/issue-2/acceptance.md)。后续接取以 GitHub 工单的当前依赖为准。T00–T13 保留为早期技术主题参考，不作为另一套待发布工单；其他工单就绪不表示功能已实现或真实链路已验收。

@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-11-13T07:13:30.373531+00:00",
+  "phase": "identity",
+  "passed": [
+    "health queries real PostgreSQL and Redis",
+    "five independent named role accounts log in; read membership and cannot manage accounts/members",
+    "cross-tenant account/member IDs and foreign/unjoined project IDs rejected server-side",
+    "live project-admin downgrade/removal, account disable and tenant-admin revocation reject existing session immediately",
+    "validation/response/audit plaintext scan; ordered actor-linked audit; rejected write leaves no success event"
+  ],
+  "health": {
+    "status": "ok",
+    "application": "0.1.0",
+    "runtime": {
+      "python": "3.12.16",
+      "fastapi": "0.115.12",
+      "sqlalchemy": "2.0.41"
+    },
+    "resources": {
+      "cpu_count": 20,
+      "memory_total_bytes": 8127676416,
+      "memory_available_bytes": 1304367104,
+      "disk_free_bytes": 1013886156800,
+      "process_rss_bytes": 80142336
+    },
+    "postgresql": {
+      "query": 1,
+      "version": "17.11",
+      "database_bytes": 7952051
+    },
+    "redis": {
+      "ping": true,
+      "version": "8.0.4",
+      "used_memory_bytes": 653492
+    }
+  },
+  "tenant_id": "b3c7be0e-7d1c-46ed-9f72-60f91dcbd8c7",
+  "project_id": "700f2d19-cc2b-41d6-98a1-01e4176656cc"
+}

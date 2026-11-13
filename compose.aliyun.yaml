@@ -14,6 +14,7 @@ services:
       target: redis
     user: root
     working_dir: /data
+    command: [redis-server, --appendonly, 'yes', --protected-mode, 'no']
   api:
     image: etl-agent-aliyun-api:3.22.2
     build:

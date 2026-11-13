@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-11-13T07:15:06.403Z",
+  "browser": "157.0.8103.78",
+  "passed": [
+    "Maker browser shows own project and read-only members; account/member controls hidden; foreign tenant request returns 403",
+    "Chinese account form creates independent account and member form assigns project administrator; new account logs in with management access",
+    "UI role downgrade removes management controls after permission refresh; removing membership removes the project from the current session",
+    "Disabling account in UI rejects the existing browser session and returns to login with Chinese denial message"
+  ],
+  "page_errors": [],
+  "screenshots": [
+    "admin-project.png",
+    "maker-readonly.png",
+    "account-management.png",
+    "revoked-admin.png",
+    "removed-member.png",
+    "disabled-login.png"
+  ]
+}
