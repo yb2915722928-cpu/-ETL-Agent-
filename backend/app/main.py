@@ -328,3 +328,6 @@ register_evidence_routes(app, Db, Actor, tenant_admin, project_scope)
 
 from .connectors import register_connector_routes
 register_connector_routes(app, Db, Actor, project_scope)
+
+from .studio import register_studio_routes
+register_studio_routes(app, Db, Actor, project_scope)
