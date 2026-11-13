@@ -1,0 +1,9 @@
+{
+  "passed": [
+    "Control PostgreSQL data-only dump contains no known plaintext connector/account/deployment key or synthetic raw sensitive value",
+    "API/web logs contain no known plaintext credential, deployment key or synthetic raw sensitive value",
+    "Real API container refuses application startup when deployment master key is empty"
+  ],
+  "missing_key_exit_code": 3,
+  "secret_values_scanned": 24
+}
