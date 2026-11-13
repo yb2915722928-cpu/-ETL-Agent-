@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-13T09:10:41.238341+00:00",
+  "checked_at": "2026-11-13T09:14:57.756038+00:00",
   "phase": "versions",
   "passed": [
     "current Candidate freezes; concurrent repeats reuse the same immutable version; every saved artifact and manifest digest recomputes from exact download bytes",
