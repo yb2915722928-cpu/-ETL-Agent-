@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-11-13T11:28:49.598389+00:00",
+  "phase": "versions-persistence",
+  "passed": [
+    "all frozen bytes, facts, revisions, profile references and digests survive API restart"
+  ],
+  "limits": "immutable manual review artifacts only; no engine, model, preparation or publication"
+}

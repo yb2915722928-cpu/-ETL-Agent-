@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-11-13T11:28:50.796355+00:00",
+  "phase": "persistence",
+  "passed": [
+    "project chain IDs/hashes/order and independently saved checkpoint survive restart"
+  ]
+}
