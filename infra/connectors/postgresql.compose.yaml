@@ -1,0 +1,30 @@
+# Independent synthetic source only. Requires the recorded local PG 17.11 image.
+name: etl-connectors
+services:
+  postgres:
+    image: etl-connectors-postgres:17.11-126f44c116f1
+    pull_policy: never
+    container_name: etl-connector-postgres
+    env_file: ../../.runtime/connectors/postgres.env
+    ports: ['127.0.0.1:15432:5432']
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD, pg_isready, -U, connector_admin, -d, connector_source]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+    networks:
+      isolated:
+        aliases: [connector-postgres]
+      control:
+        aliases: [connector-postgres]
+volumes:
+  postgres_data:
+    name: etl-connectors_postgres_data
+networks:
+  isolated:
+    name: etl-connectors
+  control:
+    external: true
+    name: etl-agent_default

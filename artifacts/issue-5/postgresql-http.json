@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-13T08:44:32.451839+00:00",
+  "phase": "connectors",
+  "kinds": [
+    "postgresql"
+  ],
+  "passed": [
+    "postgresql: real schema/types/estimated statistics/masked samples; immutable new secret refs; safe failure; SQL/resource/budget overrides denied",
+    "tenant/project/resource/profile isolation and existing-session role revocation enforced",
+    "successful and failed operations appear in signed evidence with safe facts; all HTTP responses scanned for known secrets/synthetic raw sensitive values"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "passed": [
+    "customers-utf8.csv: complete records and masked samples",
+    "quoted-multiline.csv: complete records and masked samples",
+    "invalid-unclosed-quote.csv: entire batch rejected with safe location",
+    "invalid-row-width.csv: entire batch rejected with safe location",
+    "invalid-utf8.csv: entire batch rejected with safe location"
+  ]
+}

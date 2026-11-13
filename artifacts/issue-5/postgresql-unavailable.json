@@ -1,0 +1,5 @@
+{
+  "passed": [
+    "real PostgreSQL container stopped: HTTP502 external_unavailable; failed status; no new or removed profile; fixed safe error"
+  ]
+}
