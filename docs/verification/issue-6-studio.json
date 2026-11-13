@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-11-13T08:43:21.632607+00:00",
+  "phase": "studio",
+  "passed": [
+    "real profiled MySQL→Doris projection passes deterministic gates; candidate persisted with same-source HOCON/DAG and safe credential references",
+    "unsupported syntax/SQL, tool, budget, mapping and mismatched profile are explained and blocked; failed candidate can be repaired with revision conflict checks",
+    "read/write/download scope and Maker revocation enforced; artifacts downloadable with recomputable digests and no known secrets"
+  ],
+  "limits": "manual deterministic review only; no model, engine submission, quality execution, freeze or publication"
+}
