@@ -1,0 +1,8 @@
+{
+  "passed": [
+    "saved candidate freezes through Chinese console with immutable facts and fingerprints",
+    "HOCON clipboard content matches after Windows CRLF normalization; real browser download matches frozen-byte SHA256",
+    "new candidate revision creates a new business fingerprint and four-section read-only Diff"
+  ],
+  "pageErrors": []
+}
