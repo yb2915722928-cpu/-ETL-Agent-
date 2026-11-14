@@ -1,0 +1,6 @@
+{
+  "run_id": "65a4e6bc-9f03-441d-8f78-187f275cc337",
+  "passed": [
+    "real queued accepted command rechecks current deployment resource fingerprint; policy drift denies before EngineAttempt/ownership/submit"
+  ]
+}

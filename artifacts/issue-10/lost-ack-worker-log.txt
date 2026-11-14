@@ -1,0 +1,9 @@
+Task id: 9ae87326-1272-4460-a76b-1da44d1208b2
+Original worker: l1-lost-ack-worker
+[2026-11-14 00:36:44,473: INFO/MainProcess] Task etl.drive[9ae87326-1272-4460-a76b-1da44d1208b2] received
+[2026-11-14 00:36:45,416: INFO/ForkPoolWorker-1] Task etl.drive[9ae87326-1272-4460-a76b-1da44d1208b2] succeeded in 0.9415358860001106s: 'submitted'
+After Redis unacked was observed and original whole worker was killed:
+Replacement worker: l1-after-lost-ack-worker
+[2026-11-14 00:38:27,528: INFO/MainProcess] Task etl.drive[9ae87326-1272-4460-a76b-1da44d1208b2] received
+[2026-11-14 00:38:27,542: INFO/ForkPoolWorker-1] Task etl.drive[9ae87326-1272-4460-a76b-1da44d1208b2] succeeded in 0.013780523000150424s: 'submitted'
+Celery's succeeded log is emitted before task_postrun; the private task_postrun barrier held the original delivery before the parent ACK. The fault script observed that delivery in Redis unacked before killing the original worker. No manual duplicate was sent between that kill and the replacement worker's receipt of this same task id.

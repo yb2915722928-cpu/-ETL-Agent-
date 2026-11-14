@@ -6,3 +6,5 @@ redis==6.2.0
 psutil==7.0.0
 cryptography==45.0.4
 PyMySQL==1.1.1
+celery[redis]==5.6.2
+kombu==5.6.2

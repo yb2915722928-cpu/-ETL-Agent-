@@ -1,0 +1,33 @@
+{
+  "checked_at": "2026-11-14T00:38:55.586182+00:00",
+  "level": "L1, not L2",
+  "passed": [
+    "real Redis-down publisher failure and Redis-published/PG-unsent process death recover from pending Outbox",
+    "actual >5 minute accepted queue executes metadata.read without TTL/reconsume; current revocation and signature/env/scope/manifest mismatches deny before submit",
+    "KILL after durable external job creation retains unknown Attempt/ownership; cross-project resource alias for same physical target excluded; duplicate redelivery never resubmits",
+    "independent physical target progresses with effective P2 clamp; real Redis unACKed task observed then whole worker KILL and visibility redelivery of same task id; concurrent duplicates create no extra job",
+    "separate Engine restart retains SQLite ledger; later discovery associates exact original job/correlation with retained ownership, no resubmit/publication/cleanup"
+  ],
+  "queue_age_seconds": 308.446,
+  "lost_ack_task_id": "9ae87326-1272-4460-a76b-1da44d1208b2",
+  "lost_ack_unacked_observed": true,
+  "durable_jobs": [
+    {
+      "id": "4cedf37a-ab2e-427a-b101-cc79f907058b",
+      "correlation_id": "c68a5f73-2add-4c66-b785-ebe873cfa6ee",
+      "command_id": "5cc519f8-3a0b-4dbb-8813-859884ee6a90"
+    },
+    {
+      "id": "016cd2e2-47d6-46c5-97d6-527e52493aae",
+      "correlation_id": "a148568a-4477-479f-b310-4a3d9055d752",
+      "command_id": "8398415e-9319-4de1-8e59-1ee728e31687"
+    }
+  ],
+  "runs": {
+    "aged": "ed2d5ef6-f723-4f6f-9f72-f3e0aee16a9d",
+    "unknown_recovered": "b7b65c9c-ffae-488b-ac15-6935ff8a6f7d",
+    "physical_alias_blocked": "804ec20c-9738-406b-871f-a4aff457c260",
+    "lost_ack_success": "fef752b8-8847-4e66-b13a-203ebfd12fbc"
+  },
+  "acceptance_duration_seconds": 569
+}
