@@ -1,0 +1,11 @@
+{
+  "passed": [
+    "isolated PostgreSQL HTTP expiry/no renewal",
+    "approve/reject crossing exact expiry during managed I/O: 409, no decision/approval.decided, durable denial, unchanged deadline",
+    "schema/resource-policy/compiler/secret drift invalidation",
+    "ordinary samples/statistics excluded from drift",
+    "GET/list perform no external calls; explicit managed Schema denial persists evidence"
+  ],
+  "fixtures": "test-process clock and managed Schema reply; disposable real PostgreSQL schema",
+  "no_production_fault_routes": true
+}

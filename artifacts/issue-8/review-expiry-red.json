@@ -1,0 +1,8 @@
+{
+  "baseline_commit": "a64be0e3854070e4065ebdae3ab85aaa3c94a2c2",
+  "fixture": "scripts/verify_preparations_fixtures.py exact-expiry clock crossing during real managed connector reads, isolated real PostgreSQL schema and public HTTP",
+  "expected": {"status": 409, "decisions": 0, "approval_decided_events": 0},
+  "observed": {"status": 200, "decisions": 1, "decision": "approve", "decided_at_equals_expires_at": true, "returned_validation_state": "expired"},
+  "failure": "expected 409, got 200",
+  "corrected_result": "review-expiry-green.json verifies both approve and reject, unchanged expiry and durable denial evidence"
+}

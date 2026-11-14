@@ -8,62 +8,27 @@ fixture. No root control-plane rows, source data, or deployment policy are chang
 import copy
 import json
 import tempfile
-import threading
-import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from uuid import uuid4
 from unittest.mock import patch
 
-import uvicorn
-from sqlalchemy import create_engine, select, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
 
 from app import main, preparations
 from app.connector_policy import ResourcePolicy
-from app.db import Base, engine
-from app.evidence_signing import EvidenceSigner
-from app.managed_secrets import SecretProvider
+from isolated_api_fixture import isolated_api
 from app.models import Connection, MetadataProfile, SecretReference
 from verify_identity import Client
 
 
 def run():
-    schema = 'v07_fixture_' + uuid4().hex
-    isolated = create_engine(engine.url, connect_args={'options': f'-csearch_path={schema}'})
-    session = sessionmaker(isolated, expire_on_commit=False)
-    with engine.begin() as db:
-        db.execute(text(f'CREATE SCHEMA {schema}'))
-        Base.metadata.create_all(db.execution_options(schema_translate_map={None: schema}))
-        for table in Base.metadata.sorted_tables:
-            columns = ','.join(f'"{column.name}"' for column in table.columns)
-            db.execute(text(f'INSERT INTO {schema}."{table.name}" ({columns}) SELECT {columns} FROM public."{table.name}"'))
-    server = None
-    thread = None
-    try:
-        with session() as db:
-            assert db.scalar(text('SELECT current_schema()')) == schema
-        def fixture_database():
-            with session.begin() as db:
-                yield db
-        main.app.dependency_overrides[main.database] = fixture_database
-        main.app.state.secret_provider = SecretProvider()
-        main.app.state.evidence_signer = EvidenceSigner()
+    with isolated_api('v07_fixture', 18008) as (session, _schema):
         policy = ResourcePolicy()
         original_policy = policy.path.read_text(encoding='utf-8')
         with tempfile.TemporaryDirectory(prefix='v07-policy-') as directory:
             policy.path = Path(directory) / 'resources.json'
             policy.path.write_text(original_policy, encoding='utf-8')
             main.app.state.connector_policy = policy
-            server = uvicorn.Server(uvicorn.Config(main.app, host='127.0.0.1', port=18008,
-                                    lifespan='off', log_level='error'))
-            thread = threading.Thread(target=server.run, daemon=True)
-            thread.start()
-            for _ in range(100):
-                if server.started:
-                    break
-                time.sleep(0.05)
-            assert server.started, 'isolated API did not start'
             credentials = json.loads(Path('/run/identity/bootstrap-demo.json').read_text())
             maker, data, auditor = [Client('http://127.0.0.1:18008', []) for _ in range(3)]
             maker.login(credentials, 'maker')
@@ -88,6 +53,32 @@ def run():
                 expired = maker.call('GET', target)
                 assert expired['validation']['state'] == 'expired'
                 data.call('POST', target + '/decisions', approved, 409)
+            # Cross the exact deadline during real managed connector I/O. Both
+            # decision values share the same immutable Preparation deadline.
+            boundary = prepare()
+            boundary_path = base + '/' + boundary['id']
+            expires_at = datetime.fromisoformat(boundary['expires_at'])
+            class BoundaryClock(datetime):
+                current = expires_at - timedelta(seconds=1)
+                @classmethod
+                def now(cls, tz=None):
+                    return cls.current.astimezone(tz or timezone.utc)
+            real_boundary_probe = preparations.inspect_resource
+            def crossing_probe(*args):
+                result = real_boundary_probe(*args)
+                BoundaryClock.current = expires_at
+                return result
+            for decision in ('approve', 'reject'):
+                BoundaryClock.current = expires_at - timedelta(seconds=1)
+                with patch.object(preparations, 'datetime', BoundaryClock), patch.object(
+                        preparations, 'inspect_resource', crossing_probe):
+                    data.call('POST', boundary_path + '/decisions', {**approved, 'decision': decision}, 409)
+                unchanged = maker.call('GET', boundary_path)
+                assert not unchanged['decisions'] and unchanged['expires_at'] == boundary['expires_at']
+            boundary_events = [event for event in auditor.call('GET', scope + '/evidence')['events']
+                               if event['preparation_id'] == boundary['id']]
+            assert sum(event['action'] == 'approval.denied' for event in boundary_events) == 2
+            assert not any(event['action'] == 'approval.decided' for event in boundary_events)
             # A new profile containing only sample/statistics differences does
             # not alter execution facts or invalidate a frozen preparation.
             source = version['frozen']['execution_facts']['source']
@@ -146,20 +137,12 @@ def run():
             assert any(event['action'] == 'preparation.resources_check_denied' for event in events)
             assert not maker.call('GET', target)['decisions']
             print(json.dumps({'passed': ['isolated PostgreSQL HTTP expiry/no renewal',
+                'approve/reject crossing exact expiry during managed I/O: 409, no decision/approval.decided, durable denial, unchanged deadline',
                 'schema/resource-policy/compiler/secret drift invalidation',
                 'ordinary samples/statistics excluded from drift',
                 'GET/list perform no external calls; explicit managed Schema denial persists evidence'],
                 'fixtures': 'test-process clock and managed Schema reply; disposable real PostgreSQL schema',
                 'no_production_fault_routes': True}, ensure_ascii=False, indent=2))
-    finally:
-        if server:
-            server.should_exit = True
-        if thread:
-            thread.join(timeout=5)
-        main.app.dependency_overrides.clear()
-        isolated.dispose()
-        with engine.begin() as db:
-            db.execute(text(f'DROP SCHEMA {schema} CASCADE'))
 
 
 if __name__ == '__main__':

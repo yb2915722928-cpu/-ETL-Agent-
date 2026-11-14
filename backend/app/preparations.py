@@ -358,13 +358,16 @@ def register_preparation_routes(app, Db, Actor, project_scope):
             check_execution_resources(db, request.app.state.connector_policy, request.app.state.secret_provider,
                                       get_version(db, tenant_id, project_id, row.version_id), actor,
                                       SLOTS[body.slot], preparation_id=row.id)
+            decided_at = datetime.now(timezone.utc)
+            if decided_at >= row.expires_at:
+                raise HTTPException(409, '准备单已超过24小时有效期，请重新准备与审批')
         except HTTPException as error:
             append_event(db, actor, 'approval.denied', {'slot': body.slot, 'reason': error.detail}, project_id,
                          version_id=row.version_id, preparation_id=row.id)
             return JSONResponse(status_code=error.status_code, content={'detail': error.detail})
         db.add(ApprovalDecision(tenant_id=tenant_id, project_id=project_id, preparation_id=row.id,
                                slot=body.slot, checker_id=actor.id, checker_name=actor.display_name,
-                               decision=body.decision, decided_at=datetime.now(timezone.utc), frozen_sha256=row.frozen_sha256))
+                               decision=body.decision, decided_at=decided_at, frozen_sha256=row.frozen_sha256))
         db.flush()
         append_event(db, actor, 'approval.decided', {'slot': body.slot, 'decision': body.decision,
                      'frozen_sha256': row.frozen_sha256}, project_id, version_id=row.version_id, preparation_id=row.id)

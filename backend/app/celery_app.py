@@ -2,6 +2,7 @@
 import os
 from celery import Celery
 from celery.signals import worker_process_init
+from sqlalchemy.exc import DBAPIError, OperationalError
 from .db import engine
 
 if os.environ.get('EXECUTION_ADAPTER', 'disabled') != 'l1':
@@ -24,7 +25,18 @@ def dispose_inherited_pool(**kwargs):
 @celery.task(name='etl.drive', bind=True, max_retries=None)
 def execute(self, command_id):
     from .execution_runtime import drive
-    state = drive(command_id)
+    try:
+        state = drive(command_id)
+    except DBAPIError as error:
+        code = error.orig.sqlstate
+        # psycopg transport/connect failures have no server SQLSTATE. Keep
+        # constraint, data and programming errors out of the retry path.
+        if (error.connection_invalidated
+                or (isinstance(error, OperationalError) and code is None)
+                or (code and code.startswith('08'))
+                or code in ('40001', '40P01', '55P03', '57P01', '57P02', '57P03')):
+            raise self.retry(exc=error, countdown=10)
+        raise
     if state in ('submission_unknown', 'busy'):
         raise self.retry(countdown=10)
     return state

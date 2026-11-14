@@ -1,0 +1,19 @@
+{
+  "passed": [
+    "same accepted metadata Run resumes automatically after actual PostgreSQL outage with healthy worker and sent Outbox",
+    "real deferred SQLSTATE40001 after POST rolls back result only; original Attempt/request/correlation/ownership survive and retry discovers exactly one original job without reconsumption"
+  ],
+  "failures": [],
+  "worker_log": [
+    "[2026-11-14 01:15:35,001: INFO/ForkPoolWorker-1] Task etl.drive[6c117f38-1cad-45e5-bcec-aadc506de33b] retry: Retry in 10s: OperationalError('(psycopg.OperationalError) [Errno -3] Try again')",
+    "[2026-11-14 01:15:45,249: INFO/ForkPoolWorker-1] Task etl.drive[6c117f38-1cad-45e5-bcec-aadc506de33b] succeeded in 0.264467574000264s: 'metadata_checked'",
+    "[2026-11-14 01:15:47,251: INFO/ForkPoolWorker-1] Task etl.drive[7252ec14-cca5-4817-ad66-2e29e87418c2] retry: Retry in 10s: OperationalError('(psycopg.errors.SerializationFailure) review transient result commit\\nCONTEXT:  PL/pgSQL function fail_result() line 1 at RAISE')",
+    "[2026-11-14 01:15:57,288: INFO/ForkPoolWorker-1] Task etl.drive[7252ec14-cca5-4817-ad66-2e29e87418c2] succeeded in 0.039165730999684456s: 'submitted'"
+  ],
+  "isolated_engine_jobs": 1,
+  "public_engine_ledger_untouched": true,
+  "worker_private_signing_key": false,
+  "outage_run_status": "metadata_checked",
+  "post_submit_status": "submitted",
+  "retained_public_engine_jobs": 2
+}
