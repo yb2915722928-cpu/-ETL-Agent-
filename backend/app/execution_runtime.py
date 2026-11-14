@@ -24,6 +24,7 @@ from .managed_secrets import SecretProvider
 from .models import Account, EvidenceEvent, new_id
 from .preparations import check_execution_resources, get_preparation, require_current_role, validate_preparation
 from .versions import get_version
+from .supervision_runtime import supervise_locked, supervision_view
 
 
 class EngineAttempt(Base):
@@ -80,6 +81,7 @@ def execution_view(db, command_id):
                           'acquired_at': ownership.acquired_at, 'retained': True} if ownership else None,
             'control_facts': [{'action': event.action, 'occurred_at': event.occurred_at,
                                'facts': event.facts} for event in reversed(events)],
+            'supervision': supervision_view(db, command_id),
             'publication': '未实现：L1 不执行数据搬运、发布或清理'}
 
 
@@ -103,6 +105,14 @@ def _check_submission_authorization(db, policy, secrets, run, row=None):
 
 
 def drive(command_id):
+    state = _submit(command_id)
+    if state not in ('submitted', 'stop_requested'):
+        return state
+    with command_lock(command_id) as acquired:
+        return supervise_locked(command_id) if acquired else 'busy'
+
+
+def _submit(command_id):
     if os.environ.get('EXECUTION_ADAPTER', 'disabled') != 'l1':
         raise RuntimeError('执行适配器未启用；普通部署不得提交引擎')
     policy, secrets = ResourcePolicy(), SecretProvider()
@@ -117,7 +127,8 @@ def drive(command_id):
             run = db.get(ExecutionRun, command.run_id)
             row = get_preparation(db, run.tenant_id, run.project_id, run.preparation_id, lock=True)
             attempt = db.get(EngineAttempt, command_id)
-            if run.status in ('submitted', 'denied', 'metadata_checked', 'blocked_target'):
+            if run.status in ('submitted', 'denied', 'metadata_checked', 'blocked_target', 'stop_requested',
+                              'supervision_passed', 'supervision_unavailable'):
                 return run.status
             try:
                 payload = verify_envelope(command.envelope, os.environ['COMMAND_PUBLIC_KEY'], COMMAND_FORMAT)
@@ -129,6 +140,8 @@ def drive(command_id):
                 if row.environment != 'local' or row.tool not in ('pipeline.publish', 'pipeline.trial', 'metadata.read'):
                     raise HTTPException(403, '执行工具或环境未登记')
                 if attempt is None:
+                    if payload['authorized_operation']['data_plane_mutation'] and not payload.get('runtime_supervision_contract'):
+                        raise HTTPException(409, '冻结监督契约缺失；请重新冻结版本并准备运行')
                     _check_submission_authorization(db, policy, secrets, run, row)
                     if not payload['authorized_operation']['data_plane_mutation']:
                         run.status = 'metadata_checked'
@@ -150,6 +163,7 @@ def drive(command_id):
                         'tenant_id': run.tenant_id, 'project_id': run.project_id, 'tool': row.tool,
                         'environment': row.environment, 'adapter': 'l1', 'engine_url': os.environ['L1_ENGINE_URL'],
                         'target': identity, 'budget': payload['budget'], 'authorized_operation': payload['authorized_operation'],
+                        'runtime_supervision_contract': payload['runtime_supervision_contract'],
                         'bundle_sha256': payload['bundle_sha256'], 'artifact_hashes': payload['artifact_hashes']}
                     digest = hashlib.sha256(signing_bytes(request)).hexdigest()
                     attempt = EngineAttempt(command_id=command_id, correlation_id=request['correlation_id'],

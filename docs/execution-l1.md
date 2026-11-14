@@ -1,4 +1,4 @@
-# #10：隔离 L1 异步执行控制
+# #10–#11：隔离 L1 异步执行与运行监督
 
 本阶段使用真实 PostgreSQL Outbox、Redis transport 和 Linux Celery prefork worker；Engine 是独立 HTTP + SQLite 故障夹具。只验证异步控制，不连接 SeaTunnel，不执行 Doris 写入、数据搬运、正式发布或清理；不能记为 L2。普通 Compose 不启动 publisher/worker，默认执行关闭。即使手动调用异步入口，未显式配置 `EXECUTION_ADAPTER=l1` 时也会拒绝启动并保留 pending Outbox。
 
@@ -62,3 +62,29 @@ python .worktrees/review-fixes/scripts/verify_execution_database_retry.py --outp
 本次真实验收中，已接受 metadata.read 的持久化接受时间至执行证据时间为 308.446 秒；真实未 ACK 的 task `9ae87326-1272-4460-a76b-1da44d1208b2` 在整个原 worker 被 KILL 后由 Redis 重投，原作业未增加。另八个并发重复 task 全部观察到消费完成后，仍只有一个原作业。整组场景最终仅有两条 Engine 作业，API/worker/Engine 重新创建后原关联、目标占有和被阻塞别名保持不变。
 
 验收依赖 celery[redis]==5.6.2、kombu==5.6.2、redis==6.2.0；`artifacts/issue-10/installed-runtime.json` 记录实际镜像依赖与 pip check。`artifacts/issue-10/real-l1.json`、`consumed-duplicates.json`、`resource-drift.json`、`restart-recheck.json` 与 `lost-ack-worker-log.txt` 分别保留真实故障、已消费重复、策略漂移、重建后只读复核和丢 ACK 日志。依赖 dry-run 仅作解析证据，不替代真实执行。普通 GET/list 只查询持久化事实，不推进状态。
+
+## #11：冻结监督契约与持久预算闭锁
+
+`backend/app/runtime_supervision.py` 的 `RuntimeSupervisionContract` 冻结默认 100000 条源读取记录、268435456 byte（256 MiB）sink 实测累计接受写入字节、600 秒、2 倍输出放大和 0.2 拒绝率。版本 facts/review.conf、Preparation、Capability/ManagedCommand 和运行监督表均绑定可审查契约；P2 使用准备单收紧后的预算。只读 metadata.read 不创建数据面监督。新增契约会改变 execution facts，旧版本须重新评估冻结后再准备；不会替换旧制品。
+
+计数边界为连接器发出的源记录、映射后按稳定键去重的质量判定（evaluated=valid+rejected，拒绝按记录一次）、质量和展开后的 sink 接收记录；放大比为 final_output/source_read，吞吐为 final_output/elapsed_seconds。字节只接受 `byte_kind=measured`，不接受估算、网络或扫描字节。零分母显示 `null`（中文页面“暂无数据”）。运行中只有拒绝率享受 evaluated<100 的观察期；最终小样本仍检查，其他预算没有豁免。空最终结果默认闭锁。
+
+Worker 在 `submitted` 后每约 2 秒继续 `drive`；观测超过 6 秒、缺失、未经实测、计数阶段不一致、来源/epoch 变化或累计回退均闭锁并清空当前可信显示值，历史原始观测保留在 `runtime_observations`。除 Engine 累计时长外，还以 Attempt 持久开始时间核验平台墙钟预算。`runtime_supervisions` 在接受事务创建，保存冻结契约、当前指标、监控状态、来源、原因与发布 veto；`supervision.observed` 和 `supervision.stop_requested` 控制证据同事务落库。只有最终可靠指标全部通过才解除监督 veto；这不是正式发布授权或真实发布。
+
+异常先提交 `stop_request`（稳定 id、检测/请求时间、原因、pending 状态和 `termination_confirmed=false`），再对原 Engine/原作业调用幂等 `POST /jobs/{id}/stop`。响应未知每 2 秒重送同一请求；acknowledged 仅表示 Engine 接收了请求。停止闭锁不可由后续观测解除；目标占有保留。物理资源限制和监督预算不同，轮询、网络及引擎停止延迟可能造成超调，本次未验证真实 SeaTunnel/L2 或零超调。
+
+#12 接口：`backend/app/supervision_runtime.py` 的 `request_stop(db, run, row, reasons, now)` 可在现有 command advisory lock/tenant-first 事务内复用于撤权；`RuntimeSupervision.stop_request` 与 `RuntimeObservation` 保留检测时的指标与请求证据。`supervise_locked(command_id)` 完成请求投递后返回 `stop_requested`，后续由 #12 接终止轮询/确认、最终指标与超调核算、资源清理和 TargetOwnership 释放。本票不把 stop ACK 当终止，不清理资源。
+
+`scripts/verify_supervision_l1.py` 复用 `isolated_api_fixture.py`：克隆真实 PG 至一次性 Schema、唯一 Redis 队列、公钥 Worker 和独立临时 HTTP+SQLite Engine。按同一公开探查/版本冻结 → Prepare → 双审批 → Capability → Commit → GET runs 链路验证 12 个场景：99/100、最终小样本、行/字节/时长/放大预算、缺失、陈旧、重置、估算字节、零分母与可靠最终完成。根容器及运行目录未改动。报告 `artifacts/issue-11/l1.json`；运行示例（在本工作树执行，把 `$baseline` 指向既有部署根目录）：
+
+```powershell
+$baseline = 'E:\课件\23-实战\生产级 ETL-Agent 数据集成平台'
+$worktree = (Get-Location).Path
+docker compose --project-directory $baseline --env-file "$baseline/.runtime/l1/deployment.env" -f "$baseline/compose.l1.yaml" run --rm --no-deps -T -e PYTHONPATH=/app:/tests -v "${worktree}/backend/app:/app/app:ro" -v "${worktree}/scripts:/tests:ro" -v "${baseline}/.runtime/l1:/run/identity:ro" -v "${worktree}/artifacts/issue-11:/results" api python /tests/verify_supervision_l1.py /results/l1.json
+$env:PYTHONPATH = 'backend'
+python scripts/test_runtime_supervision.py
+npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+npm run build --prefix frontend
+```
+
+`verify_supervision_browser.cjs` 用实际生产 Vue bundle 回放上述已持久化 L1 HTTP 事实，验证中文停止/闭锁/原因、缺失与零分母展示；这是独立 UI smoke，不替代前述真实 API/Worker 验证。可在本工作树安装忽略目录的浏览器驱动后运行：`npm install --prefix .runtime/browser --no-package-lock --no-save --ignore-scripts playwright@1.56.1`，`node scripts/verify_supervision_browser.cjs`（使用本机 Edge）。报告和截图位于 `artifacts/issue-11/browser.json`、`budget-stop.png` 与 `missing-metrics.png`。

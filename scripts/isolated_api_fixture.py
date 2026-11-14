@@ -29,6 +29,8 @@ def isolated_api(prefix, port):
             db.execute(text(f'CREATE SCHEMA {schema}'))
             Base.metadata.create_all(db.execution_options(schema_translate_map={None: schema}))
             for table in Base.metadata.sorted_tables:
+                if db.scalar(text('SELECT to_regclass(:name)'), {'name': 'public.' + table.name}) is None:
+                    continue  # Additive feature tables need not exist in the deployed baseline.
                 columns = ','.join(f'"{column.name}"' for column in table.columns)
                 db.execute(text(f'INSERT INTO {schema}."{table.name}" ({columns}) SELECT {columns} FROM public."{table.name}"'))
         with session() as db:

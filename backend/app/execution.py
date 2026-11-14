@@ -114,6 +114,7 @@ def authorization_bindings(row, subject):
             'artifact_hashes': frozen['artifact_hashes'], 'resources': {
                 side: frozen['execution_facts'][side] for side in ('source', 'target')},
             'authorized_operation': frozen['authorized_operation'], 'budget': frozen['budget'],
+            'runtime_supervision_contract': frozen.get('runtime_supervision_contract'),
             'policy_version': frozen['policy_version'], 'compiler_versions': frozen['compiler_versions']}
 
 
@@ -245,6 +246,9 @@ def register_execution_routes(app, Db, Actor, project_scope):
             IdempotencyRecord(tenant_id=tenant_id, project_id=project_id, key=body.idempotency_key,
                               request_sha256=digest, run_id=run_id),
             Outbox(id=new_id(), tenant_id=tenant_id, project_id=project_id, command_id=command_id, created_at=now)])
+        from .supervision_runtime import RuntimeSupervision
+        if expected['runtime_supervision_contract'] is not None:
+            db.add(RuntimeSupervision(command_id=command_id, contract=expected['runtime_supervision_contract'], updated_at=now))
         db.flush()
         append_event(db, actor, 'commit.accepted', {'command_id': command_id, 'jti': payload['jti'],
                      'status': 'queued', 'frozen_sha256': row.frozen_sha256}, project_id,

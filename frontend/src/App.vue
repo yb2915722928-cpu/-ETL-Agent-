@@ -217,7 +217,7 @@ onMounted(async () => {
       <button :class="['nav', { active: tab === 'preparations' }]" @click="tab = 'preparations'">✓ <span>准备单与独立审批</span></button>
       <button :class="['nav', { active: tab === 'runs' }]" @click="tab = 'runs'">▷ <span>运行中心</span></button>
       <button :class="['nav', { active: tab === 'audit' }]" @click="tab = 'audit'">≡ <span>审计与证据</span></button>
-      <div class="scope-note"><span>当前交付 / #2–#10</span><p>准备、双审批与单次 Commit；隔离 L1 异步执行验证。普通部署执行关闭，L1 不计入 L2。</p></div>
+      <div class="scope-note"><span>当前交付 / #2–#11</span><p>准备、双审批与单次 Commit；隔离 L1 异步执行验证。普通部署执行关闭，L1 不计入 L2。</p></div>
       <div class="user-card"><div class="avatar">{{ identity.account.display_name.slice(0, 1) }}</div>
         <div><strong>{{ identity.account.display_name }}</strong><small>{{ isTenantAdmin ? '租户管理员' : identity.account.username }}</small></div>
       </div>

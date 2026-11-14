@@ -1,0 +1,1107 @@
+{
+  "checked_at": "2026-11-14T02:39:22.156198+00:00",
+  "level": "L1",
+  "passed": [
+    {
+      "scenario": "reject_99_100",
+      "status": "stop_requested",
+      "reason": "reject_ratio_exceeded",
+      "run_id": "cf5017b5-9c37-46d3-9701-de91f8f2160e",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "reject_ratio_exceeded"
+        ],
+        "current_metrics": {
+          "source_read": 100,
+          "evaluated": 100,
+          "valid": 0,
+          "rejected": 100,
+          "final_output": 100,
+          "sink_bytes": 1000,
+          "elapsed_seconds": 1,
+          "throughput_rows_per_second": 100.0,
+          "amplification": 1.0,
+          "reject_ratio": 1.0
+        },
+        "stop_request": {
+          "id": "751749af-55bc-4430-9375-6cc3a61fa9ea",
+          "detected_at": "2026-11-14T02:38:59.242672+00:00",
+          "requested_at": "2026-11-14T02:38:59.242672+00:00",
+          "reasons": [
+            "reject_ratio_exceeded"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:38:59.274662+00:00"
+        },
+        "updated_at": "2026-11-14T02:38:59.242672+00:00",
+        "latest_observation": {
+          "id": "cb558c3d-820e-4696-aec4-587b83ac1cda",
+          "received_at": "2026-11-14T02:38:59.242672+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "95aeb578-452c-4432-88f8-ffa774013f0c",
+            "observed_at": "2026-11-14T02:38:59.242247+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 0,
+            "rejected": 100,
+            "final_output": 100,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "reject_ratio_exceeded"
+            ],
+            "metrics": {
+              "source_read": 100,
+              "evaluated": 100,
+              "valid": 0,
+              "rejected": 100,
+              "final_output": 100,
+              "sink_bytes": 1000,
+              "elapsed_seconds": 1,
+              "throughput_rows_per_second": 100.0,
+              "amplification": 1.0,
+              "reject_ratio": 1.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "final_small",
+      "status": "stop_requested",
+      "reason": "reject_ratio_exceeded",
+      "run_id": "32d63763-0ab3-4f99-a058-85878669028d",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "reject_ratio_exceeded"
+        ],
+        "current_metrics": {
+          "source_read": 2,
+          "evaluated": 2,
+          "valid": 0,
+          "rejected": 2,
+          "final_output": 1,
+          "sink_bytes": 1000,
+          "elapsed_seconds": 1,
+          "throughput_rows_per_second": 1.0,
+          "amplification": 0.5,
+          "reject_ratio": 1.0
+        },
+        "stop_request": {
+          "id": "a2d5cb9b-54f8-41d0-9dac-dd576cda56b8",
+          "detected_at": "2026-11-14T02:39:01.477146+00:00",
+          "requested_at": "2026-11-14T02:39:01.477146+00:00",
+          "reasons": [
+            "reject_ratio_exceeded"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:01.504817+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:01.477146+00:00",
+        "latest_observation": {
+          "id": "8fa5a47d-d9bd-40ec-b3e7-2cea1ab0810e",
+          "received_at": "2026-11-14T02:39:01.477146+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "788bfa32-a0de-4e78-8026-128f4bd8afc8",
+            "observed_at": "2026-11-14T02:39:01.476662+00:00",
+            "state": "finished",
+            "source_read": 2,
+            "evaluated": 2,
+            "valid": 0,
+            "rejected": 2,
+            "final_output": 1,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "reject_ratio_exceeded"
+            ],
+            "metrics": {
+              "source_read": 2,
+              "evaluated": 2,
+              "valid": 0,
+              "rejected": 2,
+              "final_output": 1,
+              "sink_bytes": 1000,
+              "elapsed_seconds": 1,
+              "throughput_rows_per_second": 1.0,
+              "amplification": 0.5,
+              "reject_ratio": 1.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "rows",
+      "status": "stop_requested",
+      "reason": "rows_exceeded",
+      "run_id": "f2a0a6a8-ec2e-40d8-829d-1c674a32dbad",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "rows_exceeded"
+        ],
+        "current_metrics": {
+          "source_read": 100001,
+          "evaluated": 100,
+          "valid": 100,
+          "rejected": 0,
+          "final_output": 100,
+          "sink_bytes": 1000,
+          "elapsed_seconds": 1,
+          "throughput_rows_per_second": 100.0,
+          "amplification": 0.000999990000099999,
+          "reject_ratio": 0.0
+        },
+        "stop_request": {
+          "id": "c05412ac-3e93-4559-8791-eae7bbe587cd",
+          "detected_at": "2026-11-14T02:39:03.332696+00:00",
+          "requested_at": "2026-11-14T02:39:03.332696+00:00",
+          "reasons": [
+            "rows_exceeded"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:03.359591+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:03.332696+00:00",
+        "latest_observation": {
+          "id": "62854079-b963-4408-a8a3-24584ef26b00",
+          "received_at": "2026-11-14T02:39:03.332696+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "730a7103-247a-4658-b037-f5ea8ff8fcfa",
+            "observed_at": "2026-11-14T02:39:03.332240+00:00",
+            "state": "running",
+            "source_read": 100001,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "rows_exceeded"
+            ],
+            "metrics": {
+              "source_read": 100001,
+              "evaluated": 100,
+              "valid": 100,
+              "rejected": 0,
+              "final_output": 100,
+              "sink_bytes": 1000,
+              "elapsed_seconds": 1,
+              "throughput_rows_per_second": 100.0,
+              "amplification": 0.000999990000099999,
+              "reject_ratio": 0.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "bytes",
+      "status": "stop_requested",
+      "reason": "bytes_exceeded",
+      "run_id": "e38c115a-f0da-4464-8e7a-198cf460b4ab",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "bytes_exceeded"
+        ],
+        "current_metrics": {
+          "source_read": 100,
+          "evaluated": 1,
+          "valid": 1,
+          "rejected": 0,
+          "final_output": 100,
+          "sink_bytes": 268435457,
+          "elapsed_seconds": 1,
+          "throughput_rows_per_second": 100.0,
+          "amplification": 1.0,
+          "reject_ratio": 0.0
+        },
+        "stop_request": {
+          "id": "bfd401e4-28bf-416f-95ee-1746265619f8",
+          "detected_at": "2026-11-14T02:39:05.201773+00:00",
+          "requested_at": "2026-11-14T02:39:05.201773+00:00",
+          "reasons": [
+            "bytes_exceeded"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:05.232201+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:05.201773+00:00",
+        "latest_observation": {
+          "id": "8f7bc3c9-c2ad-4022-998e-d9e2e6523501",
+          "received_at": "2026-11-14T02:39:05.201773+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "c43a9d91-5166-4bd4-b526-39f4a78476fa",
+            "observed_at": "2026-11-14T02:39:05.201347+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 1,
+            "valid": 1,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 268435457,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "bytes_exceeded"
+            ],
+            "metrics": {
+              "source_read": 100,
+              "evaluated": 1,
+              "valid": 1,
+              "rejected": 0,
+              "final_output": 100,
+              "sink_bytes": 268435457,
+              "elapsed_seconds": 1,
+              "throughput_rows_per_second": 100.0,
+              "amplification": 1.0,
+              "reject_ratio": 0.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "duration",
+      "status": "stop_requested",
+      "reason": "duration_exceeded",
+      "run_id": "765f186a-8c7b-4707-a4fa-c417e62d2fe5",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "duration_exceeded"
+        ],
+        "current_metrics": {
+          "source_read": 100,
+          "evaluated": 100,
+          "valid": 100,
+          "rejected": 0,
+          "final_output": 100,
+          "sink_bytes": 1000,
+          "elapsed_seconds": 601,
+          "throughput_rows_per_second": 0.16638935108153077,
+          "amplification": 1.0,
+          "reject_ratio": 0.0
+        },
+        "stop_request": {
+          "id": "f9a186b1-1edf-4f24-9f8b-bc435536d6e8",
+          "detected_at": "2026-11-14T02:39:07.016577+00:00",
+          "requested_at": "2026-11-14T02:39:07.016577+00:00",
+          "reasons": [
+            "duration_exceeded"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:07.039759+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:07.016577+00:00",
+        "latest_observation": {
+          "id": "3186ef53-0d2b-457b-a468-c939364b1c14",
+          "received_at": "2026-11-14T02:39:07.016577+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "0c6709a3-2616-4178-b4e0-de614cf23d84",
+            "observed_at": "2026-11-14T02:39:07.016204+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 601
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "duration_exceeded"
+            ],
+            "metrics": {
+              "source_read": 100,
+              "evaluated": 100,
+              "valid": 100,
+              "rejected": 0,
+              "final_output": 100,
+              "sink_bytes": 1000,
+              "elapsed_seconds": 601,
+              "throughput_rows_per_second": 0.16638935108153077,
+              "amplification": 1.0,
+              "reject_ratio": 0.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "amplification",
+      "status": "stop_requested",
+      "reason": "amplification_exceeded",
+      "run_id": "b05d0ac8-37e9-42dc-94de-05d4a6376cd5",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "amplification_exceeded"
+        ],
+        "current_metrics": {
+          "source_read": 100,
+          "evaluated": 100,
+          "valid": 100,
+          "rejected": 0,
+          "final_output": 201,
+          "sink_bytes": 1000,
+          "elapsed_seconds": 1,
+          "throughput_rows_per_second": 201.0,
+          "amplification": 2.01,
+          "reject_ratio": 0.0
+        },
+        "stop_request": {
+          "id": "2bf62963-a73e-4d54-b8a6-614bd3b1455a",
+          "detected_at": "2026-11-14T02:39:08.871401+00:00",
+          "requested_at": "2026-11-14T02:39:08.871401+00:00",
+          "reasons": [
+            "amplification_exceeded"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:08.894546+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:08.871401+00:00",
+        "latest_observation": {
+          "id": "6a2a8071-5519-4db3-a6a2-7f92003a381d",
+          "received_at": "2026-11-14T02:39:08.871401+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "aabf0139-fa5e-4abd-a475-607db7da95fd",
+            "observed_at": "2026-11-14T02:39:08.870982+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 201,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "amplification_exceeded"
+            ],
+            "metrics": {
+              "source_read": 100,
+              "evaluated": 100,
+              "valid": 100,
+              "rejected": 0,
+              "final_output": 201,
+              "sink_bytes": 1000,
+              "elapsed_seconds": 1,
+              "throughput_rows_per_second": 201.0,
+              "amplification": 2.01,
+              "reject_ratio": 0.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "missing",
+      "status": "stop_requested",
+      "reason": "metrics_missing",
+      "run_id": "d779e46b-28d6-4cff-862d-94b19e4508d6",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "metrics_missing"
+        ],
+        "current_metrics": {
+          "source_read": null,
+          "evaluated": null,
+          "valid": null,
+          "rejected": null,
+          "final_output": null,
+          "sink_bytes": null,
+          "elapsed_seconds": null,
+          "throughput_rows_per_second": null,
+          "amplification": null,
+          "reject_ratio": null
+        },
+        "stop_request": {
+          "id": "47221a13-6bbb-45a9-8c68-6ff9a84b4f25",
+          "detected_at": "2026-11-14T02:39:10.686395+00:00",
+          "requested_at": "2026-11-14T02:39:10.686395+00:00",
+          "reasons": [
+            "metrics_missing"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:10.710525+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:10.686395+00:00",
+        "latest_observation": {
+          "id": "f18be0d5-30cf-4142-94f5-efbb4abb8afe",
+          "received_at": "2026-11-14T02:39:10.686395+00:00",
+          "source": null,
+          "sample": null,
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "metrics_missing"
+            ],
+            "metrics": {
+              "source_read": null,
+              "evaluated": null,
+              "valid": null,
+              "rejected": null,
+              "final_output": null,
+              "sink_bytes": null,
+              "elapsed_seconds": null,
+              "throughput_rows_per_second": null,
+              "amplification": null,
+              "reject_ratio": null
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "stale",
+      "status": "stop_requested",
+      "reason": "metrics_stale",
+      "run_id": "ef09f61b-0c95-4c6b-8f83-a6ba96f832a1",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "metrics_stale"
+        ],
+        "current_metrics": {
+          "source_read": null,
+          "evaluated": null,
+          "valid": null,
+          "rejected": null,
+          "final_output": null,
+          "sink_bytes": null,
+          "elapsed_seconds": null,
+          "throughput_rows_per_second": null,
+          "amplification": null,
+          "reject_ratio": null
+        },
+        "stop_request": {
+          "id": "254b39f8-822f-4425-987b-d63dd1bae5c4",
+          "detected_at": "2026-11-14T02:39:12.545387+00:00",
+          "requested_at": "2026-11-14T02:39:12.545387+00:00",
+          "reasons": [
+            "metrics_stale"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:12.571502+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:12.545387+00:00",
+        "latest_observation": {
+          "id": "615f59e4-a033-495c-aaba-cbca341bdb68",
+          "received_at": "2026-11-14T02:39:12.545387+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "5f7d8b48-92aa-43ce-94ea-34093ea9c568",
+            "observed_at": "2020-01-01T00:00:00+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "metrics_stale"
+            ],
+            "metrics": {
+              "source_read": null,
+              "evaluated": null,
+              "valid": null,
+              "rejected": null,
+              "final_output": null,
+              "sink_bytes": null,
+              "elapsed_seconds": null,
+              "throughput_rows_per_second": null,
+              "amplification": null,
+              "reject_ratio": null
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "reset",
+      "status": "stop_requested",
+      "reason": "metrics_reset",
+      "run_id": "e87f4284-fa33-4812-924a-66311f113552",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "metrics_reset"
+        ],
+        "current_metrics": {
+          "source_read": null,
+          "evaluated": null,
+          "valid": null,
+          "rejected": null,
+          "final_output": null,
+          "sink_bytes": null,
+          "elapsed_seconds": null,
+          "throughput_rows_per_second": null,
+          "amplification": null,
+          "reject_ratio": null
+        },
+        "stop_request": {
+          "id": "11d14aff-aac6-4ccf-ba77-6c8db4e36575",
+          "detected_at": "2026-11-14T02:39:16.521896+00:00",
+          "requested_at": "2026-11-14T02:39:16.521896+00:00",
+          "reasons": [
+            "metrics_reset"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:16.547364+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:16.521896+00:00",
+        "latest_observation": {
+          "id": "fa03d783-d099-4f2a-800e-aadbef076b89",
+          "received_at": "2026-11-14T02:39:16.521896+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "ad5a7298-4c24-475d-b94c-abd75d4a3784",
+            "observed_at": "2026-11-14T02:39:16.521423+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 0,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "metrics_reset"
+            ],
+            "metrics": {
+              "source_read": null,
+              "evaluated": null,
+              "valid": null,
+              "rejected": null,
+              "final_output": null,
+              "sink_bytes": null,
+              "elapsed_seconds": null,
+              "throughput_rows_per_second": null,
+              "amplification": null,
+              "reject_ratio": null
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "estimated",
+      "status": "stop_requested",
+      "reason": "bytes_not_measured",
+      "run_id": "24967c79-0266-44d2-8c43-1e344d7dd5c5",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "stop_requested",
+        "publication_veto": true,
+        "reasons": [
+          "bytes_not_measured"
+        ],
+        "current_metrics": {
+          "source_read": null,
+          "evaluated": null,
+          "valid": null,
+          "rejected": null,
+          "final_output": null,
+          "sink_bytes": null,
+          "elapsed_seconds": null,
+          "throughput_rows_per_second": null,
+          "amplification": null,
+          "reject_ratio": null
+        },
+        "stop_request": {
+          "id": "f7583107-8bd8-4d2e-9a20-b69634374834",
+          "detected_at": "2026-11-14T02:39:18.332234+00:00",
+          "requested_at": "2026-11-14T02:39:18.332234+00:00",
+          "reasons": [
+            "bytes_not_measured"
+          ],
+          "delivery_status": "acknowledged",
+          "termination_confirmed": false,
+          "last_delivery_at": "2026-11-14T02:39:18.356092+00:00"
+        },
+        "updated_at": "2026-11-14T02:39:18.332234+00:00",
+        "latest_observation": {
+          "id": "75646b6c-cc87-4582-9d08-70cb7af08b96",
+          "received_at": "2026-11-14T02:39:18.332234+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "estimated",
+            "counter_epoch": "778cde80-7145-4f0a-ac53-efa9b9f0bd75",
+            "observed_at": "2026-11-14T02:39:18.331794+00:00",
+            "state": "running",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "unsafe",
+            "reasons": [
+              "bytes_not_measured"
+            ],
+            "metrics": {
+              "source_read": null,
+              "evaluated": null,
+              "valid": null,
+              "rejected": null,
+              "final_output": null,
+              "sink_bytes": null,
+              "elapsed_seconds": null,
+              "throughput_rows_per_second": null,
+              "amplification": null,
+              "reject_ratio": null
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "zero",
+      "status": "submitted",
+      "reason": null,
+      "run_id": "0140ec56-e2c0-43c3-a51d-946ab1b81d35",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "observing",
+        "publication_veto": true,
+        "reasons": [],
+        "current_metrics": {
+          "source_read": 0,
+          "evaluated": 0,
+          "valid": 0,
+          "rejected": 0,
+          "final_output": 0,
+          "sink_bytes": 0,
+          "elapsed_seconds": 0,
+          "throughput_rows_per_second": null,
+          "amplification": null,
+          "reject_ratio": null
+        },
+        "stop_request": null,
+        "updated_at": "2026-11-14T02:39:20.188534+00:00",
+        "latest_observation": {
+          "id": "f35b9a63-eade-49a1-9233-9feffe5fc109",
+          "received_at": "2026-11-14T02:39:20.188534+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "5a2a1a8e-7b83-43e4-95e5-002092612c6a",
+            "observed_at": "2026-11-14T02:39:20.188134+00:00",
+            "state": "running",
+            "source_read": 0,
+            "evaluated": 0,
+            "valid": 0,
+            "rejected": 0,
+            "final_output": 0,
+            "sink_bytes": 0,
+            "elapsed_seconds": 0
+          },
+          "decision": {
+            "status": "observing",
+            "reasons": [],
+            "metrics": {
+              "source_read": 0,
+              "evaluated": 0,
+              "valid": 0,
+              "rejected": 0,
+              "final_output": 0,
+              "sink_bytes": 0,
+              "elapsed_seconds": 0,
+              "throughput_rows_per_second": null,
+              "amplification": null,
+              "reject_ratio": null
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    },
+    {
+      "scenario": "finished",
+      "status": "supervision_passed",
+      "reason": null,
+      "run_id": "325b8e5c-26af-45c0-8d71-59605a77b7d1",
+      "supervision": {
+        "contract": {
+          "version": "runtime-supervision-v1",
+          "max_rows": 100000,
+          "max_bytes": 268435456,
+          "max_seconds": 600.0,
+          "max_amplification": 2.0,
+          "max_reject_ratio": 0.2,
+          "observation_seconds": 2,
+          "stale_after_seconds": 6,
+          "running_reject_min_evaluated": 100,
+          "row_boundary": "source_read: connector emitted records before mapping",
+          "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+          "output_boundary": "final_output: sink received records after quality and expansion",
+          "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+          "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+          "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+          "empty_policy": "veto_publication",
+          "violation_action": "persist_stop_request_and_veto_publication"
+        },
+        "status": "finished",
+        "publication_veto": false,
+        "reasons": [],
+        "current_metrics": {
+          "source_read": 100,
+          "evaluated": 100,
+          "valid": 100,
+          "rejected": 0,
+          "final_output": 100,
+          "sink_bytes": 1000,
+          "elapsed_seconds": 1,
+          "throughput_rows_per_second": 100.0,
+          "amplification": 1.0,
+          "reject_ratio": 0.0
+        },
+        "stop_request": null,
+        "updated_at": "2026-11-14T02:39:21.940574+00:00",
+        "latest_observation": {
+          "id": "ee3b7ea1-3fef-499c-9322-f3e6cbffd835",
+          "received_at": "2026-11-14T02:39:21.940574+00:00",
+          "source": "l1.fixture.measured",
+          "sample": {
+            "contract_version": "runtime-supervision-v1",
+            "source": "l1.fixture.measured",
+            "byte_kind": "measured",
+            "counter_epoch": "e62d037d-4b13-4052-a619-d231cb73aa9c",
+            "observed_at": "2026-11-14T02:39:21.940167+00:00",
+            "state": "finished",
+            "source_read": 100,
+            "evaluated": 100,
+            "valid": 100,
+            "rejected": 0,
+            "final_output": 100,
+            "sink_bytes": 1000,
+            "elapsed_seconds": 1
+          },
+          "decision": {
+            "status": "finished",
+            "reasons": [],
+            "metrics": {
+              "source_read": 100,
+              "evaluated": 100,
+              "valid": 100,
+              "rejected": 0,
+              "final_output": 100,
+              "sink_bytes": 1000,
+              "elapsed_seconds": 1,
+              "throughput_rows_per_second": 100.0,
+              "amplification": 1.0,
+              "reject_ratio": 0.0
+            }
+          }
+        },
+        "termination": "尚未确认；停止响应仅表示请求已接收，目标占有持续保留"
+      }
+    }
+  ],
+  "worker_private_signing_key": false,
+  "root_deployment_untouched": true,
+  "physical_limits_or_zero_overshoot_verified": false
+}

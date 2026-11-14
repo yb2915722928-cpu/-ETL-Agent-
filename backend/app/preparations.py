@@ -310,6 +310,9 @@ def register_preparation_routes(app, Db, Actor, project_scope):
                   'managed_check': checked['receipt'],
                   'checks': '查询页核对最新受管Profile与本地冻结事实；每次推进前独立P3受管检查实时核对外部Schema及只读权限，记录证据；样本统计丢弃，无外部变更',
                   'created_at': created.isoformat(), 'expires_at': expires.isoformat()}
+        from .runtime_supervision import supervision_contract
+        frozen['runtime_supervision_contract'] = (supervision_contract(frozen['budget'])
+            if frozen['authorized_operation']['data_plane_mutation'] else None)
         row = Preparation(tenant_id=tenant_id, project_id=project_id, maker_id=actor.id, version_id=version.id,
                           tool=body.tool, environment=body.environment, risk_level=risk, frozen=frozen,
                           frozen_sha256=sha256(canonical_json(frozen)), created_at=created, expires_at=expires)
