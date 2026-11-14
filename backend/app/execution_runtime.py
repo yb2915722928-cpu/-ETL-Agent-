@@ -91,6 +91,17 @@ def engine_request(method, path, body=None):
         return json.load(response)
 
 
+def _check_submission_authorization(db, policy, secrets, run, row=None):
+    require_current_role(db, run.tenant_id, run.project_id, run.subject, 'operator')
+    row = row or get_preparation(db, run.tenant_id, run.project_id, run.preparation_id, lock=True)
+    validation = validate_preparation(db, policy, row, check_expiry=False)
+    if not validation['valid']:
+        raise HTTPException(409, '；'.join(validation['reasons']))
+    check_execution_resources(db, policy, secrets,
+        get_version(db, run.tenant_id, run.project_id, row.version_id),
+        db.get(Account, run.subject), 'operator', preparation_id=row.id)
+
+
 def drive(command_id):
     if os.environ.get('EXECUTION_ADAPTER', 'disabled') != 'l1':
         raise RuntimeError('执行适配器未启用；普通部署不得提交引擎')
@@ -118,13 +129,7 @@ def drive(command_id):
                 if row.environment != 'local' or row.tool not in ('pipeline.publish', 'pipeline.trial', 'metadata.read'):
                     raise HTTPException(403, '执行工具或环境未登记')
                 if attempt is None:
-                    require_current_role(db, run.tenant_id, run.project_id, run.subject, 'operator')
-                    validation = validate_preparation(db, policy, row, check_expiry=False)
-                    if not validation['valid']:
-                        raise HTTPException(409, '；'.join(validation['reasons']))
-                    check_execution_resources(db, policy, secrets,
-                        get_version(db, run.tenant_id, run.project_id, row.version_id),
-                        db.get(Account, run.subject), 'operator', preparation_id=row.id)
+                    _check_submission_authorization(db, policy, secrets, run, row)
                     if not payload['authorized_operation']['data_plane_mutation']:
                         run.status = 'metadata_checked'
                         record(db, run, 'execution.metadata_checked', {'command_id': command_id, 'data_plane_mutation': False})
@@ -182,14 +187,7 @@ def drive(command_id):
             if submit:
                 policy = ResourcePolicy()
                 try:
-                    require_current_role(db, run.tenant_id, run.project_id, run.subject, 'operator')
-                    row = get_preparation(db, run.tenant_id, run.project_id, run.preparation_id, lock=True)
-                    validation = validate_preparation(db, policy, row, check_expiry=False)
-                    if not validation['valid']:
-                        raise HTTPException(409, '；'.join(validation['reasons']))
-                    check_execution_resources(db, policy, secrets,
-                        get_version(db, run.tenant_id, run.project_id, row.version_id),
-                        db.get(Account, run.subject), 'operator', preparation_id=row.id)
+                    _check_submission_authorization(db, policy, secrets, run)
                 except HTTPException as error:
                     run.status = attempt.phase = 'denied'
                     attempt.reason = error.detail

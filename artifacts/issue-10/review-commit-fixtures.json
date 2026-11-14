@@ -1,0 +1,13 @@
+{
+  "passed": [
+    "capability expires during bounded real managed preflight: final acceptance denies without consuming",
+    "Preparation deadline during managed I/O, current policy-version drift and real-resource Schema reply drift all deny before consumption",
+    "Commit rechecks expiry, current Operator/Checker roles, frozen bindings and signed tampering",
+    "second Operator cannot use another subject token or create a new Run/change original subject after acceptance",
+    "real PostgreSQL deferred-trigger COMMIT failure rolls back all five acceptance tables, evidence rows, chain heads and tenant sequence; same jti/key subsequently succeeds",
+    "pre-existing valid ManagedCommands retain signature validity; all original envelopes including deliberate L1 corruption remain unchanged",
+    "expired-capability identical retry returns original receipt after current-role check; accepted command verifies in public-key-only process; formats cannot substitute"
+  ],
+  "fixtures": "disposable real PostgreSQL schema, test-process clock, real deferred constraint trigger; public HTTP application",
+  "no_production_fault_routes": true
+}

@@ -4,7 +4,7 @@ Preparation 绑定当前项目的已冻结 PipelineVersion。生成前使用现�
 
 风险由工具登记确定：`pipeline.publish` 为 P1，`pipeline.trial` 为 P2，`metadata.read` 为 P3，未登记工具为 P0。P1/P2 必须独立数据与安全双审批；申请人不可自批，同一账号不能占据两个槽。P0 保留可审计的拒绝状态。P3 只授权元数据读取，不能作为 ETL 写入权限。试运行有效预算上限为 10,000 行、16 MiB、120 秒，且不会放宽版本原始预算。
 
-冻结内容包括作用域、Maker、工具/风险/环境、版本执行及制品指纹、规范化计划、资源/Schema/凭据版本、HOCON、DAG、数据分类、质量口径、有效预算、影响范围、恢复说明、策略/编译器版本、创建及到期时间。固定创建后 24 小时到期，无更新、删除或续期接口；审批决定具名且不可修改。重新申请须创建新准备单并重新审批。
+冻结内容包括作用域、Maker、工具/风险/环境、版本执行及制品指纹、规范化计划、资源/Schema/凭据版本、HOCON、DAG、数据分类、质量口径、有效预算、影响范围、恢复说明、策略/编译器版本、创建及到期时间。固定创建后 24 小时到期，无更新、删除或续期接口；审批在受管检查完成后、写决定之前再次核对同一截止时间，批准和拒绝均不得在到期时刻或之后落单。超时返回 409，在同一事务保留 `approval.denied`，不写决定或 `approval.decided`；审批决定具名且不可修改。重新申请须创建新准备单并重新审批。
 
 列表和详情仅做本地事实检查，不获取凭据、不触发外部读取。页面明确展示该检查边界。每次 Prepare、Approve，以及后续 Commit/Worker 提交推进前，调用独立受管资源检查。受管读取沿用现有资源白名单、授权检查、每资源最多 8 表/64 列、每表 5 样本、单 SQL 3 秒及总 20 秒限制。样本和统计不进入冻结回执或漂移判断。
 
@@ -47,6 +47,6 @@ validation = validate_preparation(db, policy, row)
 
 `scripts/verify_preparations_http.py` 使用公开 HTTP、真实 PostgreSQL 与真实受管连接，验证并发双审批、越权/自批/职责隔离、撤权、拒绝终态、P0/P3、不可变与重启持久性。`--runtime` 指向现有私有运行目录，`--recheck` 在 API 重启后核对已存冻结事实及具名决定。
 
-`scripts/verify_preparations_fixtures.py` 在 API 镜像内通过真实 HTTP 运行同一应用，克隆到一次性 PostgreSQL Schema；仅测试进程注入过期时钟与 Schema 回复，验证到期、Schema/资源/策略/凭据漂移、样本统计排除、GET/list 无外部调用和失败证据持久化。无生产故障端点，完成后删除测试 Schema。运行时将此脚本和 `scripts/verify_identity.py` 放到容器 `/tests`，设置 `PYTHONPATH=/app:/tests`。不需要额外测试依赖。
+`scripts/verify_preparations_fixtures.py` 在 API 镜像内通过真实 HTTP 运行同一应用，克隆到一次性 PostgreSQL Schema；仅测试进程注入过期时钟与 Schema 回复，验证到期、Schema/资源/策略/凭据漂移、样本统计排除、GET/list 无外部调用和失败证据持久化。无生产故障端点，完成后删除测试 Schema。截止时间回归用一张准备单让真实受管检查跨过精确到期时刻，验证批准/拒绝均 409、截止时间不变、无晚决定且拒绝证据持久化，结果见 `artifacts/issue-8/review-expiry-green.json`（旧实现红灯见同目录 `review-expiry-red.json`）。准备单与 Commit 夹具共用 `scripts/isolated_api_fixture.py` 的 Schema 克隆、HTTP 生命周期及销毁；时钟与故障仍留在各自夹具。运行时挂载本仓库 `scripts` 到容器 `/tests`，设置 `PYTHONPATH=/app:/tests`。不需要额外测试依赖。
 
 本工单不颁发 Capability、不提交运行；相关能力由 #9、#10 在集成后验证。根编排器收集浏览器截图与重启后证据。

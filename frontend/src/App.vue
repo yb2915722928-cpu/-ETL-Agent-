@@ -18,6 +18,17 @@ const members = ref([])
 const accounts = ref([])
 const eligible = ref([])
 const tab = ref('projects')
+const tabLabels = {
+  projects: { breadcrumb: '项目协作', title: '项目与成员' },
+  accounts: { breadcrumb: '身份管理', title: '账号管理' },
+  connections: { breadcrumb: '连接与资产', title: '连接与资产' },
+  studio: { breadcrumb: '手工集成 Studio', title: '手工集成 Studio' },
+  versions: { breadcrumb: '冻结版本与 Diff', title: '冻结版本与 Diff' },
+  preparations: { breadcrumb: '准备单与独立审批', title: '准备单与独立审批' },
+  runs: { breadcrumb: '运行中心', title: '运行中心' },
+  audit: { breadcrumb: '审计证据', title: '审计与证据' },
+}
+const currentTab = computed(() => tabLabels[tab.value])
 const error = ref('')
 const message = ref('')
 const busy = ref(false)
@@ -213,8 +224,8 @@ onMounted(async () => {
       <button class="logout" :disabled="busy" @click="signOut">退出登录 ↗</button>
     </aside>
     <section class="content">
-      <header class="topbar"><div><span class="breadcrumb">工作空间 / {{ tab === 'projects' ? '项目协作' : tab === 'audit' ? '审计证据' : tab === 'connections' ? '连接与资产' : tab === 'studio' ? '手工集成 Studio' : tab === 'versions' ? '冻结版本与 Diff' : tab === 'preparations' ? '准备单与独立审批' : tab === 'runs' ? '运行中心' : '身份管理' }}</span>
-        <h1>{{ tab === 'projects' ? '项目与成员' : tab === 'audit' ? '审计与证据' : tab === 'connections' ? '连接与资产' : tab === 'studio' ? '手工集成 Studio' : tab === 'versions' ? '冻结版本与 Diff' : tab === 'preparations' ? '准备单与独立审批' : tab === 'runs' ? '运行中心' : '账号管理' }}</h1></div>
+      <header class="topbar"><div><span class="breadcrumb">工作空间 / {{ currentTab.breadcrumb }}</span>
+        <h1>{{ currentTab.title }}</h1></div>
         <button class="secondary" :disabled="busy" @click="run(refresh)">↻ 刷新权限</button>
       </header>
       <p v-if="error" class="notice error" role="alert">{{ error }}</p>

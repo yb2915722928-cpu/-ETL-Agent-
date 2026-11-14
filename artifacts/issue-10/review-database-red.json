@@ -1,0 +1,17 @@
+{
+  "passed": [],
+  "failures": [
+    "sent Outbox command remained queued after PG restore; ordinary worker failure ACKed",
+    "post-POST SQLSTATE40001 left durable Attempt submitting; task ACKed without discovery"
+  ],
+  "worker_log": [
+    "[2026-11-14 01:12:46,157: ERROR/ForkPoolWorker-1] Task etl.drive[e7b1793a-392e-4e36-ad9c-e08f55d2d9fd] raised unexpected: OperationalError('(psycopg.OperationalError) [Errno -3] Try again')",
+    "[2026-11-14 01:13:11,580: ERROR/ForkPoolWorker-1] Task etl.drive[868ab235-d59a-40d2-9da8-4d0c83d3c115] raised unexpected: OperationalError('(psycopg.errors.SerializationFailure) review transient result commit\\nCONTEXT:  PL/pgSQL function fail_result() line 1 at RAISE')"
+  ],
+  "isolated_engine_jobs": 1,
+  "public_engine_ledger_untouched": true,
+  "worker_private_signing_key": false,
+  "outage_run_status": "queued",
+  "post_submit_status": "submitting",
+  "retained_public_engine_jobs": 2
+}

@@ -1,11 +1,16 @@
 """Pure public recheck of retained L1 control facts after service recreation."""
+import argparse
 from datetime import datetime
 import json
 from pathlib import Path
 import urllib.request
 from verify_identity import Client
 
-runtime = Path('.runtime/l1')
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--runtime', type=Path, default=Path('.runtime/l1'))
+parser.add_argument('--output', type=Path, default=Path('artifacts/issue-10/restart-recheck.json'))
+args = parser.parse_args()
+runtime = args.runtime
 state = json.loads((runtime / 'execution-state.json').read_text(encoding='utf-8'))
 credentials = json.loads((runtime / 'bootstrap-demo.json').read_text(encoding='utf-8'))
 alias = json.loads((runtime / 'alias-credentials.json').read_text(encoding='utf-8'))
@@ -32,5 +37,5 @@ with urllib.request.urlopen('http://127.0.0.1:8011/ledger') as response:
 assert {j['id'] for j in jobs} == {j['id'] for j in state['durable_jobs']}
 report = {'passed': ['recreated API/worker/Engine preserve both original jobs, correlations, ownership, blocked alias and metadata-only control facts; public GET remains pure'],
           'aged_metadata_queue_seconds_from_durable_events': round(queue_age, 3), 'engine_job_count': len(jobs)}
-Path('artifacts/issue-10/restart-recheck.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
 print(json.dumps(report, ensure_ascii=False, indent=2))

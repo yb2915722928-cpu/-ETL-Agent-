@@ -44,4 +44,4 @@ payload = verify_envelope(command.envelope, configured_base64_public_key, COMMAN
 
 `scripts/verify_commits_http.py` 通过公开 HTTP 和真实受管连接验证签发→Commit→持久查询、相同请求并发 201/200、独立有效令牌/键并发 201/409、幂等冲突/重放及租户/角色隔离；P3 命令保留只读授权。使用 `--runtime` 指向根私有运行目录，支持 `--recheck` 验证 API 重启后原事实不变。
 
-`scripts/verify_commits_fixtures.py` 在 API 镜像内以 `PYTHONPATH=/app:/tests` 运行，将此脚本和 `scripts/verify_identity.py` 放入 `/tests`。使用一次性真实 PostgreSQL Schema 与隔离 HTTP 应用验证时效、检查中途到期、撤权/禁用账号、策略/Schema/冻结指纹漂移、跨主体令牌与独立操作员、无私钥进程验签。使用 `DEFERRABLE INITIALLY DEFERRED` 约束触发器在数据库 COMMIT 阶段抛出真实异常，验证五张接受表、证据表、链头和租户序号一起回滚；移除故障后原 jti/键仍可成功。测试完成删除隔离 Schema。无生产故障端点或根数据库时间戳修改。最终报告记录于 `artifacts/issue-9/`。根编排器负责真实 Chrome 页面流程及最终审查，工单保持开放。
+`scripts/verify_commits_fixtures.py` 在 API 镜像内以 `PYTHONPATH=/app:/tests` 运行，将仓库 `scripts` 目录整体挂载到 `/tests`，以包含共用的 `scripts/isolated_api_fixture.py`；测试时钟与故障仍由本脚本独立设置。使用一次性真实 PostgreSQL Schema 与隔离 HTTP 应用验证时效、检查中途到期、撤权/禁用账号、策略/Schema/冻结指纹漂移、跨主体令牌与独立操作员、无私钥进程验签。使用 `DEFERRABLE INITIALLY DEFERRED` 约束触发器在数据库 COMMIT 阶段抛出真实异常，验证五张接受表、证据表、链头和租户序号一起回滚；移除故障后原 jti/键仍可成功。测试完成删除隔离 Schema。无生产故障端点或根数据库时间戳修改。最终报告记录于 `artifacts/issue-9/`。根编排器负责真实 Chrome 页面流程及最终审查，工单保持开放。
