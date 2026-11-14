@@ -9,8 +9,12 @@ from .execution_runtime import command_lock, record
 
 
 def publish_once(after_publish=None):
+    from sqlalchemy import func
+    from .run_control import RunControl
     with Session() as db:
-        ids = list(db.scalars(select(Outbox.command_id).where(Outbox.status == 'pending').order_by(Outbox.created_at).limit(100)))
+        pending = list(db.scalars(select(Outbox.command_id).where(Outbox.status == 'pending').order_by(Outbox.created_at).limit(100)))
+        recovery = list(db.scalars(select(RunControl.command_id).where(RunControl.wake_at <= func.clock_timestamp()).limit(100)))
+        ids = list(dict.fromkeys([*pending, *recovery]))
     for command_id in ids:
         # Publisher and driver deliberately use separate advisory lock domains.
         with command_lock('outbox:' + command_id) as acquired:
@@ -20,8 +24,14 @@ def publish_once(after_publish=None):
                 command = db.get(ManagedCommand, command_id)
                 lock_tenant(db, command.tenant_id)
                 outbox = db.scalar(select(Outbox).where(Outbox.command_id == command_id).with_for_update())
-                if outbox.status != 'pending':
+                control = db.get(RunControl, command_id)
+                now = db.scalar(select(func.clock_timestamp()))
+                due = control and control.wake_at and control.wake_at <= now
+                if outbox.status != 'pending' and not due:
                     continue
+                if control:
+                    from datetime import timedelta
+                    control.wake_at = now + timedelta(seconds=15)
                 outbox.attempts += 1
                 run = db.get(ExecutionRun, command.run_id)
                 record(db, run, 'outbox.publication_requested', {'command_id': command_id, 'attempt': outbox.attempts})

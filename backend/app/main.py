@@ -354,3 +354,6 @@ register_preparation_routes(app, Db, Actor, project_scope)
 from .execution import register_execution_routes
 from . import execution_runtime  # Register additive execution tables before startup migration.
 register_execution_routes(app, Db, Actor, project_scope)
+
+from .run_control import register_control_routes
+register_control_routes(app, Db, Actor, project_scope)

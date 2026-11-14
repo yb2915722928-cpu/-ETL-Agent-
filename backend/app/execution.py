@@ -249,6 +249,8 @@ def register_execution_routes(app, Db, Actor, project_scope):
         from .supervision_runtime import RuntimeSupervision
         if expected['runtime_supervision_contract'] is not None:
             db.add(RuntimeSupervision(command_id=command_id, contract=expected['runtime_supervision_contract'], updated_at=now))
+        from .run_control import RunControl
+        db.add(RunControl(command_id=command_id, facts={}, wake_at=now))
         db.flush()
         append_event(db, actor, 'commit.accepted', {'command_id': command_id, 'jti': payload['jti'],
                      'status': 'queued', 'frozen_sha256': row.frozen_sha256}, project_id,

@@ -24,7 +24,7 @@ from .managed_secrets import SecretProvider
 from .models import Account, EvidenceEvent, new_id
 from .preparations import check_execution_resources, get_preparation, require_current_role, validate_preparation
 from .versions import get_version
-from .supervision_runtime import supervise_locked, supervision_view
+from .supervision_runtime import RuntimeSupervision, supervision_view
 
 
 class EngineAttempt(Base):
@@ -72,6 +72,7 @@ def execution_view(db, command_id):
     attempt = db.get(EngineAttempt, command_id)
     ownership = db.scalar(select(TargetOwnership).where(TargetOwnership.command_id == command_id))
     command = db.get(ManagedCommand, command_id)
+    from .run_control import control_view
     events = list(db.scalars(select(EvidenceEvent).where(EvidenceEvent.run_id == command.run_id,
         EvidenceEvent.scope == command.project_id).order_by(EvidenceEvent.sequence.desc()).limit(20)))
     return {'level': 'L1' if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'l1' else 'disabled',
@@ -82,7 +83,8 @@ def execution_view(db, command_id):
             'control_facts': [{'action': event.action, 'occurred_at': event.occurred_at,
                                'facts': event.facts} for event in reversed(events)],
             'supervision': supervision_view(db, command_id),
-            'publication': '未实现：L1 不执行数据搬运、发布或清理'}
+            'control': control_view(db, command_id),
+            'publication': 'L1 仅确认模拟未发布对象清理；不执行真实 ETL、发布或回退'}
 
 
 def engine_request(method, path, body=None):
@@ -94,6 +96,9 @@ def engine_request(method, path, body=None):
 
 
 def _check_submission_authorization(db, policy, secrets, run, row=None):
+    from .run_control import check_bound_secrets
+    command = db.scalar(select(ManagedCommand).where(ManagedCommand.run_id == run.id))
+    check_bound_secrets(db, command)
     require_current_role(db, run.tenant_id, run.project_id, run.subject, 'operator')
     row = row or get_preparation(db, run.tenant_id, run.project_id, run.preparation_id, lock=True)
     validation = validate_preparation(db, policy, row, check_expiry=False)
@@ -105,11 +110,13 @@ def _check_submission_authorization(db, policy, secrets, run, row=None):
 
 
 def drive(command_id):
+    from .run_control import advance_control
     state = _submit(command_id)
-    if state not in ('submitted', 'stop_requested'):
+    if state not in ('submitted', 'stop_requested', 'stop_delivery_unknown', 'termination_pending',
+                     'final_metrics_pending', 'terminated', 'supervision_passed', 'cleanup_unknown'):
         return state
     with command_lock(command_id) as acquired:
-        return supervise_locked(command_id) if acquired else 'busy'
+        return advance_control(command_id) if acquired else 'busy'
 
 
 def _submit(command_id):
@@ -127,8 +134,24 @@ def _submit(command_id):
             run = db.get(ExecutionRun, command.run_id)
             row = get_preparation(db, run.tenant_id, run.project_id, run.preparation_id, lock=True)
             attempt = db.get(EngineAttempt, command_id)
-            if run.status in ('submitted', 'denied', 'metadata_checked', 'blocked_target', 'stop_requested',
-                              'supervision_passed', 'supervision_unavailable'):
+            supervision = db.get(RuntimeSupervision, command_id)
+            if attempt is None and supervision and supervision.stop_request:
+                from .run_control import control_row, effects_for
+                control = control_row(db, command_id)
+                control.facts = {**control.facts, 'termination': {'confirmed': True, 'basis': 'cancelled_before_submission',
+                    'confirmed_at': datetime.now(timezone.utc).isoformat(), 'terminated_at': None}}
+                control.wake_at = None
+                for effect in effects_for(db, command_id):
+                    effect.phase, effect.result = 'confirmed', {'cancelled_before_submission': True}
+                run.status = 'cancelled'
+                record(db, run, 'control.cancelled_before_submission', {'command_id': command_id})
+                return run.status
+            if run.status in ('denied', 'metadata_checked', 'blocked_target', 'cancelled', 'cleaned', 'supervision_unavailable'):
+                # Terminal without cleanup: the publisher must stop waking this command.
+                from .run_control import control_row
+                control_row(db, command_id).wake_at = None
+                return run.status
+            if attempt and attempt.engine_job_id:
                 return run.status
             try:
                 payload = verify_envelope(command.envelope, os.environ['COMMAND_PUBLIC_KEY'], COMMAND_FORMAT)
@@ -162,7 +185,8 @@ def _submit(command_id):
                     request = {'command_id': command_id, 'run_id': run.id, 'correlation_id': new_id(),
                         'tenant_id': run.tenant_id, 'project_id': run.project_id, 'tool': row.tool,
                         'environment': row.environment, 'adapter': 'l1', 'engine_url': os.environ['L1_ENGINE_URL'],
-                        'target': identity, 'budget': payload['budget'], 'authorized_operation': payload['authorized_operation'],
+                        'target': identity, 'unpublished_object': 'l1-unpublished:' + command_id,
+                        'budget': payload['budget'], 'authorized_operation': payload['authorized_operation'],
                         'runtime_supervision_contract': payload['runtime_supervision_contract'],
                         'bundle_sha256': payload['bundle_sha256'], 'artifact_hashes': payload['artifact_hashes']}
                     digest = hashlib.sha256(signing_bytes(request)).hexdigest()

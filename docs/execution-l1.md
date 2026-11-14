@@ -88,3 +88,27 @@ npm run build --prefix frontend
 ```
 
 `verify_supervision_browser.cjs` 用实际生产 Vue bundle 回放上述已持久化 L1 HTTP 事实，验证中文停止/闭锁/原因、缺失与零分母展示；这是独立 UI smoke，不替代前述真实 API/Worker 验证。可在本工作树安装忽略目录的浏览器驱动后运行：`npm install --prefix .runtime/browser --no-package-lock --no-save --ignore-scripts playwright@1.56.1`，`node scripts/verify_supervision_browser.cjs`（使用本机 Edge）。报告和截图位于 `artifacts/issue-11/browser.json`、`budget-stop.png` 与 `missing-metrics.png`。
+
+## #12：受管停止、终止确认与未发布对象清理
+
+`backend/app/run_control.py` 是单一深模块，入口只有 `request_control`、`advance_control(command_id)` 与 `control_view`。检测、停止请求、投递、ACK、终止确认、最终指标与清理结果各自独立落库，不使用单一宽泛状态推导：`run_controls` 保存租约、在途调用、终止依据、最终指标与超调，`managed_control_effects` 为每次受管停止/清理保存独立签名信封、幂等键、请求摘要与阶段。停止闭锁复用 #11 的 `request_stop`，ACK 只表示 Engine 收到请求，不表示终止；最终指标独立于终止确认计算，某指标缺失时该分项超调为 `null`，不用零代替。
+
+公开受管控制路由只有 `POST /api/tenants/{tenant_id}/projects/{project_id}/runs/{run_id}/{stop|cleanup}`（仅 stop/cleanup，其他 kind 为 404）。Operator 具名请求携带 `idempotency_key` 与 `reason`；同键同摘要返回既有效果，同键不同摘要 409。租约用 CAS 而非外部 fencing：过期租约记录 `control.lease_reconciled`（保留目标占有）后再取新租约，在途调用永不重放，只按持久效果 ID 回读核对。清理要求当前 Operator 职责、原绑定凭据可解密、终止已由 Engine 确认且无在途调用、最终指标已知，并按签名信封中的固定对象范围核对 TargetOwnership 后才释放；任一不符即 `unknown` 并保留占有。
+
+Worker 循环由 `backend/app/outbox_publisher.py` 的持久唤醒驱动：publish_once 合并 pending Outbox 与 `run_controls.wake_at <= clock_timestamp()`，使用与 driver 不同的 advisory lock 域。撤销 Operator/Maker 职责或原绑定凭据不可用时，排队命令在提交前被拒且不产生 Engine 作业；运行中命令闭锁受管停止并禁止发布。
+
+`scripts/verify_run_control_l1.py` 验证公开 Operator 停止、ACK 不等于终止、延迟最终指标、真实超调与独立受管清理；`scripts/verify_run_control_recovery_l1.py` 验证撤销职责/原绑定凭据不可用时排队命令被拒且无 Engine 作业、运行中撤销闭锁派生停止、丢失停止回执后保持 `unknown` 并保留占有、过期租约只核对不重放、丢失清理回执同样在核对后才释放。#11 的 `scripts/verify_supervision_l1.py`（12 个公开监督场景）在本代码上回归通过：预算闭锁与持久否决不变，且预算达标的运行只有在 Engine 确认终止后才进入 `supervision_passed`；为此隔离 Engine 增加“当前观测已报告 finished 的作业自行终止”的能力（`l1_engine_fixture.py` 的 `current_state`），不再要求先有停止请求才能终止。三者都只动一次性 Schema、唯一 Redis 队列与临时 SQLite Engine，根容器与运行目录未改动。运行示例（在本工作树执行，`$baseline` 指向既有部署根目录）：
+
+```powershell
+$baseline = 'E:\课件\23-实战\生产级 ETL-Agent 数据集成平台'
+$worktree = (Get-Location).Path
+$mounts = @(
+  "--project-directory", $baseline, "--env-file", "$baseline/.runtime/l1/deployment.env",
+  "-f", "$baseline/compose.l1.yaml", "run", "--rm", "--no-deps", "-T", "-e", "PYTHONPATH=/app:/tests",
+  "-v", "${worktree}/backend/app:/app/app:ro", "-v", "${worktree}/scripts:/tests:ro",
+  "-v", "${baseline}/.runtime/l1:/run/identity:ro", "-v", "${worktree}/artifacts/issue-12:/results")
+docker compose @mounts api python /tests/verify_run_control_l1.py /results/l1.json
+docker compose @mounts api python /tests/verify_run_control_recovery_l1.py /results/recovery-l1.json
+```
+
+报告为 `artifacts/issue-12/l1.json` 与 `artifacts/issue-12/recovery-l1.json`，均显式记录 `root_deployment_untouched`、`worker_private_signing_key` 与 `zero_overshoot_or_real_etl_or_rollback_verified`。本阶段未连接 SeaTunnel，不执行真实 Doris 写入、数据搬运、正式发布或回退；取消不等于回退，也没有可恢复暂停。真实 L2 的字节来源与作业关联由 #13 单独验收。
