@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-11-14T00:15:41.364162+00:00",
+  "phase": "preparations",
+  "passed": [
+    "frozen facts, named decisions and fixed expiry survive API restart"
+  ],
+  "limits": "V07 authorization facts only; no execution or capability issuance"
+}

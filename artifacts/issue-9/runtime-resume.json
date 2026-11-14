@@ -1,0 +1,6 @@
+{
+  "checked_at": "2026-11-14T00:15:42.741910+00:00",
+  "passed": [
+    "same queued Run, original subject, signed command and pending Outbox survive API restart"
+  ]
+}
