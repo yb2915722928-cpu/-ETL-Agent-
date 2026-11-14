@@ -1,0 +1,367 @@
+{
+  "checked_at": "2026-11-14T04:29:33.975647+00:00",
+  "level": "L1",
+  "passed": [
+    "public Operator stop; ACK is not terminal; late final metrics; actual overshoot; independent managed cleanup"
+  ],
+  "run_id": "31b4254b-65bb-46e2-a219-3b1efc22912f",
+  "control": {
+    "inflight": null,
+    "termination": {
+      "id": "888425a7-c1ca-4a19-8f0e-b447cddf2427",
+      "correlation_id": "d75a9ade-c60f-4023-8504-a3c3130d6e82",
+      "request_sha256": "d6128a6087d8a34dec11ad2d756701beac240734aa645f33ef1e1e5ff24c1453",
+      "state": "finished",
+      "inflight_writes": 0,
+      "terminated_at": "2026-11-14T04:29:28.794765+00:00",
+      "unpublished_object": "l1-unpublished:9183675a-0dd6-48b8-8bae-20581db163ff",
+      "publication": "unpublished",
+      "confirmed": true,
+      "basis": "engine_terminal",
+      "confirmed_at": "2026-11-14T04:29:28.799380+00:00"
+    },
+    "final_metrics": {
+      "status": "known",
+      "sample": {
+        "contract_version": "runtime-supervision-v1",
+        "source": "l1.fixture.measured",
+        "byte_kind": "measured",
+        "counter_epoch": "888425a7-c1ca-4a19-8f0e-b447cddf2427",
+        "observed_at": "2026-11-14T04:29:32.932175+00:00",
+        "state": "finished",
+        "source_read": 100009,
+        "evaluated": 100,
+        "valid": 100,
+        "rejected": 0,
+        "final_output": 100,
+        "sink_bytes": 1000,
+        "elapsed_seconds": 1
+      },
+      "received_at": "2026-11-14T04:29:32.926028+00:00",
+      "metrics": {
+        "source_read": 100009,
+        "evaluated": 100,
+        "valid": 100,
+        "rejected": 0,
+        "final_output": 100,
+        "sink_bytes": 1000,
+        "elapsed_seconds": 1,
+        "throughput_rows_per_second": 100.0,
+        "amplification": 0.0009999100080992712,
+        "reject_ratio": 0.0
+      },
+      "overshoot": {
+        "source_read": 9,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0,
+        "amplification": 0,
+        "reject_ratio": 0
+      },
+      "post_detection_delta": {
+        "source_read": 99909,
+        "evaluated": 0,
+        "valid": 0,
+        "rejected": 0,
+        "final_output": 0,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0
+      }
+    },
+    "lease": {
+      "lease_owner": "09da526f7091:13",
+      "lease_token": "79581cf0-6f32-49fb-b33a-c28909e11611",
+      "last_seen_at": "2026-11-14T04:29:33.356683+00:00",
+      "lease_expires_at": "2026-11-14T04:29:48.356683+00:00",
+      "wake_at": null
+    },
+    "effects": [
+      {
+        "id": "7fe8a630-99c4-4b22-b880-77334f801232",
+        "kind": "stop",
+        "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+        "phase": "confirmed",
+        "envelope": {
+          "payload": {
+            "format": "etl-managed-control-v1",
+            "effect_id": "7fe8a630-99c4-4b22-b880-77334f801232",
+            "command_id": "9183675a-0dd6-48b8-8bae-20581db163ff",
+            "run_id": "31b4254b-65bb-46e2-a219-3b1efc22912f",
+            "tenant_id": "255ee370-8c98-4e2d-8a24-cc2944f9aa32",
+            "project_id": "999711d4-782e-4956-99e3-b45bc7e16f4f",
+            "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+            "kind": "stop",
+            "reason": "Operator 请求停止核对",
+            "resources": {
+              "source": {
+                "connection_id": "8c13e12e-611e-4e79-ab7a-3ae0ac93db56",
+                "resource_id": "acceptance-mysql",
+                "resource_fingerprint": "31a35f3efb9417705b59fbb791bba32ce880b64cb518b1bc09b7c0ae102f5acb",
+                "schema_hash": "fe6c717e6beda6e5a079fceb75f6c931093df2f5bcd6b3282e5e0ff85dc89183",
+                "schema": {
+                  "name": "orders",
+                  "columns": [
+                    {
+                      "name": "id",
+                      "type": "bigint",
+                      "nullable": false,
+                      "key": "PRI"
+                    },
+                    {
+                      "name": "customer_id",
+                      "type": "bigint",
+                      "nullable": false,
+                      "key": "MUL"
+                    },
+                    {
+                      "name": "amount",
+                      "type": "decimal(20,6)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "order_date",
+                      "type": "date",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "payload",
+                      "type": "json",
+                      "nullable": true,
+                      "key": ""
+                    }
+                  ]
+                },
+                "secret_reference_id": "8db56f91-fcf1-4727-b60d-bf6499eb9ddf",
+                "secret_version": 1
+              },
+              "target": {
+                "connection_id": "9bab5f19-540c-44cd-bce5-6acc4f19cccd",
+                "resource_id": "acceptance-doris",
+                "resource_fingerprint": "883bdf283a2e726960d2be5c79fcb36403aeec2c2c0577eb840b7bb43cec1abd",
+                "schema_hash": "dd4a1ae25097310320b03337cc1facdf019f55c43837f4afe847125b8c2be71d",
+                "schema": {
+                  "name": "orders",
+                  "columns": [
+                    {
+                      "name": "id",
+                      "type": "bigint(20)",
+                      "nullable": false,
+                      "key": "UNI"
+                    },
+                    {
+                      "name": "customer_id",
+                      "type": "bigint(20)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "amount",
+                      "type": "decimalv3(20, 6)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "order_date",
+                      "type": "date",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "payload",
+                      "type": "json",
+                      "nullable": true,
+                      "key": ""
+                    }
+                  ]
+                },
+                "secret_reference_id": "91b62358-2843-401d-83a6-ede7744ad625",
+                "secret_version": 1
+              }
+            },
+            "budget": {
+              "http_timeout_seconds": 5,
+              "scope": "only_this_run_unpublished_object"
+            },
+            "key_id": "6ff02603966b97469b28bfb89f1ada1c3142e828b1da16f64ed5550d1d2245bb"
+          },
+          "signature": "/ZrzTHbPvMHx8ctpX+3sPNRexZviezBL7T1M3MgEDPykYuql/g5vFRB7HLhCTjO46/SIYXGSC/4CI1YlbwXHDA=="
+        },
+        "request_sha256": "7cee6e114f2f0f49a02ad30e50975f23aa427a5502305b49554e8f6052c3f5d7",
+        "result": {
+          "correlation_id": "d75a9ade-c60f-4023-8504-a3c3130d6e82",
+          "effect_id": "7fe8a630-99c4-4b22-b880-77334f801232",
+          "job_id": "888425a7-c1ca-4a19-8f0e-b447cddf2427",
+          "request_id": "5868a96f-5cf0-4337-a849-edee16dee3f7",
+          "request_sha256": "d6128a6087d8a34dec11ad2d756701beac240734aa645f33ef1e1e5ff24c1453",
+          "unpublished_object": "l1-unpublished:9183675a-0dd6-48b8-8bae-20581db163ff",
+          "accepted": true
+        },
+        "created_at": "2026-11-14T04:29:22.852235+00:00",
+        "updated_at": "2026-11-14T04:29:24.689468+00:00"
+      },
+      {
+        "id": "2a46e255-e5ee-4c19-ae35-6106f39e4a56",
+        "kind": "cleanup",
+        "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+        "phase": "confirmed",
+        "envelope": {
+          "payload": {
+            "format": "etl-managed-control-v1",
+            "effect_id": "2a46e255-e5ee-4c19-ae35-6106f39e4a56",
+            "command_id": "9183675a-0dd6-48b8-8bae-20581db163ff",
+            "run_id": "31b4254b-65bb-46e2-a219-3b1efc22912f",
+            "tenant_id": "255ee370-8c98-4e2d-8a24-cc2944f9aa32",
+            "project_id": "999711d4-782e-4956-99e3-b45bc7e16f4f",
+            "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+            "kind": "cleanup",
+            "reason": "清理本次未发布对象",
+            "resources": {
+              "source": {
+                "connection_id": "8c13e12e-611e-4e79-ab7a-3ae0ac93db56",
+                "resource_id": "acceptance-mysql",
+                "resource_fingerprint": "31a35f3efb9417705b59fbb791bba32ce880b64cb518b1bc09b7c0ae102f5acb",
+                "schema_hash": "fe6c717e6beda6e5a079fceb75f6c931093df2f5bcd6b3282e5e0ff85dc89183",
+                "schema": {
+                  "name": "orders",
+                  "columns": [
+                    {
+                      "name": "id",
+                      "type": "bigint",
+                      "nullable": false,
+                      "key": "PRI"
+                    },
+                    {
+                      "name": "customer_id",
+                      "type": "bigint",
+                      "nullable": false,
+                      "key": "MUL"
+                    },
+                    {
+                      "name": "amount",
+                      "type": "decimal(20,6)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "order_date",
+                      "type": "date",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "payload",
+                      "type": "json",
+                      "nullable": true,
+                      "key": ""
+                    }
+                  ]
+                },
+                "secret_reference_id": "8db56f91-fcf1-4727-b60d-bf6499eb9ddf",
+                "secret_version": 1
+              },
+              "target": {
+                "connection_id": "9bab5f19-540c-44cd-bce5-6acc4f19cccd",
+                "resource_id": "acceptance-doris",
+                "resource_fingerprint": "883bdf283a2e726960d2be5c79fcb36403aeec2c2c0577eb840b7bb43cec1abd",
+                "schema_hash": "dd4a1ae25097310320b03337cc1facdf019f55c43837f4afe847125b8c2be71d",
+                "schema": {
+                  "name": "orders",
+                  "columns": [
+                    {
+                      "name": "id",
+                      "type": "bigint(20)",
+                      "nullable": false,
+                      "key": "UNI"
+                    },
+                    {
+                      "name": "customer_id",
+                      "type": "bigint(20)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "amount",
+                      "type": "decimalv3(20, 6)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "order_date",
+                      "type": "date",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "payload",
+                      "type": "json",
+                      "nullable": true,
+                      "key": ""
+                    }
+                  ]
+                },
+                "secret_reference_id": "91b62358-2843-401d-83a6-ede7744ad625",
+                "secret_version": 1
+              }
+            },
+            "budget": {
+              "http_timeout_seconds": 5,
+              "scope": "only_this_run_unpublished_object"
+            },
+            "target_key": "e1bd3968914ec7aad953e3a20de303a64e4b8859f033afab86f1c1d66cc24936",
+            "target": {
+              "physical_cluster_id": "l1-synthetic-doris",
+              "database": "connector_source",
+              "table": "orders"
+            },
+            "unpublished_object": "l1-unpublished:9183675a-0dd6-48b8-8bae-20581db163ff",
+            "engine_job_id": "888425a7-c1ca-4a19-8f0e-b447cddf2427",
+            "correlation_id": "d75a9ade-c60f-4023-8504-a3c3130d6e82",
+            "submission_sha256": "d6128a6087d8a34dec11ad2d756701beac240734aa645f33ef1e1e5ff24c1453",
+            "key_id": "6ff02603966b97469b28bfb89f1ada1c3142e828b1da16f64ed5550d1d2245bb"
+          },
+          "signature": "2ti5nR38j4L7Ien67gqgeXKUDwY4CINROh0pxoTANcWJ7W67NH9HmZbWZQUth8cacpU1GxqC8vSx6CAwuQJODg=="
+        },
+        "request_sha256": "ecf46759d8182634c5149deaeb2220d7cb0727c72fb0e82a7b997f9d020dda98",
+        "result": {
+          "correlation_id": "d75a9ade-c60f-4023-8504-a3c3130d6e82",
+          "effect_id": "2a46e255-e5ee-4c19-ae35-6106f39e4a56",
+          "job_id": "888425a7-c1ca-4a19-8f0e-b447cddf2427",
+          "request_id": "2a46e255-e5ee-4c19-ae35-6106f39e4a56",
+          "request_sha256": "d6128a6087d8a34dec11ad2d756701beac240734aa645f33ef1e1e5ff24c1453",
+          "unpublished_object": "l1-unpublished:9183675a-0dd6-48b8-8bae-20581db163ff",
+          "cleaned": true
+        },
+        "created_at": "2026-11-14T04:29:33.290720+00:00",
+        "updated_at": "2026-11-14T04:29:33.393745+00:00"
+      }
+    ]
+  },
+  "stop": {
+    "id": "5868a96f-5cf0-4337-a849-edee16dee3f7",
+    "detected_at": "2026-11-14T04:29:22.852235+00:00",
+    "requested_at": "2026-11-14T04:29:22.852235+00:00",
+    "reasons": [
+      "operator_stop"
+    ],
+    "detection_metrics": {
+      "source_read": 100,
+      "evaluated": 100,
+      "valid": 100,
+      "rejected": 0,
+      "final_output": 100,
+      "sink_bytes": 1000,
+      "elapsed_seconds": 1,
+      "throughput_rows_per_second": 100.0,
+      "amplification": 1.0,
+      "reject_ratio": 0.0
+    },
+    "delivery_status": "acknowledged",
+    "termination_confirmed": true,
+    "dispatched_at": "2026-11-14T04:29:24.683059+00:00",
+    "acknowledged_at": "2026-11-14T04:29:24.689468+00:00"
+  },
+  "root_deployment_untouched": true,
+  "worker_private_signing_key": false,
+  "zero_overshoot_or_real_etl_or_rollback_verified": false
+}

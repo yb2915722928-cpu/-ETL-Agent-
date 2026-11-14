@@ -1,0 +1,429 @@
+{
+  "checked_at": "2026-11-14T04:34:19.358942+00:00",
+  "level": "L1",
+  "run_id": "79a38136-9303-4fce-9bd7-accc9081cf96",
+  "passed": [
+    "queued revocation and lost bound credential deny submission with no engine job",
+    "running revocation latches a derived stop; lost stop receipt stays unknown and retains ownership",
+    "expired lease is reconciled without replaying the persisted call",
+    "late final metrics confirm real overshoot and publication veto; lost cleanup receipt still releases only after discovery"
+  ],
+  "control": {
+    "inflight": null,
+    "termination": {
+      "id": "d266ae57-90dd-467e-b8e2-5e76d4b8964b",
+      "correlation_id": "8d4c8bcf-7247-439b-8943-bea66859cb01",
+      "request_sha256": "39a2be1b14821699d14ace5b97cb8e9a139fae481ed99d326599008a6d971b39",
+      "state": "finished",
+      "inflight_writes": 0,
+      "terminated_at": "2026-11-14T04:34:07.793483+00:00",
+      "unpublished_object": "l1-unpublished:d16e1ba7-361f-4381-981f-db108a58dd3c",
+      "publication": "unpublished",
+      "confirmed": true,
+      "basis": "engine_terminal",
+      "confirmed_at": "2026-11-14T04:34:07.798270+00:00"
+    },
+    "final_metrics": {
+      "status": "known",
+      "sample": {
+        "contract_version": "runtime-supervision-v1",
+        "source": "l1.fixture.measured",
+        "byte_kind": "measured",
+        "counter_epoch": "d266ae57-90dd-467e-b8e2-5e76d4b8964b",
+        "observed_at": "2026-11-14T04:34:11.914697+00:00",
+        "state": "finished",
+        "source_read": 100009,
+        "evaluated": 100,
+        "valid": 100,
+        "rejected": 0,
+        "final_output": 100,
+        "sink_bytes": 1000,
+        "elapsed_seconds": 1
+      },
+      "received_at": "2026-11-14T04:34:11.908774+00:00",
+      "metrics": {
+        "source_read": 100009,
+        "evaluated": 100,
+        "valid": 100,
+        "rejected": 0,
+        "final_output": 100,
+        "sink_bytes": 1000,
+        "elapsed_seconds": 1,
+        "throughput_rows_per_second": 100.0,
+        "amplification": 0.0009999100080992712,
+        "reject_ratio": 0.0
+      },
+      "overshoot": {
+        "source_read": 9,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0,
+        "amplification": 0,
+        "reject_ratio": 0
+      },
+      "post_detection_delta": {
+        "source_read": 99909,
+        "evaluated": 0,
+        "valid": 0,
+        "rejected": 0,
+        "final_output": 0,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0
+      }
+    },
+    "lease": {
+      "lease_owner": "138b5a6006b2:13",
+      "lease_token": "085bde36-cdf3-4932-9e95-38297cb88839",
+      "last_seen_at": "2026-11-14T04:34:19.230244+00:00",
+      "lease_expires_at": "2026-11-14T04:34:34.230244+00:00",
+      "wake_at": null
+    },
+    "effects": [
+      {
+        "id": "3d5e8d74-4846-4fa7-8054-9458475ed3bd",
+        "kind": "stop",
+        "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+        "phase": "confirmed",
+        "envelope": {
+          "authorization": {
+            "payload": {
+              "format": "etl-managed-command-v1",
+              "command_id": "d16e1ba7-361f-4381-981f-db108a58dd3c",
+              "run_id": "79a38136-9303-4fce-9bd7-accc9081cf96",
+              "accepted_at": "2026-11-14T04:33:54.111104+00:00",
+              "tenant_id": "255ee370-8c98-4e2d-8a24-cc2944f9aa32",
+              "project_id": "999711d4-782e-4956-99e3-b45bc7e16f4f",
+              "subject": "8605f6a5-4b56-4c10-8527-68841caba20c",
+              "preparation_id": "8f263f03-08a0-454c-83ff-3fbb0dd5bbe2",
+              "frozen_sha256": "ff58b9272f64e1d8040fd9220a174329e6a2120274d340e17858536af3fd736e",
+              "version_id": "4963db2a-26c0-4842-91c0-3157e01fca95",
+              "tool": "pipeline.publish",
+              "environment": "local",
+              "risk_level": "P1",
+              "execution_sha256": "673d2f19b3e384283f3bd2c5363e67620aca723003b3fbe5c651795db29315a8",
+              "bundle_sha256": "c76e091c739f7abd9ed7c31b2c8ef1cebbc38cf47c4128e8bfac023a4c1b2232",
+              "artifact_hashes": {
+                "plan.json": "46d6b3810b0bfa253473080ac4d715a10c9948f148f429359fce565c1f91b7d2",
+                "review.conf": "2bad4a5449884421accc13cf165ea034bfe0c61c50c214d7bc7ead219aed95ee",
+                "dag.json": "b135c51551140439bee57de13ebc1356533c34ac4c3f480d1c8efabfb494ff22",
+                "facts.json": "673d2f19b3e384283f3bd2c5363e67620aca723003b3fbe5c651795db29315a8",
+                "manifest.json": "c76e091c739f7abd9ed7c31b2c8ef1cebbc38cf47c4128e8bfac023a4c1b2232"
+              },
+              "resources": {
+                "source": {
+                  "connection_id": "8c13e12e-611e-4e79-ab7a-3ae0ac93db56",
+                  "resource_id": "acceptance-mysql",
+                  "resource_fingerprint": "31a35f3efb9417705b59fbb791bba32ce880b64cb518b1bc09b7c0ae102f5acb",
+                  "schema_hash": "fe6c717e6beda6e5a079fceb75f6c931093df2f5bcd6b3282e5e0ff85dc89183",
+                  "schema": {
+                    "name": "orders",
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "bigint",
+                        "nullable": false,
+                        "key": "PRI"
+                      },
+                      {
+                        "name": "customer_id",
+                        "type": "bigint",
+                        "nullable": false,
+                        "key": "MUL"
+                      },
+                      {
+                        "name": "amount",
+                        "type": "decimal(20,6)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "order_date",
+                        "type": "date",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "payload",
+                        "type": "json",
+                        "nullable": true,
+                        "key": ""
+                      }
+                    ]
+                  },
+                  "secret_reference_id": "8db56f91-fcf1-4727-b60d-bf6499eb9ddf",
+                  "secret_version": 1
+                },
+                "target": {
+                  "connection_id": "9bab5f19-540c-44cd-bce5-6acc4f19cccd",
+                  "resource_id": "acceptance-doris",
+                  "resource_fingerprint": "883bdf283a2e726960d2be5c79fcb36403aeec2c2c0577eb840b7bb43cec1abd",
+                  "schema_hash": "dd4a1ae25097310320b03337cc1facdf019f55c43837f4afe847125b8c2be71d",
+                  "schema": {
+                    "name": "orders",
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "bigint(20)",
+                        "nullable": false,
+                        "key": "UNI"
+                      },
+                      {
+                        "name": "customer_id",
+                        "type": "bigint(20)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "amount",
+                        "type": "decimalv3(20, 6)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "order_date",
+                        "type": "date",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "payload",
+                        "type": "json",
+                        "nullable": true,
+                        "key": ""
+                      }
+                    ]
+                  },
+                  "secret_reference_id": "91b62358-2843-401d-83a6-ede7744ad625",
+                  "secret_version": 1
+                }
+              },
+              "authorized_operation": {
+                "tool": "pipeline.publish",
+                "data_plane_mutation": true,
+                "tools": [
+                  "doris.write",
+                  "mysql.read"
+                ]
+              },
+              "budget": {
+                "max_rows": 100000,
+                "max_bytes": 268435456,
+                "max_seconds": 600,
+                "max_reject_ratio": 0.2,
+                "max_amplification": 2
+              },
+              "runtime_supervision_contract": {
+                "version": "runtime-supervision-v1",
+                "max_rows": 100000,
+                "max_bytes": 268435456,
+                "max_seconds": 600,
+                "max_amplification": 2,
+                "max_reject_ratio": 0.2,
+                "observation_seconds": 2,
+                "stale_after_seconds": 6,
+                "running_reject_min_evaluated": 100,
+                "row_boundary": "source_read: connector emitted records before mapping",
+                "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+                "output_boundary": "final_output: sink received records after quality and expansion",
+                "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+                "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+                "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+                "empty_policy": "veto_publication",
+                "violation_action": "persist_stop_request_and_veto_publication"
+              },
+              "policy_version": "preparation-policy-v1",
+              "compiler_versions": {
+                "canonicalization": "sorted-json-v1",
+                "compiler": "studio-plan-v1",
+                "renderer": "review-hocon-v1",
+                "capability": "mysql-doris-projection-v1",
+                "policy": "studio-policy-v1",
+                "connector_policy": "p3-connectors-v1"
+              },
+              "key_id": "6ff02603966b97469b28bfb89f1ada1c3142e828b1da16f64ed5550d1d2245bb"
+            },
+            "signature": "vssRAgMJU8RLWG/jP/PUMKbqqyMgPtMl+CzRenqWuVGDFKp3t2CEi1Ocwu95tNznYy8cJBQNaECrIAgwVgmIDw=="
+          },
+          "derivation": {
+            "command_id": "d16e1ba7-361f-4381-981f-db108a58dd3c",
+            "request_id": "3d5e8d74-4846-4fa7-8054-9458475ed3bd",
+            "kind": "stop"
+          }
+        },
+        "request_sha256": "1fbcc65e8a82b7bd06ba5a572799e2eb28b4a36a55a37b896d5ca66f3f9a2b4e",
+        "result": {
+          "correlation_id": "8d4c8bcf-7247-439b-8943-bea66859cb01",
+          "effect_id": "3d5e8d74-4846-4fa7-8054-9458475ed3bd",
+          "job_id": "d266ae57-90dd-467e-b8e2-5e76d4b8964b",
+          "request_id": "3d5e8d74-4846-4fa7-8054-9458475ed3bd",
+          "request_sha256": "39a2be1b14821699d14ace5b97cb8e9a139fae481ed99d326599008a6d971b39",
+          "unpublished_object": "l1-unpublished:d16e1ba7-361f-4381-981f-db108a58dd3c",
+          "accepted": true
+        },
+        "created_at": "2026-11-14T04:33:56.609603+00:00",
+        "updated_at": "2026-11-14T04:34:03.703039+00:00"
+      },
+      {
+        "id": "012aa10a-7059-4830-9280-c90ecced3ab4",
+        "kind": "cleanup",
+        "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+        "phase": "confirmed",
+        "envelope": {
+          "payload": {
+            "format": "etl-managed-control-v1",
+            "effect_id": "012aa10a-7059-4830-9280-c90ecced3ab4",
+            "command_id": "d16e1ba7-361f-4381-981f-db108a58dd3c",
+            "run_id": "79a38136-9303-4fce-9bd7-accc9081cf96",
+            "tenant_id": "255ee370-8c98-4e2d-8a24-cc2944f9aa32",
+            "project_id": "999711d4-782e-4956-99e3-b45bc7e16f4f",
+            "actor_id": "8605f6a5-4b56-4c10-8527-68841caba20c",
+            "kind": "cleanup",
+            "reason": "核对后清理本次未发布对象",
+            "resources": {
+              "source": {
+                "connection_id": "8c13e12e-611e-4e79-ab7a-3ae0ac93db56",
+                "resource_id": "acceptance-mysql",
+                "resource_fingerprint": "31a35f3efb9417705b59fbb791bba32ce880b64cb518b1bc09b7c0ae102f5acb",
+                "schema_hash": "fe6c717e6beda6e5a079fceb75f6c931093df2f5bcd6b3282e5e0ff85dc89183",
+                "schema": {
+                  "name": "orders",
+                  "columns": [
+                    {
+                      "name": "id",
+                      "type": "bigint",
+                      "nullable": false,
+                      "key": "PRI"
+                    },
+                    {
+                      "name": "customer_id",
+                      "type": "bigint",
+                      "nullable": false,
+                      "key": "MUL"
+                    },
+                    {
+                      "name": "amount",
+                      "type": "decimal(20,6)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "order_date",
+                      "type": "date",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "payload",
+                      "type": "json",
+                      "nullable": true,
+                      "key": ""
+                    }
+                  ]
+                },
+                "secret_reference_id": "8db56f91-fcf1-4727-b60d-bf6499eb9ddf",
+                "secret_version": 1
+              },
+              "target": {
+                "connection_id": "9bab5f19-540c-44cd-bce5-6acc4f19cccd",
+                "resource_id": "acceptance-doris",
+                "resource_fingerprint": "883bdf283a2e726960d2be5c79fcb36403aeec2c2c0577eb840b7bb43cec1abd",
+                "schema_hash": "dd4a1ae25097310320b03337cc1facdf019f55c43837f4afe847125b8c2be71d",
+                "schema": {
+                  "name": "orders",
+                  "columns": [
+                    {
+                      "name": "id",
+                      "type": "bigint(20)",
+                      "nullable": false,
+                      "key": "UNI"
+                    },
+                    {
+                      "name": "customer_id",
+                      "type": "bigint(20)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "amount",
+                      "type": "decimalv3(20, 6)",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "order_date",
+                      "type": "date",
+                      "nullable": true,
+                      "key": ""
+                    },
+                    {
+                      "name": "payload",
+                      "type": "json",
+                      "nullable": true,
+                      "key": ""
+                    }
+                  ]
+                },
+                "secret_reference_id": "91b62358-2843-401d-83a6-ede7744ad625",
+                "secret_version": 1
+              }
+            },
+            "budget": {
+              "http_timeout_seconds": 5,
+              "scope": "only_this_run_unpublished_object"
+            },
+            "target_key": "e1bd3968914ec7aad953e3a20de303a64e4b8859f033afab86f1c1d66cc24936",
+            "target": {
+              "physical_cluster_id": "l1-synthetic-doris",
+              "database": "connector_source",
+              "table": "orders"
+            },
+            "unpublished_object": "l1-unpublished:d16e1ba7-361f-4381-981f-db108a58dd3c",
+            "engine_job_id": "d266ae57-90dd-467e-b8e2-5e76d4b8964b",
+            "correlation_id": "8d4c8bcf-7247-439b-8943-bea66859cb01",
+            "submission_sha256": "39a2be1b14821699d14ace5b97cb8e9a139fae481ed99d326599008a6d971b39",
+            "key_id": "6ff02603966b97469b28bfb89f1ada1c3142e828b1da16f64ed5550d1d2245bb"
+          },
+          "signature": "XoJRBEAifFHlq++wKtaH0kRHjL9wUnwwkXHZQs6uQOPkw7jlxFWTXiMWZuXUl54LwZxPtHS2vViGn1D+J0DNDQ=="
+        },
+        "request_sha256": "662a61707448e9b9217a340b426e75b87390fb91fef7a06ddd09927c0348ae31",
+        "result": {
+          "correlation_id": "8d4c8bcf-7247-439b-8943-bea66859cb01",
+          "effect_id": "012aa10a-7059-4830-9280-c90ecced3ab4",
+          "job_id": "d266ae57-90dd-467e-b8e2-5e76d4b8964b",
+          "request_id": "012aa10a-7059-4830-9280-c90ecced3ab4",
+          "request_sha256": "39a2be1b14821699d14ace5b97cb8e9a139fae481ed99d326599008a6d971b39",
+          "unpublished_object": "l1-unpublished:d16e1ba7-361f-4381-981f-db108a58dd3c",
+          "cleaned": true
+        },
+        "created_at": "2026-11-14T04:34:12.080574+00:00",
+        "updated_at": "2026-11-14T04:34:19.252855+00:00"
+      }
+    ]
+  },
+  "stop": {
+    "id": "3d5e8d74-4846-4fa7-8054-9458475ed3bd",
+    "detected_at": "2026-11-14T04:33:56.585498+00:00",
+    "requested_at": "2026-11-14T04:33:56.585498+00:00",
+    "reasons": [
+      "authorization_revoked_or_secret_unavailable"
+    ],
+    "detection_metrics": {
+      "source_read": 100,
+      "evaluated": 100,
+      "valid": 100,
+      "rejected": 0,
+      "final_output": 100,
+      "sink_bytes": 1000,
+      "elapsed_seconds": 1,
+      "throughput_rows_per_second": 100.0,
+      "amplification": 1.0,
+      "reject_ratio": 0.0
+    },
+    "delivery_status": "acknowledged",
+    "termination_confirmed": true,
+    "dispatched_at": "2026-11-14T04:33:56.641796+00:00",
+    "acknowledged_at": "2026-11-14T04:34:03.703039+00:00"
+  },
+  "root_deployment_untouched": true,
+  "worker_private_signing_key": false,
+  "zero_overshoot_or_real_etl_or_rollback_verified": false
+}

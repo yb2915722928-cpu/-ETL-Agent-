@@ -101,7 +101,11 @@ def run(output):
                         contract = accepted['execution']['supervision']['contract']
                         assert contract == accepted['managed_command']['payload']['runtime_supervision_contract']
                         assert outbox_publisher.publish_once() == 1
-                    row = wait_run(client, scope, accepted['id'], lambda r: r['execution']['supervision']['latest_observation'] is not None, seconds=30)
+                    if name == 'finished':
+                        # #12 passes a run only after the engine confirms termination.
+                        row = wait_run(client, scope, accepted['id'], lambda r: r['status'] == 'supervision_passed', seconds=30)
+                    else:
+                        row = wait_run(client, scope, accepted['id'], lambda r: r['execution']['supervision']['latest_observation'] is not None, seconds=30)
                     if name == 'reject_99_100':
                         assert row['execution']['supervision']['current_metrics']['evaluated'] == 99
                         assert row['status'] == 'submitted' and row['execution']['supervision']['stop_request'] is None
@@ -109,13 +113,20 @@ def run(output):
                         row = wait_run(client, scope, accepted['id'], lambda r: r['execution']['supervision']['stop_request'] and r['execution']['supervision']['stop_request']['delivery_status'] == 'acknowledged', seconds=30)
                         supervision = row['execution']['supervision']
                         assert expected_reason in supervision['reasons'], (name, supervision['reasons'])
-                        assert supervision['publication_veto'] and row['status'] == 'stop_requested'
-                        assert supervision['stop_request']['termination_confirmed'] is False and row['execution']['ownership']['retained']
+                        assert supervision['publication_veto'] and row['status'] != 'supervision_passed'
+                        assert row['execution']['ownership']['retained']
                         requests = get('/stop-requests')['requests']
                         assert len([r for r in requests if r['job_id'] == row['engine_job_id']]) == 1
-                        # Redelivery uses the same durable intent and never clears veto.
+                        # Redelivery reuses the same durable intent and never clears veto.
                         with patch.object(execution_runtime, 'Session', session), patch.object(execution_runtime, 'engine', session.kw['bind']):
-                            assert execution_runtime.drive(accepted['managed_command']['payload']['command_id']) == 'stop_requested'
+                            redelivered = execution_runtime.drive(accepted['managed_command']['payload']['command_id'])
+                        assert redelivered in ('stop_requested', 'stop_delivery_unknown', 'termination_pending',
+                                               'final_metrics_pending', 'terminated', 'cleanup_unknown'), redelivered
+                        row = client.call('GET', scope + '/runs/' + row['id'])
+                        requests = get('/stop-requests')['requests']
+                        assert len([r for r in requests if r['job_id'] == row['engine_job_id']]) == 1
+                        assert row['execution']['supervision']['publication_veto']
+                        assert expected_reason in row['execution']['supervision']['reasons']
                         if name in ('missing', 'stale', 'reset', 'estimated'):
                             assert all(v is None for v in supervision['current_metrics'].values())
                     elif name == 'zero':
@@ -124,16 +135,21 @@ def run(output):
                         assert supervision['current_metrics']['amplification'] is None
                         assert supervision['current_metrics']['throughput_rows_per_second'] is None
                         assert supervision['publication_veto']
-                        # Stop fixture polling so next scenario can own the shared synthetic target.
-                        with session.begin() as db:
-                            db.execute(text("UPDATE execution_runs SET status='supervision_passed' WHERE id=:id"), {'id': row['id']})
                     else:
                         assert row['status'] == 'supervision_passed' and not row['execution']['supervision']['publication_veto']
                     # A new HTTP Client reads the same persisted facts; no observation on GET.
+                    # #12 observes until termination is confirmed, so the loop is frozen and
+                    # settled first: two reads of a still-observing run may legitimately differ.
+                    observed, recorded = row['status'], row['execution']['supervision']
+                    with session.begin() as db:
+                        db.execute(text("UPDATE execution_runs SET status='supervision_passed' WHERE id=:id"), {'id': row['id']})
+                    seen = lambda: client.call('GET', scope + '/runs/' + row['id'])['execution']['supervision']['latest_observation']['received_at']
+                    until(lambda: seen() == seen())
+                    row = client.call('GET', scope + '/runs/' + row['id'])
                     again = client.call('GET', scope + '/runs/' + row['id'])
                     assert again['execution']['supervision'] == row['execution']['supervision']
-                    passed.append({'scenario': name, 'status': row['status'], 'reason': expected_reason,
-                                   'run_id': row['id'], 'supervision': row['execution']['supervision']})
+                    passed.append({'scenario': name, 'status': observed, 'reason': expected_reason,
+                                   'run_id': row['id'], 'supervision': recorded})
                 assert len(get('/ledger')['jobs']) == len(cases)
                 report = {'checked_at': datetime.now(timezone.utc).isoformat(), 'level': 'L1', 'passed': passed,
                           'worker_private_signing_key': 'EVIDENCE_SIGNING_KEY' in environment,
