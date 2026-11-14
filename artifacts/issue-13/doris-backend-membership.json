@@ -1,0 +1,31 @@
+{
+  "level": "doris_membership_protocol_probe",
+  "managed_l2_accepted": false,
+  "observed_at": "2026-11-14T08:45:37.405747+00:00",
+  "frontends": [
+    {
+      "Name": "fe_d12c9cb9_26b1_4dfc_b394_896d269bd03c",
+      "Host": "172.20.0.10",
+      "EditLogPort": "9010",
+      "HttpPort": "8030",
+      "QueryPort": "9030",
+      "Role": "FOLLOWER",
+      "IsMaster": "true",
+      "ClusterId": "265047353",
+      "Alive": "true",
+      "Version": "doris-3.0.8-rc01-09b0cc49a6"
+    }
+  ],
+  "backends": [
+    {
+      "BackendId": "1794557068946",
+      "Host": "172.20.0.10",
+      "HeartbeatPort": "9050",
+      "BePort": "9060",
+      "HttpPort": "8040",
+      "BrpcPort": "8060",
+      "Alive": "true",
+      "Version": "doris-3.0.8-rc01-09b0cc49a6"
+    }
+  ]
+}

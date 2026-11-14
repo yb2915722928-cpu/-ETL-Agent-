@@ -20,6 +20,25 @@ class SupervisionContractTest(unittest.TestCase):
         sample.update(state='running', sink_bytes=268435457)
         self.assertIn('bytes_exceeded', evaluate_observation(contract, sample, None, now)['reasons'])
 
+    def test_explicit_empty_permission_requires_complete_measured_zero(self):
+        now = datetime.now(timezone.utc)
+        contract = RuntimeSupervisionContract().model_dump()
+        sample = dict(contract_version=contract['version'], source='real.original', byte_kind='measured',
+                      counter_epoch='job-1', observed_at=now.isoformat(), state='finished',
+                      source_read=0, evaluated=0, valid=0, rejected=0, final_output=0,
+                      sink_bytes=0, elapsed_seconds=1)
+        self.assertIn('empty_result', evaluate_observation(contract, sample, None, now)['reasons'])
+        contract['empty_policy'] = 'allow_complete_empty'
+        result = evaluate_observation(contract, sample, None, now)
+        self.assertEqual(result['status'], 'finished')
+        self.assertIsNone(result['metrics']['amplification'])
+        self.assertIsNone(result['metrics']['reject_ratio'])
+        for change in ({'sink_bytes': None}, {'byte_kind': 'estimated'}, {'sink_bytes': 1},
+                       {'source_read': 1}, {'elapsed_seconds': 601}, {'evaluated': 1, 'rejected': 1}):
+            self.assertEqual(evaluate_observation(contract, {**sample, **change}, None, now)['status'], 'unsafe')
+        nonempty = {**sample, 'source_read': 2, 'evaluated': 2, 'valid': 2, 'final_output': 2, 'sink_bytes': 40}
+        self.assertEqual(evaluate_observation(contract, nonempty, None, now)['status'], 'finished')
+
     def test_unknown_stale_reset_and_unmeasured_values_cannot_pass(self):
         contract = RuntimeSupervisionContract().model_dump()
         now = datetime.now(timezone.utc)

@@ -1,0 +1,49 @@
+{
+  "level": "real_object_transport_protocol_probe",
+  "managed_l2_accepted": false,
+  "run_id": "f2806661-1ef1-4b6e-a1a6-0dc9e48f3884",
+  "command_id": "8b67646d-0832-48b1-9cb3-686001b8e5ca",
+  "phase": "verified",
+  "exclusive_network_verified": false,
+  "trusted_backend_mapping_verified": false,
+  "object": {
+    "physical_cluster_id": "local-doris-protocol-probe-unqualified",
+    "database": "etl_agent_l2",
+    "table": "shadow_7bfdaaf154f9c493dd9ab3c110c20d99",
+    "marker": "etl_agent_object:8b67646d-0832-48b1-9cb3-686001b8e5ca",
+    "partition_ids": [
+      "1794628092847"
+    ],
+    "schema": [
+      {
+        "name": "id",
+        "type": "int(11)",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "varchar(64)",
+        "nullable": true
+      }
+    ],
+    "schema_sha256": "012ed46e3d5b2109a61e77962f1535671e06dd27f5ec371586ef0565c9a33a2d"
+  },
+  "label": "etl_03660984b60aecebe85bf5f5b75ef8ace4e8dbc113a01952c809a29a559b3efd",
+  "body_sha256": "8da5981ba2ac29f94450da0778f325f3b48b3e8c0e176d05bd73713cd75a4c2d",
+  "receipt": {
+    "Label": "etl_03660984b60aecebe85bf5f5b75ef8ace4e8dbc113a01952c809a29a559b3efd",
+    "TxnId": 2020,
+    "Status": "Success",
+    "LoadBytes": 51,
+    "TwoPhaseCommit": "false",
+    "NumberTotalRows": 2,
+    "NumberLoadedRows": 2,
+    "NumberFilteredRows": 0,
+    "NumberUnselectedRows": 0
+  },
+  "response_sha256": "b1fc2052054724efbc1567c5028516cfcdce76532ffe7939526c659b20a05e73",
+  "synthetic_result_matches": true,
+  "identity_unchanged": true,
+  "measured_bytes": 51,
+  "retained_for_audit": true
+}

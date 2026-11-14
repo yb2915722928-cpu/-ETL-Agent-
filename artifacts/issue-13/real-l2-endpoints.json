@@ -1,0 +1,111 @@
+{
+  "mysql_version": "8.0.46",
+  "mysql_current_role": "NONE",
+  "mysql_grants": [
+    "GRANT USAGE ON *.* TO `source_ro`@`%`",
+    "GRANT SELECT, SHOW VIEW ON `connector_source`.* TO `source_ro`@`%`"
+  ],
+  "source_columns": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "nullable": false,
+      "key": "PRI"
+    },
+    {
+      "name": "email",
+      "type": "varchar(200)",
+      "nullable": false,
+      "key": "UNI"
+    },
+    {
+      "name": "full_name",
+      "type": "varchar(80)",
+      "nullable": true,
+      "key": ""
+    },
+    {
+      "name": "balance",
+      "type": "decimal(18,4)",
+      "nullable": true,
+      "key": ""
+    },
+    {
+      "name": "active",
+      "type": "tinyint(1)",
+      "nullable": false,
+      "key": ""
+    },
+    {
+      "name": "created_at",
+      "type": "datetime(6)",
+      "nullable": true,
+      "key": ""
+    },
+    {
+      "name": "notes",
+      "type": "text",
+      "nullable": true,
+      "key": ""
+    }
+  ],
+  "source_rows": 3,
+  "doris_writer": {
+    "version": "5.7.99",
+    "grant_columns": [
+      "UserIdentity",
+      "Comment",
+      "Password",
+      "Roles",
+      "GlobalPrivs",
+      "CatalogPrivs",
+      "DatabasePrivs",
+      "TablePrivs",
+      "ColPrivs",
+      "ResourcePrivs",
+      "CloudClusterPrivs",
+      "CloudStagePrivs",
+      "StorageVaultPrivs",
+      "WorkloadGroupPrivs",
+      "ComputeGroupPrivs"
+    ],
+    "grants": [
+      {
+        "UserIdentity": "'etl_l2_probe_writer'@'%'",
+        "Comment": "",
+        "Password": "Yes",
+        "Roles": "",
+        "GlobalPrivs": null,
+        "CatalogPrivs": null,
+        "DatabasePrivs": "internal.etl_agent_l2: Select_priv,Load_priv,Create_priv; internal.information_schema: Select_priv; internal.mysql: Select_priv",
+        "TablePrivs": null,
+        "ColPrivs": null,
+        "ResourcePrivs": null,
+        "CloudClusterPrivs": null,
+        "CloudStagePrivs": null,
+        "StorageVaultPrivs": null,
+        "WorkloadGroupPrivs": "normal: Usage_priv",
+        "ComputeGroupPrivs": null
+      }
+    ],
+    "target_columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "key": "UNI"
+      },
+      {
+        "name": "full_name",
+        "type": "varchar(80)",
+        "nullable": true,
+        "key": ""
+      }
+    ],
+    "target_rows": 3
+  },
+  "doris_readonly": {
+    "error": "OperationalError",
+    "error_number": 1044
+  }
+}

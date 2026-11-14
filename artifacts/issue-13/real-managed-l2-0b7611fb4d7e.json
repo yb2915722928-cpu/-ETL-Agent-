@@ -1,0 +1,10 @@
+{
+  "schema": "managed-l2-orchestrator/v1",
+  "managed_l2_accepted": false,
+  "run_token": "0b7611fb4d7e44d59aa60b15a378d8d5",
+  "phase": "runner_dispatched",
+  "network_receipt_sha256": "3fc149b57df8431afd9024b74543355b7172e5db74cd5611327ede1e69a93b75",
+  "runner_exit_code": 1,
+  "witness_errors": [],
+  "docker_cleanup": "removed"
+}

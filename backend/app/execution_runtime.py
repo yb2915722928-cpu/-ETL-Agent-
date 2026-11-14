@@ -73,9 +73,14 @@ def execution_view(db, command_id):
     ownership = db.scalar(select(TargetOwnership).where(TargetOwnership.command_id == command_id))
     command = db.get(ManagedCommand, command_id)
     from .run_control import control_view
+    from .reconciliation import reconciliation_view
+    from .quality_runtime import QualityRun
+    from .real_publication import publication_view
+    quality = db.get(QualityRun, command.run_id) if command else None
     events = list(db.scalars(select(EvidenceEvent).where(EvidenceEvent.run_id == command.run_id,
         EvidenceEvent.scope == command.project_id).order_by(EvidenceEvent.sequence.desc()).limit(20)))
-    return {'level': 'L1' if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'l1' else 'disabled',
+    adapter = attempt.request.get('adapter') if attempt else os.environ.get('EXECUTION_ADAPTER', 'disabled')
+    return {'level': {'l1': 'L1', 'real': 'real'}.get(adapter, 'disabled'),
             'attempt': {key: getattr(attempt, key) for key in ('correlation_id', 'request_sha256', 'request',
                 'phase', 'reason', 'engine_job_id', 'created_at', 'updated_at')} if attempt else None,
             'ownership': {'target_key': ownership.target_key, 'identity': ownership.identity,
@@ -84,10 +89,26 @@ def execution_view(db, command_id):
                                'facts': event.facts} for event in reversed(events)],
             'supervision': supervision_view(db, command_id),
             'control': control_view(db, command_id),
-            'publication': 'L1 仅确认模拟未发布对象清理；不执行真实 ETL、发布或回退'}
+            'reconciliation': reconciliation_view(db, command_id),
+            'publication_state': publication_view(db, command_id),
+            'quality': {'contract_sha256': quality.contract_sha256, 'source_facts': quality.source_facts,
+                        'failures': quality.failures, 'finalized': quality.finalized, 'report': quality.report,
+                        'real_l2_qualified': False} if quality else None,
+            'publication': ('L1 仅确认模拟未发布对象清理；不执行真实 ETL、发布或回退'
+                if os.environ.get('EXECUTION_ADAPTER') == 'l1'
+                else '真实受管搬运尚未通过 L2 验收；发布与回退闭锁')}
+
+
+def engine_url():
+    """本次运行绑定的引擎地址；适配器切换后不得向其他引擎发现。"""
+    if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'real':
+        return os.environ['REAL_ENGINE_URL']
+    return os.environ['L1_ENGINE_URL']
 
 
 def engine_request(method, path, body=None):
+    if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'real':
+        raise ValueError('真实受管执行尚未完成字节监督、写入凭据与清理验收；禁止数据面调用')
     request = urllib.request.Request(os.environ['L1_ENGINE_URL'] + path,
         data=signing_bytes(body) if body is not None else None, method=method,
         headers={'Content-Type': 'application/json'})
@@ -104,24 +125,47 @@ def _check_submission_authorization(db, policy, secrets, run, row=None):
     validation = validate_preparation(db, policy, row, check_expiry=False)
     if not validation['valid']:
         raise HTTPException(409, '；'.join(validation['reasons']))
-    check_execution_resources(db, policy, secrets,
-        get_version(db, run.tenant_id, run.project_id, row.version_id),
-        db.get(Account, run.subject), 'operator', preparation_id=row.id)
+    version = get_version(db, run.tenant_id, run.project_id, row.version_id)
+    actor = db.get(Account, run.subject)
+    check_execution_resources(db, policy, secrets, version, actor, 'operator', preparation_id=row.id)
+    if row.frozen['execution_facts']['target'].get('execution_writer'):
+        from .writer_credentials import check_execution_writer
+        check_execution_writer(db, policy, secrets, version, actor, 'operator', preparation_id=row.id)
 
 
 def drive(command_id):
     from .run_control import advance_control
     state = _submit(command_id)
-    if state not in ('submitted', 'stop_requested', 'stop_delivery_unknown', 'termination_pending',
-                     'final_metrics_pending', 'terminated', 'supervision_passed', 'cleanup_unknown'):
+    if state not in ('submitted', 'submission_unknown', 'stop_requested', 'stop_delivery_unknown', 'termination_pending',
+                     'final_metrics_pending', 'engine_finished_awaiting_quality', 'terminated', 'supervision_passed', 'cleanup_unknown'):
         return state
     with command_lock(command_id) as acquired:
-        return advance_control(command_id) if acquired else 'busy'
+        if not acquired:
+            return 'busy'
+        state = advance_control(command_id)
+        if state == 'engine_finished_awaiting_quality':
+            from .real_finalization import finalize_real
+            state = finalize_real(command_id, sessions=Session)
+        if state in ('terminated', 'final_metrics_pending'):
+            from .real_finalization import finalize_real_quality_diagnostics
+            finalize_real_quality_diagnostics(command_id, sessions=Session)
+        return state
 
 
 def _submit(command_id):
-    if os.environ.get('EXECUTION_ADAPTER', 'disabled') != 'l1':
+    if os.environ.get('EXECUTION_ADAPTER', 'disabled') not in ('l1', 'real'):
         raise RuntimeError('执行适配器未启用；普通部署不得提交引擎')
+    if os.environ.get('EXECUTION_ADAPTER') == 'real':
+        # Protocol selection does not grant authority. The real module rechecks
+        # the signed command and takes its own command lock before any mutation.
+        with Session() as routing_db:
+            original = routing_db.get(ManagedCommand, command_id)
+            run = routing_db.get(ExecutionRun, original.run_id) if original else None
+            preparation = get_preparation(routing_db, run.tenant_id, run.project_id, run.preparation_id) if run else None
+            real_mutation = preparation is not None and preparation.tool in ('pipeline.trial', 'pipeline.publish')
+        if real_mutation:
+            from .real_runtime import submit_real
+            return submit_real(command_id, sessions=Session)
     policy, secrets = ResourcePolicy(), SecretProvider()
     with command_lock(command_id) as acquired:
         if not acquired:
@@ -170,6 +214,15 @@ def _submit(command_id):
                         run.status = 'metadata_checked'
                         record(db, run, 'execution.metadata_checked', {'command_id': command_id, 'data_plane_mutation': False})
                         return run.status
+                    if os.environ.get('EXECUTION_ADAPTER') == 'real':
+                        from .real_engine import transfer_gate
+                        _, conditions = transfer_gate(True, False, False, False)
+                        run.status = 'supervision_unavailable'
+                        from .run_control import control_row
+                        control_row(db, command_id).wake_at = None
+                        record(db, run, 'execution.real_gate_denied', {'command_id': command_id,
+                            'conditions': conditions, 'data_plane_mutation': False})
+                        return run.status
                     target = policy.get(payload['resources']['target']['resource_id'])
                     identity = {'physical_cluster_id': target['physical_cluster_id'],
                                 'database': target['database'], 'table': row.frozen['plan']['target']['table']}
@@ -184,7 +237,8 @@ def _submit(command_id):
                         return run.status
                     request = {'command_id': command_id, 'run_id': run.id, 'correlation_id': new_id(),
                         'tenant_id': run.tenant_id, 'project_id': run.project_id, 'tool': row.tool,
-                        'environment': row.environment, 'adapter': 'l1', 'engine_url': os.environ['L1_ENGINE_URL'],
+                        'environment': row.environment, 'adapter': os.environ.get('EXECUTION_ADAPTER', 'disabled'),
+                        'engine_url': engine_url(),
                         'target': identity, 'unpublished_object': 'l1-unpublished:' + command_id,
                         'budget': payload['budget'], 'authorized_operation': payload['authorized_operation'],
                         'runtime_supervision_contract': payload['runtime_supervision_contract'],
@@ -198,7 +252,7 @@ def _submit(command_id):
                         'correlation_id': attempt.correlation_id, 'request_sha256': digest, 'target_key': target_key})
                     submit = True
                 else:
-                    if attempt.request['engine_url'] != os.environ['L1_ENGINE_URL']:
+                    if attempt.request['engine_url'] != engine_url():
                         raise HTTPException(409, '原始引擎配置变化；保持未知与隔离，不向其他引擎发现')
                     run.status = attempt.phase = 'submission_unknown'
                     attempt.reason = '提交进程中断或响应未知，仅发现原关联作业'

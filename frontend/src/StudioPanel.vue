@@ -20,15 +20,15 @@ const canMake = computed(() => project.value?.roles.includes('maker'))
 const canEdit = computed(() => canMake.value && (!selected.value || selected.value.owner_id === props.accountId))
 const planText = computed(() => JSON.stringify(plan.value, null, 2))
 const currentReview = computed(() => assessment.value && assessedPlan.value === JSON.stringify(plan.value) ? assessment.value : null)
-const formReady = computed(() => plan.value.source && plan.value.target && plan.value.budget && Array.isArray(plan.value.mappings) && Array.isArray(plan.value.quality))
+const formReady = computed(() => plan.value.source && plan.value.target && plan.value.budget && Array.isArray(plan.value.mappings) && Array.isArray(plan.value.quality) && Array.isArray(plan.value.cleaning) && Array.isArray(plan.value.filters))
 const unsaved = computed(() => !selected.value || JSON.stringify(plan.value) !== JSON.stringify(selected.value.plan) || name.value !== selected.value.name)
 const gateNames = { syntax: '计划语法与能力', resources: '资源、档案与凭据', tools: '工具白名单', budget: '安全预算', mapping: '字段映射', schema: 'Schema 与类型', quality: '质量规则' }
 const budgetLabels = { max_rows: '最大读取行数（≤ 100000）', max_bytes: '最大读取字节（≤ 268435456）', max_seconds: '最长时间 / 秒（≤ 600）', max_reject_ratio: '最大拒绝率（0–0.2）', max_amplification: '最大放大倍数（≤ 2）' }
 
 function blankPlan() {
-  return { version: 'etl-plan-v1', mode: 'bounded_full',
+  return { version: 'etl-plan-v1', mode: 'bounded_full', allow_empty: false,
     source: { connection_id: '', profile_id: '', table: '' }, target: { connection_id: '', profile_id: '', table: '' },
-    mappings: [], quality: [], tools: ['mysql.read', 'doris.write'],
+    mappings: [], cleaning: [], quality: [], filters: [], tools: ['mysql.read', 'doris.write'],
     budget: { max_rows: 100000, max_bytes: 268435456, max_seconds: 600, max_reject_ratio: 0.2, max_amplification: 2 } }
 }
 function available(side) {
@@ -38,6 +38,31 @@ function available(side) {
 function profile(side) { return profiles.value.find(p => p.id === plan.value[side].profile_id) }
 function table(side) { return profile(side)?.content.tables.find(t => t.name === plan.value[side].table) }
 function columns(side) { return table(side)?.columns || [] }
+function cleanableMappings() {
+  return plan.value.mappings.filter(mapping => {
+    const source = columns('source').find(column => column.name === mapping.source)
+    const target = columns('target').find(column => column.name === mapping.target)
+    return source?.key !== 'PRI' && /^(varchar|char|tinytext|text|mediumtext|longtext|string)/i.test(source?.type || '') && /^(varchar|char|tinytext|text|mediumtext|longtext|string)/i.test(target?.type || '')
+  })
+}
+function filterColumns() { return columns('source').filter(column => /^(tinyint|smallint|int|integer|bigint|varchar|char|tinytext|text|mediumtext|longtext|string)(\b|\()/i.test(column.type)) }
+function filterIsNumeric(field) { return /^(tinyint|smallint|int|integer|bigint)(\b|\()/i.test(columns('source').find(column => column.name === field)?.type || '') }
+function setFilterValue(condition, value) {
+  if (!filterIsNumeric(condition.field)) { condition.equals = value; return }
+  // Validate the decimal spelling before conversion: Number() rounds fractions and accepts blanks.
+  const isInteger = /^-?(0|[1-9][0-9]*)$/.test(value)
+  const parsed = isInteger ? Number(value) : NaN
+  condition.equals = Number.isSafeInteger(parsed) ? parsed : value
+}
+function filterValueError(condition) {
+  if (!filterIsNumeric(condition.field) || condition.equals === null || Number.isSafeInteger(condition.equals)) return ''
+  return '请输入完整的十进制整数，范围为 -9007199254740991 至 9007199254740991（不接受小数、指数或空白）。当前原文已保留，服务端将拒绝此值。'
+}
+function resetFilterValue(condition) { condition.equals = filterIsNumeric(condition.field) ? 0 : '' }
+function optionalConfiguration(saved) {
+  return { ...structuredClone(saved), allow_empty: saved.allow_empty === true,
+    cleaning: structuredClone(saved.cleaning || []), filters: structuredClone(saved.filters || []) }
+}
 function profileLabel(p) {
   const connection = connections.value.find(c => c.id === p.connection_id)
   return `${connection?.name} · ${new Date(p.created_at).toLocaleString('zh-CN')} · ${p.id.slice(0, 8)}`
@@ -63,16 +88,16 @@ async function load() {
 function chooseProfile(side) {
   plan.value[side].connection_id = profile(side)?.connection_id || ''
   plan.value[side].table = ''
-  plan.value.mappings = []; plan.value.quality = []
+  plan.value.mappings = []; plan.value.cleaning = []; plan.value.quality = []; plan.value.filters = []
 }
 function suggestMappings() {
   plan.value.mappings = columns('target').map(c => ({ source: columns('source').some(s => s.name === c.name) ? c.name : '', target: c.name, operation: 'direct' }))
-  plan.value.quality = []
+  plan.value.cleaning = []; plan.value.quality = []; plan.value.filters = []
 }
 async function open(id) {
   await run(async () => {
     const saved = await props.api(`${base.value}/studio/candidates/${id}`)
-    selected.value = saved; name.value = saved.name; plan.value = structuredClone(saved.plan)
+    selected.value = saved; name.value = saved.name; plan.value = optionalConfiguration(saved.plan)
     assessment.value = saved.assessment; assessedPlan.value = JSON.stringify(plan.value)
     message.value = '已读取保存时的审查结果；重新校验会核对当前资源白名单与凭据版本。'
   })
@@ -89,7 +114,7 @@ async function save() {
     const url = `${base.value}/studio/candidates${selected.value ? '/' + selected.value.id : ''}`
     const saved = await props.api(url, { method: selected.value ? 'PUT' : 'POST', body: JSON.stringify({ name: name.value, plan: plan.value,
       ...(selected.value ? { expected_revision: selected.value.revision } : {}) }) })
-    selected.value = saved; plan.value = structuredClone(saved.plan); assessment.value = saved.assessment
+    selected.value = saved; plan.value = optionalConfiguration(saved.plan); assessment.value = saved.assessment
     assessedPlan.value = JSON.stringify(plan.value)
     candidates.value = await props.api(`${base.value}/studio/candidates`)
     message.value = `已保存候选修订 ${saved.revision} · ${saved.assessment.passed ? '静态门禁通过' : '门禁失败，等待修复'}。`
@@ -145,10 +170,17 @@ watch(() => props.projects, () => {
             <h3>03 / 字段映射</h3><p class="muted small">仅支持直接投影与重命名，目标每个字段须映射一次。类型只允许已支持的无损兼容；不接受 SQL、表达式、多表或 CDC。</p>
             <div v-if="plan.mappings?.length" class="table-scroll"><table><thead><tr><th>目标字段 / 类型</th><th>源字段 / 类型</th><th>操作</th></tr></thead><tbody><tr v-for="mapping in plan.mappings" :key="mapping.target"><td><strong>{{ mapping.target }}</strong><small>{{ columns('target').find(c => c.name === mapping.target)?.type }}</small></td><td><select v-model="mapping.source" required><option value="" disabled>选择源字段</option><option v-for="column in columns('source')" :key="column.name" :value="column.name">{{ column.name }} / {{ column.type }}{{ column.nullable ? ' · 可空' : '' }}</option></select></td><td>直接映射</td></tr></tbody></table></div>
             <p v-else class="muted">选择源与目标表后生成映射行，可逐项调整源字段。</p>
-            <h3>04 / 质量契约</h3><p class="muted small">规则引用目标字段；此处校验规则结构，实际通过率须在后续受控运行中验证。</p>
+            <h3>04 / 清洗</h3><p class="muted small">先对映射后的文本目标字段去除首尾空白，再执行必需规则。NULL 保持 NULL；源主键及其映射字段不能清洗，记录身份始终取原始源主键。</p>
+            <div v-for="(operation, index) in plan.cleaning || []" :key="index" class="quality-row"><label>文本目标字段<select v-model="operation.field" required><option value="" disabled>选择字段</option><option v-for="mapping in cleanableMappings()" :key="mapping.target" :value="mapping.target">{{ mapping.target }}</option></select></label><span>去除首尾空白</span><button class="text-button danger" type="button" @click="plan.cleaning.splice(index, 1)">移除</button></div>
+            <button class="secondary" type="button" :disabled="!cleanableMappings().length" @click="plan.cleaning.push({ kind: 'trim', field: cleanableMappings()[0].target })">＋ 添加文本清洗</button>
+            <h3>05 / 必需质量规则</h3><p class="muted small">规则引用清洗后的目标字段。全部适用规则通过才进入有效分支；一行可有多个错误码，但只拒绝、路由一次。</p>
             <div v-for="(rule, index) in plan.quality || []" :key="index" class="quality-row"><label>目标字段<select v-model="rule.field" required><option value="" disabled>选择字段</option><option v-for="m in plan.mappings" :key="m.target" :value="m.target">{{ m.target }}</option></select></label><label>规则<select v-model="rule.kind" @change="rule.minimum = null; rule.maximum = null"><option value="not_null">非空</option><option value="numeric_range">数值范围</option></select></label><template v-if="rule.kind === 'numeric_range'"><label>最小值<input v-model.number="rule.minimum" type="number" step="any"></label><label>最大值<input v-model.number="rule.maximum" type="number" step="any"></label></template><button class="text-button danger" type="button" @click="plan.quality.splice(index, 1)">移除</button></div>
             <button class="secondary" type="button" :disabled="!plan.mappings?.length" @click="plan.quality.push({ kind: 'not_null', field: plan.mappings[0].target, minimum: null, maximum: null })">＋ 添加规则</button>
-            <h3>05 / 安全预算与工具意图</h3><div class="budget-grid"><label v-for="(label, key) in budgetLabels" :key="key">{{ label }}<input v-model.number="plan.budget[key]" type="number" :step="['max_reject_ratio', 'max_amplification'].includes(key) ? 'any' : '1'" required></label></div>
+            <h3>06 / 显式过滤</h3><p class="muted small">引用原始源字段，等于指定值的记录进入错误分支并携带 FILTERED；不会静默丢弃。整型与文本按类型比较，NULL 只匹配 NULL。过滤字段即使未映射也会加入批准的源读取列。</p>
+            <div v-for="(condition, index) in plan.filters || []" :key="index" class="quality-row"><label>源字段<select v-model="condition.field" required @change="resetFilterValue(condition)"><option value="" disabled>选择字段</option><option v-for="column in filterColumns()" :key="column.name" :value="column.name">{{ column.name }} / {{ column.type }}</option></select></label><label v-if="condition.equals !== null">等于此值<input :value="condition.equals" type="text" :inputmode="filterIsNumeric(condition.field) ? 'numeric' : undefined" :aria-invalid="filterValueError(condition) ? 'true' : undefined" :aria-describedby="filterValueError(condition) ? 'filter-error-' + index : undefined" @input="setFilterValue(condition, $event.target.value)"><small v-if="filterValueError(condition)" :id="'filter-error-' + index" role="alert">{{ filterValueError(condition) }}</small></label><label><span>匹配 NULL</span><input type="checkbox" :checked="condition.equals === null" @change="$event.target.checked ? condition.equals = null : resetFilterValue(condition)"></label><button class="text-button danger" type="button" @click="plan.filters.splice(index, 1)">移除</button></div>
+            <button class="secondary" type="button" :disabled="!filterColumns().length" @click="plan.filters.push({ field: filterColumns()[0].name, equals: filterIsNumeric(filterColumns()[0].name) ? 0 : '' })">＋ 添加拒绝条件</button>
+            <label class="check-row"><input v-model="plan.allow_empty" type="checkbox">显式批准空表替换（须随版本重新双人审批）</label>
+            <h3>07 / 安全预算与工具意图</h3><div class="budget-grid"><label v-for="(label, key) in budgetLabels" :key="key">{{ label }}<input v-model.number="plan.budget[key]" type="number" :step="['max_reject_ratio', 'max_amplification'].includes(key) ? 'any' : '1'" required></label></div>
             <p class="muted small">工具意图固定为 mysql.read / doris.write。预算是未来受控执行上限，当前未授予任何读写执行权限。</p>
           </fieldset>
           <div class="actions studio-actions"><button v-if="canEdit" class="primary" type="submit" :disabled="busy">确定性校验与审查</button><button v-if="canEdit" class="secondary" type="button" :disabled="busy || !name" @click="save">{{ selected ? '保存修订（含失败候选）' : '保存候选（含失败候选）' }}</button><button v-if="canMake && selected" class="secondary" type="button" :disabled="busy" @click="clone">另存为新候选</button></div>

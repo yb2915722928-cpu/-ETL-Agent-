@@ -19,9 +19,20 @@ class ResourcePolicy:
             if resource['kind'] not in ('mysql', 'doris', 'postgresql', 'csv'):
                 raise ValueError('连接白名单类型不合法或尚未实现')
             resource['direction'] = 'target' if resource['kind'] == 'doris' else 'source'
-            if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'l1' and resource['kind'] == 'doris':
+            writer = resource.get('execution_writer')
+            if writer is not None:
+                if (resource['kind'] != 'doris' or not isinstance(writer, dict)
+                        or not {'username'} <= set(writer) <= {'username', 'lifecycle_privileges'}
+                        or not isinstance(writer.get('lifecycle_privileges', []), list)
+                        or not set(writer.get('lifecycle_privileges', [])) <= {'Alter_priv', 'Drop_priv'}
+                        or len(writer.get('lifecycle_privileges', [])) != len(set(writer.get('lifecycle_privileges', [])))
+                        or not isinstance(writer['username'], str)
+                        or not re.fullmatch(r'[a-zA-Z_][a-zA-Z0-9_]{0,63}', writer['username'])
+                        or writer['username'] == resource['username']):
+                    raise ValueError('execution_writer仅允许同一Doris目标的独立部署用户名')
+            if os.environ.get('EXECUTION_ADAPTER', 'disabled') in ('l1', 'real') and resource['kind'] == 'doris':
                 if not isinstance(resource.get('physical_cluster_id'), str) or not resource['physical_cluster_id']:
-                    raise ValueError('L1 Doris 白名单必须声明稳定 physical_cluster_id，别名共享同一标识')
+                    raise ValueError('L1/real Doris 白名单必须声明稳定 physical_cluster_id，别名共享同一标识')
             if resource['kind'] == 'csv':
                 root = Path(resource['root'])
                 if not root.is_absolute() or not resource['projects'] or not all(isinstance(p, str) and p for p in resource['projects']):

@@ -1,0 +1,29 @@
+{
+  "level": "real_protocol_probe",
+  "managed_l2_accepted": false,
+  "job_id": "1851804651244997951",
+  "job_name": "etl_agent_real_9a86d3245f20414fbd6622759327e1ad",
+  "submit_attempted": true,
+  "checks": {
+    "preselected_id_response_matches": true,
+    "associated_original_job": true,
+    "observation_transient_errors": 0,
+    "initial_state": "SCHEDULED",
+    "unknown_id_is_not_job_proof": true,
+    "unknown_response_fields": [
+      "jobId"
+    ],
+    "duplicate_diagnostic": {
+      "response_fields": [
+        "jobId",
+        "jobName"
+      ],
+      "same_id": true
+    },
+    "stop_ack": {
+      "jobId": "1851804651244997951"
+    },
+    "terminal_state": "CANCELED",
+    "sink_quiescence_proven": false
+  }
+}

@@ -1,0 +1,310 @@
+{
+  "schema": "real-managed-l2-tracer/v1",
+  "managed_l2_accepted": false,
+  "run_token": "3857892ee2594eec8ee983e0cf285573",
+  "scenario": "happy",
+  "phase": "supervision_passed",
+  "network_receipt_sha256": "6625e897bf1953d14147b11d885d9ca3b13f87b5dd2d8500eb79b8a3ccdb2ece",
+  "target_bootstrap": {
+    "table": "l2_schema_3857892ee259",
+    "phase": "created",
+    "database": "etl_agent_l2",
+    "schema_sha256": "62718fba49230eb5356eb0b3aeea3ffaa578586b217e9ef52b476717b2b56df4"
+  },
+  "checked_at": "2026-11-14T14:19:15.354188+00:00",
+  "level": "real_managed_path_probe",
+  "public_approval_path_tested": true,
+  "postgresql_schema": "managed_l2_4885c46d95924ffa9cabd5348d9e758c",
+  "target_table": "l2_schema_3857892ee259",
+  "run_id": "d3a9d22d-e69e-4a20-815e-9efeac94161c",
+  "command_id": "dcc6ed56-076e-4a24-8268-c423ee0cd116",
+  "version_id": "305ab117-25d1-4983-b557-a7e98897c885",
+  "preparation_id": "aa093456-f62a-46d3-9fa2-e9fd6ae33292",
+  "outbox_dispatched": true,
+  "status_history": [
+    {
+      "status": "queued",
+      "at": "2026-11-14T14:19:23.927871+00:00"
+    },
+    {
+      "status": "submitting",
+      "at": "2026-11-14T14:19:25.002078+00:00"
+    },
+    {
+      "status": "submitted",
+      "at": "2026-11-14T14:19:26.617521+00:00"
+    },
+    {
+      "status": "engine_finished_awaiting_quality",
+      "at": "2026-11-14T14:19:35.498984+00:00"
+    },
+    {
+      "status": "supervision_passed",
+      "at": "2026-11-14T14:19:36.037513+00:00"
+    }
+  ],
+  "engine_job_id": "8387185280983183547",
+  "attempt_phase": "submitted",
+  "supervision": {
+    "status": "finished",
+    "reasons": [],
+    "current_metrics": {
+      "source_read": 3,
+      "evaluated": 3,
+      "valid": 3,
+      "rejected": 0,
+      "final_output": 3,
+      "sink_bytes": 116,
+      "elapsed_seconds": 10.529581,
+      "throughput_rows_per_second": 0.2849116218394635,
+      "amplification": 1.0,
+      "reject_ratio": 0.0
+    },
+    "publication_veto": false,
+    "stop_request": null
+  },
+  "control": {
+    "real_control": {
+      "status": "observed",
+      "ownership_retained": true
+    },
+    "external_sink": {
+      "admission_closed": true,
+      "quiescent": true,
+      "observed_at": "2026-11-14T14:19:35.396183+00:00"
+    },
+    "final_metrics": {
+      "status": "known",
+      "sample": {
+        "contract_version": "runtime-supervision-v1",
+        "source": "seatunnel-2.3.12-source+managed-doris-journal-v1",
+        "counter_epoch": "8387185280983183547:63e53442ec1c3fe1626940b876aaa327e8e056402ac53e767895a341e48a85a2",
+        "observed_at": "2026-11-14T14:19:35.396183+00:00",
+        "byte_kind": "measured",
+        "state": "finished",
+        "source_read": 3,
+        "evaluated": 3,
+        "valid": 3,
+        "rejected": 0,
+        "final_output": 3,
+        "sink_bytes": 116,
+        "elapsed_seconds": 10.529581
+      },
+      "received_at": "2026-11-14T14:19:35.423638+00:00",
+      "metrics": {
+        "source_read": 3,
+        "evaluated": 3,
+        "valid": 3,
+        "rejected": 0,
+        "final_output": 3,
+        "sink_bytes": 116,
+        "elapsed_seconds": 10.529581,
+        "throughput_rows_per_second": 0.2849116218394635,
+        "amplification": 1.0,
+        "reject_ratio": 0.0
+      },
+      "overshoot": {
+        "source_read": 0,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0,
+        "amplification": 0,
+        "reject_ratio": 0
+      },
+      "post_detection_delta": {
+        "source_read": null,
+        "evaluated": null,
+        "valid": null,
+        "rejected": null,
+        "final_output": null,
+        "sink_bytes": null,
+        "elapsed_seconds": null
+      }
+    },
+    "termination": {
+      "confirmed": true,
+      "basis": "engine_terminal",
+      "engine_job_id": "8387185280983183547",
+      "job_name": "etl_agent_real_dcc6ed56076e4a248268c423ee0cd116",
+      "engine_state": "FINISHED",
+      "confirmed_at": "2026-11-14T14:19:35.423638+00:00"
+    },
+    "real_finalization": {
+      "status": "quality_finalized",
+      "publication_eligible": true,
+      "published": false,
+      "ownership_retained": true
+    },
+    "quality_finalized": {
+      "run_id": "d3a9d22d-e69e-4a20-815e-9efeac94161c",
+      "contract_sha256": "f3b09084bc7b0d79a5b0a0b0becb32a776639a22672477ca026e09960415a0a3",
+      "evaluated": 3,
+      "valid": 3,
+      "rejected": 0
+    },
+    "load_quiescence": {
+      "complete": true,
+      "admission_closed": true,
+      "load_quiescent": true,
+      "external_route_verified": true,
+      "object_identity_verified": true,
+      "engine_job_id": "8387185280983183547",
+      "route_command_ids": {
+        "valid": "29554f67-c771-44cd-85d5-a2e96ee3f5f8",
+        "rejected": "594e6e62-e273-49e7-8cc2-ac1303ced928"
+      }
+    }
+  },
+  "quality": {
+    "run_id": "d3a9d22d-e69e-4a20-815e-9efeac94161c",
+    "contract_sha256": "f3b09084bc7b0d79a5b0a0b0becb32a776639a22672477ca026e09960415a0a3",
+    "source_read": 3,
+    "parsed": 3,
+    "evaluated": 3,
+    "valid": 3,
+    "rejected": 0,
+    "final_written": {
+      "valid": 3,
+      "rejected": 0
+    },
+    "rule_hits": {},
+    "publication_veto": false,
+    "reasons": [],
+    "real_l2_qualified": false
+  },
+  "object_identities": {
+    "valid": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_a7a7b652ced68ff2f8377d78acc7686c",
+      "marker": "etl_agent_object:dcc6ed56-076e-4a24-8268-c423ee0cd116",
+      "partition_ids": [
+        "1794659092409"
+      ],
+      "schema": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "nullable": false
+        },
+        {
+          "name": "full_name",
+          "type": "varchar(80)",
+          "nullable": true
+        }
+      ],
+      "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+    },
+    "rejected": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_1656c044cdbb1d44edd086f402496852",
+      "marker": "etl_agent_object:dcc6ed56-076e-4a24-8268-c423ee0cd116",
+      "partition_ids": [
+        "1794659092414"
+      ],
+      "schema": [
+        {
+          "name": "record_key",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "error_codes",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "field_names",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "record_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "run_id",
+          "type": "varchar(36)",
+          "nullable": false
+        },
+        {
+          "name": "contract_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        }
+      ],
+      "schema_sha256": "031782b1e67fe3f7eca72c56c1d8276e040cfad0616c4c1189f38490400dd2a1"
+    }
+  },
+  "load_batches": [
+    {
+      "phase": "receipt",
+      "label": "etl_22ad9126a8a5232b8fcefa58d9691d44119e32fcfd6a6a052943507ef4cde45f",
+      "receipt": {
+        "Label": "etl_22ad9126a8a5232b8fcefa58d9691d44119e32fcfd6a6a052943507ef4cde45f",
+        "TxnId": 3004,
+        "Status": "Success",
+        "LoadBytes": 37,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "08aae2655b86dd5e1c9374aec0a19e8dd8b26e8641c5952d6936eae3ffe6ce40"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_db84348362ef9d3895fe6ab1adccf3adeee8ea0da430594a87a65279323f2d25",
+      "receipt": {
+        "Label": "etl_db84348362ef9d3895fe6ab1adccf3adeee8ea0da430594a87a65279323f2d25",
+        "TxnId": 3005,
+        "Status": "Success",
+        "LoadBytes": 35,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "597609bab1876fe65d5f477ce5ca2bf79e1c93306d10ca6926fee599725730d9"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_5fd9a5d59744db311939b1dba71bfd61ad81c9cc820e21ea92688f90ee66c1e3",
+      "receipt": {
+        "Label": "etl_5fd9a5d59744db311939b1dba71bfd61ad81c9cc820e21ea92688f90ee66c1e3",
+        "TxnId": 3006,
+        "Status": "Success",
+        "LoadBytes": 44,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "a0c62e0cff5753a08d5378cf53995ac34ec582c21ff8f07fd824bd547f89aa79"
+    }
+  ],
+  "final_engine_observation": {
+    "job_id": "8387185280983183547",
+    "job_name": "etl_agent_real_dcc6ed56076e4a248268c423ee0cd116",
+    "engine_state": "FINISHED",
+    "engine_terminal": true
+  },
+  "queried_rows": 3,
+  "data_equal": true,
+  "result_sha256": "0580aa757a2bc6c85dd758771a6ad0dba0e8c61f72c936aa8dede6108c92eb0f",
+  "happy_path_accepted": true,
+  "quality_split_accepted": false,
+  "unknown_path_accepted": false,
+  "cancel_path_accepted": false,
+  "reconciliation_final": [],
+  "ownership_retained": true,
+  "published": false,
+  "postgresql_schema_retained": true,
+  "runner_exit_code": 0,
+  "witness_errors": [],
+  "docker_cleanup": "removed"
+}

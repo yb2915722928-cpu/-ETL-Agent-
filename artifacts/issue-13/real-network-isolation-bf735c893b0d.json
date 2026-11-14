@@ -1,0 +1,588 @@
+{
+  "schema": "real-network-isolation/v1",
+  "level": "network_isolation_probe",
+  "managed_l2_accepted": false,
+  "created_at": "2026-11-14T08:39:43.125319+00:00",
+  "run_token": "bf735c893b0d4a649f7564d89b69bc51",
+  "label": "etl.real-network=bf735c893b0d4a649f7564d89b69bc51",
+  "runtime_directory": ".runtime\\real-network-bf735c893b0d",
+  "phase": "isolated_network_observed",
+  "keep_requested": false,
+  "resources": [
+    [
+      "container",
+      "etl-real-network-bf735c893b0d-engine"
+    ],
+    [
+      "container",
+      "etl-real-network-bf735c893b0d-gateway"
+    ],
+    [
+      "container",
+      "etl-real-network-bf735c893b0d-source"
+    ],
+    [
+      "network",
+      "etl-real-network-bf735c893b0d-internal"
+    ],
+    [
+      "image",
+      "etl-real-network-bf735c893b0d-tools:local"
+    ]
+  ],
+  "external_endpoint_addresses": {
+    "mysql": {
+      "etl-agent_default": "172.19.0.6",
+      "etl-connectors": "172.20.0.2"
+    },
+    "doris": {
+      "etl-agent_default": "172.19.0.7",
+      "etl-connectors": "172.20.0.10"
+    },
+    "postgres": {
+      "etl-agent_default": "172.19.0.8",
+      "etl-connectors": "172.20.0.3"
+    },
+    "redis": {
+      "etl-agent_default": "172.19.0.3"
+    }
+  },
+  "firewall": {
+    "netns": "net:[4026533848]",
+    "ipv4_rules": "*raw\n:PREROUTING ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n-A OUTPUT -d 127.0.0.11/32 -p udp -m udp --dport 53 -j DROP\n-A OUTPUT -d 127.0.0.11/32 -p tcp -m tcp --dport 53 -j DROP\nCOMMIT\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT DROP [0:0]\n-A OUTPUT -p udp -m udp --dport 53 -j DROP\n-A OUTPUT -p tcp -m tcp --dport 53 -j DROP\n-A OUTPUT -o lo -j ACCEPT\n-A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n-A OUTPUT -d 10.203.1.4/32 -p tcp -m tcp --dport 3306 -m conntrack --ctstate NEW -j ACCEPT\n-A OUTPUT -d 10.203.1.3/32 -p tcp -m tcp --dport 8001 -m conntrack --ctstate NEW -j ACCEPT\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n:DOCKER_OUTPUT - [0:0]\n:DOCKER_POSTROUTING - [0:0]\n-A OUTPUT -d 127.0.0.11/32 -j DOCKER_OUTPUT\n-A POSTROUTING -d 127.0.0.11/32 -j DOCKER_POSTROUTING\n-A DOCKER_OUTPUT -d 127.0.0.11/32 -p tcp -m tcp --dport 53 -j DNAT --to-destination 127.0.0.11:39595\n-A DOCKER_OUTPUT -d 127.0.0.11/32 -p udp -m udp --dport 53 -j DNAT --to-destination 127.0.0.11:35896\n-A DOCKER_POSTROUTING -s 127.0.0.11/32 -p tcp -m tcp --sport 39595 -j SNAT --to-source :53\n-A DOCKER_POSTROUTING -s 127.0.0.11/32 -p udp -m udp --sport 35896 -j SNAT --to-source :53\nCOMMIT\n",
+    "ipv6_rules": "*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT DROP [0:0]\n-A OUTPUT -o lo -j ACCEPT\n-A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\nCOMMIT\n",
+    "rules_sha256": "bed54caaa5b406aad781468f4d919654a05c6e078692cab1fdb2282bf8de1975"
+  },
+  "engine_overview_from_gateway": {
+    "projectVersion": "2.3.12",
+    "gitCommitAbbrev": "aa70e2d"
+  },
+  "gateway_ingress_http": {
+    "network_probe_only": true
+  },
+  "engine_probe": {
+    "netns": "net:[4026533848]",
+    "checks": [
+      {
+        "id": "source_mysql",
+        "host": "10.203.1.4",
+        "port": 3306,
+        "expected": "allow",
+        "connected": true
+      },
+      {
+        "id": "ingress_http",
+        "host": "10.203.1.3",
+        "port": 8001,
+        "expected": "allow",
+        "connected": true
+      },
+      {
+        "id": "source_other_port",
+        "host": "10.203.1.4",
+        "port": 3307,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "gateway_other_port",
+        "host": "10.203.1.3",
+        "port": 8002,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "external_https",
+        "host": "1.1.1.1",
+        "port": 443,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "embedded_dns_tcp",
+        "host": "127.0.0.11",
+        "port": 53,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "doris_etl-agent_default_8030",
+        "host": "172.19.0.7",
+        "port": 8030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-agent_default_8040",
+        "host": "172.19.0.7",
+        "port": 8040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-agent_default_9030",
+        "host": "172.19.0.7",
+        "port": 9030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-connectors_8030",
+        "host": "172.20.0.10",
+        "port": 8030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-connectors_8040",
+        "host": "172.20.0.10",
+        "port": 8040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-connectors_9030",
+        "host": "172.20.0.10",
+        "port": 9030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "host_docker_internal_19030",
+        "host": "192.168.65.254",
+        "port": 19030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "host_docker_internal_18040",
+        "host": "192.168.65.254",
+        "port": 18040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "host_docker_internal_18030",
+        "host": "192.168.65.254",
+        "port": 18030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "internal_bridge_gateway_19030",
+        "host": "10.203.1.1",
+        "port": 19030,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "internal_bridge_gateway_18040",
+        "host": "10.203.1.1",
+        "port": 18040,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "internal_bridge_gateway_18030",
+        "host": "10.203.1.1",
+        "port": 18030,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "connector_bridge_gateway_19030",
+        "host": "172.19.0.1",
+        "port": 19030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "connector_bridge_gateway_18040",
+        "host": "172.19.0.1",
+        "port": 18040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "connector_bridge_gateway_18030",
+        "host": "172.19.0.1",
+        "port": 18030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "direct_postgres",
+        "host": "172.19.0.8",
+        "port": 5432,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "direct_redis",
+        "host": "172.19.0.3",
+        "port": 6379,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      }
+    ]
+  },
+  "gateway_control_probe": {
+    "netns": "net:[4026533770]",
+    "checks": [
+      {
+        "id": "mysql",
+        "host": "172.19.0.6",
+        "port": 3306,
+        "connected": true
+      },
+      {
+        "id": "doris",
+        "host": "172.19.0.7",
+        "port": 9030,
+        "connected": true
+      },
+      {
+        "id": "doris",
+        "host": "172.19.0.7",
+        "port": 8040,
+        "connected": true
+      },
+      {
+        "id": "postgres",
+        "host": "172.19.0.8",
+        "port": 5432,
+        "connected": true
+      },
+      {
+        "id": "redis",
+        "host": "172.19.0.3",
+        "port": 6379,
+        "connected": true
+      },
+      {
+        "id": "host_published_19030",
+        "host": "192.168.65.254",
+        "port": 19030,
+        "connected": true
+      },
+      {
+        "id": "host_published_18040",
+        "host": "192.168.65.254",
+        "port": 18040,
+        "connected": true
+      }
+    ]
+  },
+  "network_receipt": {
+    "schema": "managed-network-receipt/v1",
+    "run_token": "bf735c893b0d4a649f7564d89b69bc51",
+    "label": "etl.real-network=bf735c893b0d4a649f7564d89b69bc51",
+    "network": {
+      "name": "etl-real-network-bf735c893b0d-internal",
+      "id": "0d66477814b8522f9797c2bc016550b787b4050895f8e7f5efca24abb12d7835",
+      "internal": true,
+      "ipam": [
+        {
+          "Gateway": "10.203.1.1",
+          "Subnet": "10.203.1.0/24"
+        }
+      ]
+    },
+    "subnet": "10.203.1.0/24",
+    "engine": {
+      "name": "etl-real-network-bf735c893b0d-engine",
+      "ip": "10.203.1.2",
+      "rest_port": 8080,
+      "netns": "net:[4026533848]"
+    },
+    "gateway": {
+      "name": "etl-real-network-bf735c893b0d-gateway",
+      "ip": "10.203.1.3",
+      "ingress_port": 8001,
+      "external_network": "etl-agent_default",
+      "external_aliases": {
+        "mysql": {
+          "etl-agent_default": "172.19.0.6",
+          "etl-connectors": "172.20.0.2"
+        },
+        "doris": {
+          "etl-agent_default": "172.19.0.7",
+          "etl-connectors": "172.20.0.10"
+        },
+        "postgres": {
+          "etl-agent_default": "172.19.0.8",
+          "etl-connectors": "172.20.0.3"
+        },
+        "redis": {
+          "etl-agent_default": "172.19.0.3"
+        }
+      },
+      "application_mount_for_l2_runner": "/app/app"
+    },
+    "source_relay": {
+      "name": "etl-real-network-bf735c893b0d-source",
+      "ip": "10.203.1.4",
+      "port": 3306,
+      "upstream": "172.19.0.6:3306",
+      "credentials": "none"
+    },
+    "tools_image_id": "sha256:e1e864ed16e8f41ad1f5a027b84a8d06b19a3f8319691e36f3077b38a80a4360",
+    "engine_image_id": "sha256:aefac91816d21ec19c706945df914fe2c5605a4b37f5c94de0a248e041dcb0e0",
+    "http_connector_sha256": "a2a8ab002697dea5f070a8c77edd44f5c53da8ac8cb3ff26b71ccefcefac3ca9",
+    "helper_sha256": "1ecf0c1b19a7cc15d349ca7dcb8288b43a49df1f2472d77c1b4933c729a5d4f5",
+    "firewall_rules_sha256": "bed54caaa5b406aad781468f4d919654a05c6e078692cab1fdb2282bf8de1975",
+    "container_security": {
+      "engine": {
+        "id": "b9bd3e516006c184a44653f70f90456cc61de64c1c6403673860f418f0b708b8",
+        "image": "sha256:aefac91816d21ec19c706945df914fe2c5605a4b37f5c94de0a248e041dcb0e0",
+        "cap_add": null,
+        "cap_drop": [
+          "ALL"
+        ],
+        "privileged": false,
+        "security_opt": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/opt/seatunnel",
+            "rw": true,
+            "source_scope": "own_run_runtime"
+          },
+          {
+            "destination": "/proof-control",
+            "rw": false,
+            "source_scope": "own_run_runtime"
+          }
+        ],
+        "networks": {
+          "etl-real-network-bf735c893b0d-internal": {
+            "Aliases": null,
+            "DNSNames": [
+              "etl-real-network-bf735c893b0d-engine",
+              "b9bd3e516006"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "2bf81f4778ab9109c601c5185c2650e1b4f3aa00ba9054f16fb067b8021053f8",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": {
+              "IPv4Address": "10.203.1.2"
+            },
+            "IPAddress": "10.203.1.2",
+            "IPPrefixLen": 24,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "de:83:a1:bb:06:89",
+            "NetworkID": "0d66477814b8522f9797c2bc016550b787b4050895f8e7f5efca24abb12d7835"
+          }
+        }
+      },
+      "gateway": {
+        "id": "b1c612d72e92ecf380e7f7423a73d35cf892057e0bae9a00ac280c49ad6c0006",
+        "image": "sha256:e1e864ed16e8f41ad1f5a027b84a8d06b19a3f8319691e36f3077b38a80a4360",
+        "cap_add": null,
+        "cap_drop": [
+          "ALL"
+        ],
+        "privileged": false,
+        "security_opt": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/proof.py",
+            "rw": false,
+            "source_scope": "own_run_runtime"
+          }
+        ],
+        "networks": {
+          "etl-agent_default": {
+            "Aliases": [],
+            "DNSNames": [
+              "etl-real-network-bf735c893b0d-gateway",
+              "b1c612d72e92"
+            ],
+            "DriverOpts": {},
+            "EndpointID": "a7c964223db899dc8c0ecb64a5c58147984687939cb78d8979a253b3da1fbab7",
+            "Gateway": "172.19.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": {},
+            "IPAddress": "172.19.0.10",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "3a:73:93:1c:fa:ea",
+            "NetworkID": "dbb2d89810f55bc64c52450bb0fdfe05c87e9339a776baefb13d7d7089bad712"
+          },
+          "etl-real-network-bf735c893b0d-internal": {
+            "Aliases": null,
+            "DNSNames": [
+              "etl-real-network-bf735c893b0d-gateway",
+              "b1c612d72e92"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "47f41a641355b0a510e03334723b3ec43a20ea244c7c73b048564aa1383b01e4",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": {
+              "IPv4Address": "10.203.1.3"
+            },
+            "IPAddress": "10.203.1.3",
+            "IPPrefixLen": 24,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "5e:fd:a8:8c:53:b7",
+            "NetworkID": "0d66477814b8522f9797c2bc016550b787b4050895f8e7f5efca24abb12d7835"
+          }
+        }
+      },
+      "source": {
+        "id": "6af1d2823888beb5520bd16054f1aa3447c3d0fc87f9152a4a2729feca54c9d2",
+        "image": "sha256:e1e864ed16e8f41ad1f5a027b84a8d06b19a3f8319691e36f3077b38a80a4360",
+        "cap_add": null,
+        "cap_drop": [
+          "ALL"
+        ],
+        "privileged": false,
+        "security_opt": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/proof.py",
+            "rw": false,
+            "source_scope": "own_run_runtime"
+          }
+        ],
+        "networks": {
+          "etl-agent_default": {
+            "Aliases": [],
+            "DNSNames": [
+              "etl-real-network-bf735c893b0d-source",
+              "6af1d2823888"
+            ],
+            "DriverOpts": {},
+            "EndpointID": "8c8c52b528b3192b66fa99ec399dbd5f089e63d2b830960e735ed8edd7c8aa56",
+            "Gateway": "172.19.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": {},
+            "IPAddress": "172.19.0.9",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "ea:ec:27:6e:9e:75",
+            "NetworkID": "dbb2d89810f55bc64c52450bb0fdfe05c87e9339a776baefb13d7d7089bad712"
+          },
+          "etl-real-network-bf735c893b0d-internal": {
+            "Aliases": null,
+            "DNSNames": [
+              "etl-real-network-bf735c893b0d-source",
+              "6af1d2823888"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "b06dcc8cbf8dc0bac16c6f702ffe704724ca8a2804b184cc4bcbf24bc2981723",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": {
+              "IPv4Address": "10.203.1.4"
+            },
+            "IPAddress": "10.203.1.4",
+            "IPPrefixLen": 24,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "ce:ec:be:92:db:37",
+            "NetworkID": "0d66477814b8522f9797c2bc016550b787b4050895f8e7f5efca24abb12d7835"
+          }
+        }
+      }
+    },
+    "observations_sha256": "f014a5c9a8d3e9fad3b97784b0a72a2d25238aa5efbff81a4323158088ba2c19",
+    "l2_runner_contract": "Revalidate current Docker IDs, IPs, rules and capabilities before use; bind receipt digest to a newly registered resource manifest. Gateway probe HTTP is not real ingress. No Doris backend identity or grants verified.",
+    "resource_state": "removed",
+    "verification_phase": "isolated_network_observed"
+  },
+  "network_receipt_sha256": "fc4dd61be7106f15af500e8684c1b1ff933e3739e1b3e864b9553af4a50b4724",
+  "cleanup": [
+    {
+      "kind": "container",
+      "name": "etl-real-network-bf735c893b0d-engine",
+      "outcome": "removed"
+    },
+    {
+      "kind": "container",
+      "name": "etl-real-network-bf735c893b0d-gateway",
+      "outcome": "removed"
+    },
+    {
+      "kind": "container",
+      "name": "etl-real-network-bf735c893b0d-source",
+      "outcome": "removed"
+    },
+    {
+      "kind": "network",
+      "name": "etl-real-network-bf735c893b0d-internal",
+      "outcome": "removed"
+    },
+    {
+      "kind": "image",
+      "name": "etl-real-network-bf735c893b0d-tools:local",
+      "outcome": "removed"
+    }
+  ],
+  "resource_state": "removed",
+  "network_receipt_file": ".runtime\\real-network-bf735c893b0d\\network-receipt.json",
+  "artifact": "artifacts\\issue-13\\real-network-isolation-bf735c893b0d.json"
+}

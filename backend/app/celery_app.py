@@ -5,8 +5,8 @@ from celery.signals import worker_process_init
 from sqlalchemy.exc import DBAPIError, OperationalError
 from .db import engine
 
-if os.environ.get('EXECUTION_ADAPTER', 'disabled') != 'l1':
-    raise RuntimeError('异步执行服务仅允许隔离 L1 显式启用；普通部署保留 pending Outbox')
+if os.environ.get('EXECUTION_ADAPTER', 'disabled') not in ('l1', 'real'):
+    raise RuntimeError('异步执行服务须显式选择隔离适配器；普通部署保留 pending Outbox')
 
 visibility = int(os.environ.get('CELERY_VISIBILITY_TIMEOUT', '3600'))
 celery = Celery('etl_commands', broker=os.environ['REDIS_URL'])
@@ -37,8 +37,35 @@ def execute(self, command_id):
                 or code in ('40001', '40P01', '55P03', '57P01', '57P02', '57P03')):
             raise self.retry(exc=error, countdown=10)
         raise
-    if state in ('submitted', 'stop_requested', 'stop_delivery_unknown', 'termination_pending', 'final_metrics_pending', 'cleanup_unknown'):
+    if state in ('submitted', 'stop_requested', 'stop_delivery_unknown', 'termination_pending', 'final_metrics_pending',
+                 'engine_finished_awaiting_quality', 'cleanup_unknown'):
         raise self.retry(countdown=2)
     if state in ('submission_unknown', 'busy'):
         raise self.retry(countdown=10)
+    return state
+
+
+@celery.task(name='etl.publish_snapshot')
+def publish_snapshot(command_id, intent_id):
+    from .real_publication import advance_publication
+    # A durable intent deadline recovers lost deliveries and busy workers.
+    # Unknown external results are handled only by read-only reconciliation.
+    return advance_publication(command_id, intent_id)
+
+
+@celery.task(name='etl.reconcile', bind=True, max_retries=None)
+def reconcile(self, command_id):
+    from .reconciliation import advance_reconciliation
+    try:
+        state = advance_reconciliation(command_id)
+    except DBAPIError as error:
+        code = error.orig.sqlstate
+        if (error.connection_invalidated
+                or (isinstance(error, OperationalError) and code is None)
+                or (code and code.startswith('08'))
+                or code in ('40001', '40P01', '55P03', '57P01', '57P02', '57P03')):
+            raise self.retry(exc=error, countdown=10)
+        raise
+    if state == 'busy':
+        raise self.retry(countdown=2)
     return state

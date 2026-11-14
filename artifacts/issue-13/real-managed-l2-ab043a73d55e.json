@@ -1,0 +1,1061 @@
+{
+  "schema": "real-managed-l2-tracer/v1",
+  "managed_l2_accepted": false,
+  "run_token": "ab043a73d55e4ffebb65ac1a402f0f3f",
+  "scenario": "unknown",
+  "phase": "terminated",
+  "network_receipt_sha256": "5f4d333330548caa84436124580022c0c1c9469ab6e56878adae9887470141a1",
+  "target_bootstrap": {
+    "table": "l2_schema_ab043a73d55e",
+    "phase": "created",
+    "database": "etl_agent_l2",
+    "schema_sha256": "1647623f7511efba7ae0581a8260036d2f3902e7166206c0460d64601d0d9b99"
+  },
+  "checked_at": "2026-11-14T14:27:00.707214+00:00",
+  "level": "real_managed_path_probe",
+  "public_approval_path_tested": true,
+  "postgresql_schema": "managed_l2_6e2e55a9edf64e86b3804edc8a3f4c06",
+  "target_table": "l2_schema_ab043a73d55e",
+  "run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+  "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+  "version_id": "9ba54265-172f-489f-bba2-94c9adfbeacc",
+  "preparation_id": "adec0c4e-443e-48d5-8527-e0ea24046c31",
+  "outbox_dispatched": true,
+  "status_history": [
+    {
+      "status": "queued",
+      "at": "2026-11-14T14:27:06.973592+00:00"
+    },
+    {
+      "status": "submitting",
+      "at": "2026-11-14T14:27:08.064430+00:00"
+    },
+    {
+      "status": "submission_unknown",
+      "at": "2026-11-14T14:27:09.725542+00:00"
+    },
+    {
+      "status": "submitted",
+      "at": "2026-11-14T14:27:09.998131+00:00"
+    },
+    {
+      "status": "stop_requested",
+      "at": "2026-11-14T14:27:14.650595+00:00"
+    },
+    {
+      "status": "terminated",
+      "at": "2026-11-14T14:27:16.530415+00:00"
+    }
+  ],
+  "reconciliation_public_api": {
+    "accepted": true,
+    "receipt": {
+      "record_id": "13f9e21e-ae01-47ce-b5c7-29e86803181c",
+      "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+      "actor_id": "51582053-2252-4430-a200-be475732bbd8",
+      "phase": "accepted",
+      "reason": "submission_unknown",
+      "basis": "intent_persisted",
+      "result": {},
+      "evidence": {
+        "payload": {
+          "format": "etl-reconciliation-v1",
+          "record_id": "13f9e21e-ae01-47ce-b5c7-29e86803181c",
+          "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+          "run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+          "tenant_id": "b3c7be0e-7d1c-46ed-9f72-60f91dcbd8c7",
+          "project_id": "700f2d19-cc2b-41d6-98a1-01e4176656cc",
+          "actor_id": "51582053-2252-4430-a200-be475732bbd8",
+          "reason": "submission_unknown",
+          "idempotency_key": "c99b2131-a71e-444d-8552-a183d3800c32",
+          "request_sha256": "781ef3d461f18d0e6ed2b1e3f916a34bca4da908261f205a7f7fcebe81ffc6f1",
+          "command_sha256": "92e4732be7f95e4c316ae6d10505bd4ad27293bf901da9bb11cd97268bd14a42",
+          "attempt": {
+            "engine_job_id": "1851142286877672963",
+            "request": {
+              "adapter": "real",
+              "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+              "run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+              "correlation_id": "d0833035-6584-4e65-8352-ca3e3e94b901",
+              "tenant_id": "b3c7be0e-7d1c-46ed-9f72-60f91dcbd8c7",
+              "project_id": "700f2d19-cc2b-41d6-98a1-01e4176656cc",
+              "engine_job_id": "1851142286877672963",
+              "engine_job_name": "etl_agent_real_76269ea5d5b34d098b6ef9a17d824c54",
+              "engine_url": "http://10.203.1.2:8080",
+              "ingress_url": "http://10.203.1.3:8001",
+              "real_routes_version": "etl-real-routes-v1",
+              "real_routes": {
+                "valid": {
+                  "command_id": "7b25857e-1ec7-433e-b217-ea89bc927f9c",
+                  "object_identity": {
+                    "physical_cluster_id": "doris-265047353",
+                    "database": "etl_agent_l2",
+                    "table": "shadow_c06e5b0bf120e380c18967ce2f64772b",
+                    "marker": "etl_agent_object:76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                    "partition_ids": [
+                      "1794659092447"
+                    ],
+                    "schema": [
+                      {
+                        "name": "id",
+                        "type": "bigint(20)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "full_name",
+                        "type": "varchar(80)",
+                        "nullable": true
+                      }
+                    ],
+                    "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+                  },
+                  "target_table": "l2_schema_ab043a73d55e",
+                  "object_run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+                  "object_command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                  "writer_secret_reference_id": "7ff74c81-4b0d-4afd-96a6-3e16162425d7",
+                  "writer_secret_version": 1,
+                  "resource_fingerprint": "5d7c91f67b17911f357b3ca8c090ec33c47755d2c8de6e1a514e0c6f83aac835",
+                  "physical_cluster_id": "doris-265047353",
+                  "backend_route": {
+                    "backend_id": "1794557068946",
+                    "host": "172.19.0.6",
+                    "port": 8040
+                  }
+                },
+                "rejected": {
+                  "command_id": "75b10112-0bc1-450d-a7d8-a85fec0aec45",
+                  "object_identity": {
+                    "physical_cluster_id": "doris-265047353",
+                    "database": "etl_agent_l2",
+                    "table": "shadow_90e290d6d734921ca89a37b6f70e2e7d",
+                    "marker": "etl_agent_object:76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                    "partition_ids": [
+                      "1794659092452"
+                    ],
+                    "schema": [
+                      {
+                        "name": "record_key",
+                        "type": "varchar(64)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "error_codes",
+                        "type": "varchar(8192)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "field_names",
+                        "type": "varchar(8192)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "record_sha256",
+                        "type": "varchar(64)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "run_id",
+                        "type": "varchar(36)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "contract_sha256",
+                        "type": "varchar(64)",
+                        "nullable": false
+                      }
+                    ],
+                    "schema_sha256": "031782b1e67fe3f7eca72c56c1d8276e040cfad0616c4c1189f38490400dd2a1"
+                  },
+                  "target_table": "l2_schema_ab043a73d55e",
+                  "object_run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46-error",
+                  "object_command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                  "writer_secret_reference_id": "7ff74c81-4b0d-4afd-96a6-3e16162425d7",
+                  "writer_secret_version": 1,
+                  "resource_fingerprint": "5d7c91f67b17911f357b3ca8c090ec33c47755d2c8de6e1a514e0c6f83aac835",
+                  "physical_cluster_id": "doris-265047353",
+                  "backend_route": {
+                    "backend_id": "1794557068946",
+                    "host": "172.19.0.6",
+                    "port": 8040
+                  }
+                }
+              },
+              "real_manifest_sha256": "2569e01c0fff34a32b778aeaccfee5eb6a0b45d0d330d646530e37417b50bfda",
+              "subject": "51582053-2252-4430-a200-be475732bbd8",
+              "preparation_id": "adec0c4e-443e-48d5-8527-e0ea24046c31",
+              "frozen_sha256": "779aadd20daf119580a1735317c4d0b2152e97540e891c8d9c7751fb67737475",
+              "version_id": "9ba54265-172f-489f-bba2-94c9adfbeacc",
+              "tool": "pipeline.trial",
+              "environment": "local",
+              "risk_level": "P2",
+              "execution_sha256": "10e957d1c26699424e0788a9757d6cc80f47284dcc085512116a648dae447f3e",
+              "bundle_sha256": "e6b63b6d43ac3843f4eda6be448fa0f5b041f02ae5e92bfe298ffbb381fbe2fa",
+              "artifact_hashes": {
+                "plan.json": "0c544d551faac460ff3f7bb8cda0e222a7afa60c53049a6bf76d897a38012288",
+                "review.conf": "d15fc5a05c702437f693127f6e8c91db9dccb6c36ef1bba958ab39681dba7223",
+                "dag.json": "39d1b884fc3d2e8929e5f6c278fa9cc89fd4b7a928688ff74a532e24750326f4",
+                "facts.json": "10e957d1c26699424e0788a9757d6cc80f47284dcc085512116a648dae447f3e",
+                "manifest.json": "e6b63b6d43ac3843f4eda6be448fa0f5b041f02ae5e92bfe298ffbb381fbe2fa"
+              },
+              "resources": {
+                "source": {
+                  "connection_id": "c99fa952-fc54-4324-8588-f4f9a746d17d",
+                  "resource_id": "l2-source",
+                  "resource_fingerprint": "4f63fd161bf9e3355c3a9a20d889079fe3dd41c3e6a366547bdc0c87511cd06a",
+                  "schema_hash": "09119a02c7963f7ea8226a2994f10dcf7545a97700b46b941da947f1015cc1a2",
+                  "schema": {
+                    "name": "customers",
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "bigint",
+                        "nullable": false,
+                        "key": "PRI"
+                      },
+                      {
+                        "name": "email",
+                        "type": "varchar(200)",
+                        "nullable": false,
+                        "key": "UNI"
+                      },
+                      {
+                        "name": "full_name",
+                        "type": "varchar(80)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "balance",
+                        "type": "decimal(18,4)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "active",
+                        "type": "tinyint(1)",
+                        "nullable": false,
+                        "key": ""
+                      },
+                      {
+                        "name": "created_at",
+                        "type": "datetime(6)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "notes",
+                        "type": "text",
+                        "nullable": true,
+                        "key": ""
+                      }
+                    ]
+                  },
+                  "secret_reference_id": "32577c13-4791-4568-aa24-461a581e544f",
+                  "secret_version": 1
+                },
+                "target": {
+                  "connection_id": "e94e0dbc-918d-43e6-ae49-b14d0a35f849",
+                  "resource_id": "l2-target",
+                  "resource_fingerprint": "5d7c91f67b17911f357b3ca8c090ec33c47755d2c8de6e1a514e0c6f83aac835",
+                  "schema_hash": "63af2b4cc47ba760a6f943f77ab1467de6df01c9c691f462a61d85cb23221191",
+                  "schema": {
+                    "name": "l2_schema_ab043a73d55e",
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "bigint(20)",
+                        "nullable": false,
+                        "key": "DUP"
+                      },
+                      {
+                        "name": "full_name",
+                        "type": "varchar(80)",
+                        "nullable": true,
+                        "key": ""
+                      }
+                    ]
+                  },
+                  "secret_reference_id": "bb7d1156-3680-4dab-b381-f5189f210854",
+                  "secret_version": 1,
+                  "execution_writer": {
+                    "secret_reference_id": "7ff74c81-4b0d-4afd-96a6-3e16162425d7",
+                    "secret_version": 1,
+                    "resource_fingerprint": "ce96effabe252ca040a9bcd9f07aac17f44c3bb134a862822a3cb161406d30d7",
+                    "username": "etl_l2_probe_writer"
+                  }
+                }
+              },
+              "authorized_operation": {
+                "tool": "pipeline.trial",
+                "data_plane_mutation": true,
+                "tools": [
+                  "doris.write",
+                  "mysql.read"
+                ]
+              },
+              "budget": {
+                "max_rows": 10,
+                "max_bytes": 1048576,
+                "max_seconds": 60,
+                "max_reject_ratio": 0.2,
+                "max_amplification": 2
+              },
+              "runtime_supervision_contract": {
+                "version": "runtime-supervision-v1",
+                "max_rows": 10,
+                "max_bytes": 1048576,
+                "max_seconds": 60,
+                "max_amplification": 2,
+                "max_reject_ratio": 0.2,
+                "observation_seconds": 2,
+                "stale_after_seconds": 6,
+                "running_reject_min_evaluated": 100,
+                "row_boundary": "source_read: connector emitted records before mapping",
+                "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+                "output_boundary": "final_output: sink received records after quality and expansion",
+                "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+                "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+                "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+                "empty_policy": "veto_publication",
+                "violation_action": "persist_stop_request_and_veto_publication"
+              },
+              "real_execution_contract": {
+                "version": "etl-real-ingress-v1",
+                "source_primary_key": [
+                  "id"
+                ],
+                "source_columns": [
+                  "full_name",
+                  "id"
+                ],
+                "quality_stage_version": "quality-v1",
+                "cleaning": [],
+                "filters": [],
+                "valid_schema": [
+                  {
+                    "name": "id",
+                    "type": "bigint(20)",
+                    "nullable": false,
+                    "key": "DUP"
+                  },
+                  {
+                    "name": "full_name",
+                    "type": "varchar(80)",
+                    "nullable": true,
+                    "key": ""
+                  }
+                ],
+                "rejected_schema": [
+                  {
+                    "name": "record_key",
+                    "type": "varchar(64)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "error_codes",
+                    "type": "varchar(8192)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "field_names",
+                    "type": "varchar(8192)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "record_sha256",
+                    "type": "varchar(64)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "run_id",
+                    "type": "varchar(36)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "contract_sha256",
+                    "type": "varchar(64)",
+                    "nullable": false
+                  }
+                ],
+                "valid_object_run_suffix": "",
+                "rejected_object_run_suffix": "-error",
+                "sink_protocol": "single-json-record-original-doris-receipt-v1",
+                "text_encoding": "UTF-8",
+                "admission": {
+                  "window_ms": 200,
+                  "max_wait_ms": 2500,
+                  "poll_ms": 50,
+                  "http_socket_timeout_ms": 5000
+                }
+              },
+              "policy_version": "preparation-policy-v1",
+              "compiler_versions": {
+                "canonicalization": "sorted-json-v1",
+                "compiler": "studio-plan-v1",
+                "renderer": "review-hocon-v1",
+                "capability": "mysql-doris-projection-v1",
+                "policy": "studio-policy-v1",
+                "connector_policy": "p3-connectors-v1"
+              },
+              "accepted_at": "2026-11-14T14:27:05.676702+00:00",
+              "quality_contract_sha256": "a05efad1b870cef304633ae3dca53e98f1966b2924a5df135f3a6efa6f39901b"
+            },
+            "request_sha256": "d4853d89130c40a925eaed72be2ce0ba06dd8f0f38bca02a3edbf7282096e31b",
+            "correlation_id": "d0833035-6584-4e65-8352-ca3e3e94b901"
+          },
+          "read_only": true,
+          "key_id": "e037bd59157460747974194bf3a34dc3e9e17e81dae16e90d2252aec9fd84628"
+        },
+        "signature": "i25G+xRw7mBl9wlleQdbEWiaudzLdZXwcHVfrpoWXzWuioEpwM4EeT+ac6EyOAKCA5JCVsqJCZruQuBHEek/BQ=="
+      },
+      "created_at": "2026-11-14T14:27:09.698676+00:00",
+      "updated_at": "2026-11-14T14:27:09.698676+00:00"
+    }
+  },
+  "engine_job_id": "1851142286877672963",
+  "attempt_phase": "submitted",
+  "supervision": {
+    "status": "stop_requested",
+    "reasons": [
+      "load_observation_incomplete",
+      "metrics_missing",
+      "terminal_cleanup_only"
+    ],
+    "current_metrics": {
+      "source_read": 3,
+      "evaluated": 2,
+      "valid": 2,
+      "rejected": 0,
+      "final_output": 2,
+      "sink_bytes": 72,
+      "elapsed_seconds": 8.44361,
+      "throughput_rows_per_second": 0.23686551131565764,
+      "amplification": 0.6666666666666666,
+      "reject_ratio": 0.0
+    },
+    "publication_veto": true,
+    "stop_request": {
+      "id": "e322f77f-db97-4dd5-b51c-7db03b4ede0d",
+      "detected_at": "2026-11-14T14:27:14.444903+00:00",
+      "requested_at": "2026-11-14T14:27:14.444903+00:00",
+      "reasons": [
+        "load_observation_incomplete",
+        "metrics_missing"
+      ],
+      "detection_metrics": {
+        "source_read": null,
+        "evaluated": null,
+        "valid": null,
+        "rejected": null,
+        "final_output": null,
+        "sink_bytes": null,
+        "elapsed_seconds": null,
+        "throughput_rows_per_second": null,
+        "amplification": null,
+        "reject_ratio": null
+      },
+      "delivery_status": "acknowledged",
+      "termination_confirmed": true,
+      "dispatched_at": "2026-11-14T14:27:14.444903+00:00"
+    }
+  },
+  "control": {
+    "real_control": {
+      "status": "observed",
+      "ownership_retained": true
+    },
+    "external_sink": {
+      "admission_closed": true,
+      "quiescent": true,
+      "observed_at": "2026-11-14T14:27:16.288322+00:00"
+    },
+    "final_metrics": {
+      "status": "known",
+      "sample": {
+        "contract_version": "runtime-supervision-v1",
+        "source": "seatunnel-2.3.12-source+managed-doris-journal-v1",
+        "counter_epoch": "1851142286877672963:9f3a35e4fd0850bd2c512a52b187838f93a49b6c395c8842eeec120f4f9a223f",
+        "observed_at": "2026-11-14T14:27:16.288322+00:00",
+        "byte_kind": "measured",
+        "state": "finished",
+        "source_read": 3,
+        "evaluated": 2,
+        "valid": 2,
+        "rejected": 0,
+        "final_output": 2,
+        "sink_bytes": 72,
+        "elapsed_seconds": 8.44361,
+        "terminal_purpose": "cleanup_only",
+        "engine_state": "CANCELED"
+      },
+      "received_at": "2026-11-14T14:27:16.317746+00:00",
+      "metrics": {
+        "source_read": 3,
+        "evaluated": 2,
+        "valid": 2,
+        "rejected": 0,
+        "final_output": 2,
+        "sink_bytes": 72,
+        "elapsed_seconds": 8.44361,
+        "throughput_rows_per_second": 0.23686551131565764,
+        "amplification": 0.6666666666666666,
+        "reject_ratio": 0.0
+      },
+      "overshoot": {
+        "source_read": 0,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0,
+        "amplification": 0,
+        "reject_ratio": 0
+      },
+      "post_detection_delta": {
+        "source_read": null,
+        "evaluated": null,
+        "valid": null,
+        "rejected": null,
+        "final_output": null,
+        "sink_bytes": null,
+        "elapsed_seconds": null
+      },
+      "usage": "cleanup_only",
+      "engine_state": "CANCELED"
+    },
+    "real_stop": {
+      "effect_id": "e322f77f-db97-4dd5-b51c-7db03b4ede0d",
+      "kind": "stop",
+      "status": "acknowledged",
+      "engine_job_id": "1851142286877672963",
+      "job_name": "etl_agent_real_76269ea5d5b34d098b6ef9a17d824c54",
+      "engine_url": "http://10.203.1.2:8080",
+      "started_at": "2026-11-14T14:27:14.444903+00:00"
+    },
+    "inflight": {
+      "effect_id": "e322f77f-db97-4dd5-b51c-7db03b4ede0d",
+      "kind": "stop",
+      "status": "acknowledged",
+      "engine_job_id": "1851142286877672963",
+      "job_name": "etl_agent_real_76269ea5d5b34d098b6ef9a17d824c54",
+      "engine_url": "http://10.203.1.2:8080",
+      "started_at": "2026-11-14T14:27:14.444903+00:00"
+    },
+    "termination": {
+      "confirmed": true,
+      "basis": "engine_terminal",
+      "engine_job_id": "1851142286877672963",
+      "job_name": "etl_agent_real_76269ea5d5b34d098b6ef9a17d824c54",
+      "engine_state": "CANCELED",
+      "confirmed_at": "2026-11-14T14:27:16.317746+00:00"
+    }
+  },
+  "quality": {
+    "run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+    "contract_sha256": "a05efad1b870cef304633ae3dca53e98f1966b2924a5df135f3a6efa6f39901b",
+    "source_read": 3,
+    "parsed": 2,
+    "evaluated": 2,
+    "valid": 2,
+    "rejected": 0,
+    "final_written": {
+      "valid": 2,
+      "rejected": 0
+    },
+    "rule_hits": {},
+    "publication_veto": true,
+    "reasons": [
+      "real_ingress_veto",
+      "real_supervision_veto",
+      "source_parse_or_evaluation_incomplete",
+      "source_report_incomplete"
+    ],
+    "real_l2_qualified": false
+  },
+  "object_identities": {
+    "valid": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_c06e5b0bf120e380c18967ce2f64772b",
+      "marker": "etl_agent_object:76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+      "partition_ids": [
+        "1794659092447"
+      ],
+      "schema": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "nullable": false
+        },
+        {
+          "name": "full_name",
+          "type": "varchar(80)",
+          "nullable": true
+        }
+      ],
+      "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+    },
+    "rejected": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_90e290d6d734921ca89a37b6f70e2e7d",
+      "marker": "etl_agent_object:76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+      "partition_ids": [
+        "1794659092452"
+      ],
+      "schema": [
+        {
+          "name": "record_key",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "error_codes",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "field_names",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "record_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "run_id",
+          "type": "varchar(36)",
+          "nullable": false
+        },
+        {
+          "name": "contract_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        }
+      ],
+      "schema_sha256": "031782b1e67fe3f7eca72c56c1d8276e040cfad0616c4c1189f38490400dd2a1"
+    }
+  },
+  "load_batches": [
+    {
+      "phase": "receipt",
+      "label": "etl_9ea0dd413f601fd03a08076ec9fab57b4024fe77eb3dab6624fe7d66b38770e5",
+      "receipt": {
+        "Label": "etl_9ea0dd413f601fd03a08076ec9fab57b4024fe77eb3dab6624fe7d66b38770e5",
+        "TxnId": 3008,
+        "Status": "Success",
+        "LoadBytes": 37,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "b905a8aa353936143f7d9df1103f14d41b4faf609d205678aad8dd860805a880"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_88cc9c2debdfe17304428e5f5c9410849bba3385e139b0ecd5b2e98592d336a3",
+      "receipt": {
+        "Label": "etl_88cc9c2debdfe17304428e5f5c9410849bba3385e139b0ecd5b2e98592d336a3",
+        "TxnId": 3009,
+        "Status": "Success",
+        "LoadBytes": 35,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "6f9c583b20becb453d75fa42e9a3b035e159c47d2cb2e507ab64127557b57499"
+    }
+  ],
+  "final_engine_observation": {
+    "job_id": "1851142286877672963",
+    "job_name": "etl_agent_real_76269ea5d5b34d098b6ef9a17d824c54",
+    "engine_state": "CANCELED",
+    "engine_terminal": true
+  },
+  "queried_rows": 2,
+  "data_equal": false,
+  "result_sha256": "be1e97d9053649c8a81d612494a868ae4518c8c7daf6d7de6505c3e811913111",
+  "happy_path_accepted": false,
+  "quality_split_accepted": false,
+  "unknown_path_accepted": false,
+  "cancel_path_accepted": false,
+  "reconciliation_final": [
+    {
+      "record_id": "13f9e21e-ae01-47ce-b5c7-29e86803181c",
+      "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+      "actor_id": "51582053-2252-4430-a200-be475732bbd8",
+      "phase": "accepted",
+      "reason": "submission_unknown",
+      "basis": "intent_persisted",
+      "result": {},
+      "evidence": {
+        "payload": {
+          "format": "etl-reconciliation-v1",
+          "record_id": "13f9e21e-ae01-47ce-b5c7-29e86803181c",
+          "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+          "run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+          "tenant_id": "b3c7be0e-7d1c-46ed-9f72-60f91dcbd8c7",
+          "project_id": "700f2d19-cc2b-41d6-98a1-01e4176656cc",
+          "actor_id": "51582053-2252-4430-a200-be475732bbd8",
+          "reason": "submission_unknown",
+          "idempotency_key": "c99b2131-a71e-444d-8552-a183d3800c32",
+          "request_sha256": "781ef3d461f18d0e6ed2b1e3f916a34bca4da908261f205a7f7fcebe81ffc6f1",
+          "command_sha256": "92e4732be7f95e4c316ae6d10505bd4ad27293bf901da9bb11cd97268bd14a42",
+          "attempt": {
+            "engine_job_id": "1851142286877672963",
+            "request": {
+              "adapter": "real",
+              "command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+              "run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+              "correlation_id": "d0833035-6584-4e65-8352-ca3e3e94b901",
+              "tenant_id": "b3c7be0e-7d1c-46ed-9f72-60f91dcbd8c7",
+              "project_id": "700f2d19-cc2b-41d6-98a1-01e4176656cc",
+              "engine_job_id": "1851142286877672963",
+              "engine_job_name": "etl_agent_real_76269ea5d5b34d098b6ef9a17d824c54",
+              "engine_url": "http://10.203.1.2:8080",
+              "ingress_url": "http://10.203.1.3:8001",
+              "real_routes_version": "etl-real-routes-v1",
+              "real_routes": {
+                "valid": {
+                  "command_id": "7b25857e-1ec7-433e-b217-ea89bc927f9c",
+                  "object_identity": {
+                    "physical_cluster_id": "doris-265047353",
+                    "database": "etl_agent_l2",
+                    "table": "shadow_c06e5b0bf120e380c18967ce2f64772b",
+                    "marker": "etl_agent_object:76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                    "partition_ids": [
+                      "1794659092447"
+                    ],
+                    "schema": [
+                      {
+                        "name": "id",
+                        "type": "bigint(20)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "full_name",
+                        "type": "varchar(80)",
+                        "nullable": true
+                      }
+                    ],
+                    "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+                  },
+                  "target_table": "l2_schema_ab043a73d55e",
+                  "object_run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46",
+                  "object_command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                  "writer_secret_reference_id": "7ff74c81-4b0d-4afd-96a6-3e16162425d7",
+                  "writer_secret_version": 1,
+                  "resource_fingerprint": "5d7c91f67b17911f357b3ca8c090ec33c47755d2c8de6e1a514e0c6f83aac835",
+                  "physical_cluster_id": "doris-265047353",
+                  "backend_route": {
+                    "backend_id": "1794557068946",
+                    "host": "172.19.0.6",
+                    "port": 8040
+                  }
+                },
+                "rejected": {
+                  "command_id": "75b10112-0bc1-450d-a7d8-a85fec0aec45",
+                  "object_identity": {
+                    "physical_cluster_id": "doris-265047353",
+                    "database": "etl_agent_l2",
+                    "table": "shadow_90e290d6d734921ca89a37b6f70e2e7d",
+                    "marker": "etl_agent_object:76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                    "partition_ids": [
+                      "1794659092452"
+                    ],
+                    "schema": [
+                      {
+                        "name": "record_key",
+                        "type": "varchar(64)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "error_codes",
+                        "type": "varchar(8192)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "field_names",
+                        "type": "varchar(8192)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "record_sha256",
+                        "type": "varchar(64)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "run_id",
+                        "type": "varchar(36)",
+                        "nullable": false
+                      },
+                      {
+                        "name": "contract_sha256",
+                        "type": "varchar(64)",
+                        "nullable": false
+                      }
+                    ],
+                    "schema_sha256": "031782b1e67fe3f7eca72c56c1d8276e040cfad0616c4c1189f38490400dd2a1"
+                  },
+                  "target_table": "l2_schema_ab043a73d55e",
+                  "object_run_id": "1e222b72-b34a-45ea-8cf0-c4981b7f3e46-error",
+                  "object_command_id": "76269ea5-d5b3-4d09-8b6e-f9a17d824c54",
+                  "writer_secret_reference_id": "7ff74c81-4b0d-4afd-96a6-3e16162425d7",
+                  "writer_secret_version": 1,
+                  "resource_fingerprint": "5d7c91f67b17911f357b3ca8c090ec33c47755d2c8de6e1a514e0c6f83aac835",
+                  "physical_cluster_id": "doris-265047353",
+                  "backend_route": {
+                    "backend_id": "1794557068946",
+                    "host": "172.19.0.6",
+                    "port": 8040
+                  }
+                }
+              },
+              "real_manifest_sha256": "2569e01c0fff34a32b778aeaccfee5eb6a0b45d0d330d646530e37417b50bfda",
+              "subject": "51582053-2252-4430-a200-be475732bbd8",
+              "preparation_id": "adec0c4e-443e-48d5-8527-e0ea24046c31",
+              "frozen_sha256": "779aadd20daf119580a1735317c4d0b2152e97540e891c8d9c7751fb67737475",
+              "version_id": "9ba54265-172f-489f-bba2-94c9adfbeacc",
+              "tool": "pipeline.trial",
+              "environment": "local",
+              "risk_level": "P2",
+              "execution_sha256": "10e957d1c26699424e0788a9757d6cc80f47284dcc085512116a648dae447f3e",
+              "bundle_sha256": "e6b63b6d43ac3843f4eda6be448fa0f5b041f02ae5e92bfe298ffbb381fbe2fa",
+              "artifact_hashes": {
+                "plan.json": "0c544d551faac460ff3f7bb8cda0e222a7afa60c53049a6bf76d897a38012288",
+                "review.conf": "d15fc5a05c702437f693127f6e8c91db9dccb6c36ef1bba958ab39681dba7223",
+                "dag.json": "39d1b884fc3d2e8929e5f6c278fa9cc89fd4b7a928688ff74a532e24750326f4",
+                "facts.json": "10e957d1c26699424e0788a9757d6cc80f47284dcc085512116a648dae447f3e",
+                "manifest.json": "e6b63b6d43ac3843f4eda6be448fa0f5b041f02ae5e92bfe298ffbb381fbe2fa"
+              },
+              "resources": {
+                "source": {
+                  "connection_id": "c99fa952-fc54-4324-8588-f4f9a746d17d",
+                  "resource_id": "l2-source",
+                  "resource_fingerprint": "4f63fd161bf9e3355c3a9a20d889079fe3dd41c3e6a366547bdc0c87511cd06a",
+                  "schema_hash": "09119a02c7963f7ea8226a2994f10dcf7545a97700b46b941da947f1015cc1a2",
+                  "schema": {
+                    "name": "customers",
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "bigint",
+                        "nullable": false,
+                        "key": "PRI"
+                      },
+                      {
+                        "name": "email",
+                        "type": "varchar(200)",
+                        "nullable": false,
+                        "key": "UNI"
+                      },
+                      {
+                        "name": "full_name",
+                        "type": "varchar(80)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "balance",
+                        "type": "decimal(18,4)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "active",
+                        "type": "tinyint(1)",
+                        "nullable": false,
+                        "key": ""
+                      },
+                      {
+                        "name": "created_at",
+                        "type": "datetime(6)",
+                        "nullable": true,
+                        "key": ""
+                      },
+                      {
+                        "name": "notes",
+                        "type": "text",
+                        "nullable": true,
+                        "key": ""
+                      }
+                    ]
+                  },
+                  "secret_reference_id": "32577c13-4791-4568-aa24-461a581e544f",
+                  "secret_version": 1
+                },
+                "target": {
+                  "connection_id": "e94e0dbc-918d-43e6-ae49-b14d0a35f849",
+                  "resource_id": "l2-target",
+                  "resource_fingerprint": "5d7c91f67b17911f357b3ca8c090ec33c47755d2c8de6e1a514e0c6f83aac835",
+                  "schema_hash": "63af2b4cc47ba760a6f943f77ab1467de6df01c9c691f462a61d85cb23221191",
+                  "schema": {
+                    "name": "l2_schema_ab043a73d55e",
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "bigint(20)",
+                        "nullable": false,
+                        "key": "DUP"
+                      },
+                      {
+                        "name": "full_name",
+                        "type": "varchar(80)",
+                        "nullable": true,
+                        "key": ""
+                      }
+                    ]
+                  },
+                  "secret_reference_id": "bb7d1156-3680-4dab-b381-f5189f210854",
+                  "secret_version": 1,
+                  "execution_writer": {
+                    "secret_reference_id": "7ff74c81-4b0d-4afd-96a6-3e16162425d7",
+                    "secret_version": 1,
+                    "resource_fingerprint": "ce96effabe252ca040a9bcd9f07aac17f44c3bb134a862822a3cb161406d30d7",
+                    "username": "etl_l2_probe_writer"
+                  }
+                }
+              },
+              "authorized_operation": {
+                "tool": "pipeline.trial",
+                "data_plane_mutation": true,
+                "tools": [
+                  "doris.write",
+                  "mysql.read"
+                ]
+              },
+              "budget": {
+                "max_rows": 10,
+                "max_bytes": 1048576,
+                "max_seconds": 60,
+                "max_reject_ratio": 0.2,
+                "max_amplification": 2
+              },
+              "runtime_supervision_contract": {
+                "version": "runtime-supervision-v1",
+                "max_rows": 10,
+                "max_bytes": 1048576,
+                "max_seconds": 60,
+                "max_amplification": 2,
+                "max_reject_ratio": 0.2,
+                "observation_seconds": 2,
+                "stale_after_seconds": 6,
+                "running_reject_min_evaluated": 100,
+                "row_boundary": "source_read: connector emitted records before mapping",
+                "quality_boundary": "evaluated=valid+rejected: mapped records, stable-key deduplicated; reject once per record",
+                "output_boundary": "final_output: sink received records after quality and expansion",
+                "byte_boundary": "sink_bytes: cumulative measured sink accepted-write bytes; byte, not MiB or estimates",
+                "retry_boundary": "all counters stable-key deduplicated, same counter_epoch; reset is unsafe",
+                "ratio_boundary": "amplification=final_output/source_read; reject_ratio=rejected/evaluated; zero denominator=null",
+                "empty_policy": "veto_publication",
+                "violation_action": "persist_stop_request_and_veto_publication"
+              },
+              "real_execution_contract": {
+                "version": "etl-real-ingress-v1",
+                "source_primary_key": [
+                  "id"
+                ],
+                "source_columns": [
+                  "full_name",
+                  "id"
+                ],
+                "quality_stage_version": "quality-v1",
+                "cleaning": [],
+                "filters": [],
+                "valid_schema": [
+                  {
+                    "name": "id",
+                    "type": "bigint(20)",
+                    "nullable": false,
+                    "key": "DUP"
+                  },
+                  {
+                    "name": "full_name",
+                    "type": "varchar(80)",
+                    "nullable": true,
+                    "key": ""
+                  }
+                ],
+                "rejected_schema": [
+                  {
+                    "name": "record_key",
+                    "type": "varchar(64)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "error_codes",
+                    "type": "varchar(8192)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "field_names",
+                    "type": "varchar(8192)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "record_sha256",
+                    "type": "varchar(64)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "run_id",
+                    "type": "varchar(36)",
+                    "nullable": false
+                  },
+                  {
+                    "name": "contract_sha256",
+                    "type": "varchar(64)",
+                    "nullable": false
+                  }
+                ],
+                "valid_object_run_suffix": "",
+                "rejected_object_run_suffix": "-error",
+                "sink_protocol": "single-json-record-original-doris-receipt-v1",
+                "text_encoding": "UTF-8",
+                "admission": {
+                  "window_ms": 200,
+                  "max_wait_ms": 2500,
+                  "poll_ms": 50,
+                  "http_socket_timeout_ms": 5000
+                }
+              },
+              "policy_version": "preparation-policy-v1",
+              "compiler_versions": {
+                "canonicalization": "sorted-json-v1",
+                "compiler": "studio-plan-v1",
+                "renderer": "review-hocon-v1",
+                "capability": "mysql-doris-projection-v1",
+                "policy": "studio-policy-v1",
+                "connector_policy": "p3-connectors-v1"
+              },
+              "accepted_at": "2026-11-14T14:27:05.676702+00:00",
+              "quality_contract_sha256": "a05efad1b870cef304633ae3dca53e98f1966b2924a5df135f3a6efa6f39901b"
+            },
+            "request_sha256": "d4853d89130c40a925eaed72be2ce0ba06dd8f0f38bca02a3edbf7282096e31b",
+            "correlation_id": "d0833035-6584-4e65-8352-ca3e3e94b901"
+          },
+          "read_only": true,
+          "key_id": "e037bd59157460747974194bf3a34dc3e9e17e81dae16e90d2252aec9fd84628"
+        },
+        "signature": "i25G+xRw7mBl9wlleQdbEWiaudzLdZXwcHVfrpoWXzWuioEpwM4EeT+ac6EyOAKCA5JCVsqJCZruQuBHEek/BQ=="
+      },
+      "created_at": "2026-11-14T14:27:09.698676+00:00",
+      "updated_at": "2026-11-14T14:27:09.698676+00:00"
+    }
+  ],
+  "ownership_retained": true,
+  "published": false,
+  "postgresql_schema_retained": true,
+  "runner_exit_code": 1,
+  "witness_errors": [],
+  "response_loss_fault": {
+    "submit_forward_count": 1,
+    "dropped_submit_responses": 1,
+    "get_forward_count": 18,
+    "actual_upstream_status": 200
+  },
+  "docker_cleanup": "removed"
+}

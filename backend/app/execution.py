@@ -115,6 +115,10 @@ def authorization_bindings(row, subject):
                 side: frozen['execution_facts'][side] for side in ('source', 'target')},
             'authorized_operation': frozen['authorized_operation'], 'budget': frozen['budget'],
             'runtime_supervision_contract': frozen.get('runtime_supervision_contract'),
+            **({'real_execution_contract': frozen['execution_facts']['real_execution_contract']}
+               if frozen['execution_facts'].get('real_execution_contract') is not None else {}),
+            **({'publication_contract': frozen['publication_contract']}
+                if frozen.get('publication_contract') is not None else {}),
             'policy_version': frozen['policy_version'], 'compiler_versions': frozen['compiler_versions']}
 
 
@@ -155,9 +159,18 @@ def register_execution_routes(app, Db, Actor, project_scope):
         validation = validate_preparation(db, request.app.state.connector_policy, row)
         if not validation['valid']:
             raise HTTPException(409, '；'.join(validation['reasons']))
+        if row.tool == 'credential.rotate':
+            from .credential_rotation import check_rotation_resources
+            check_rotation_resources(db, request.app.state.connector_policy, request.app.state.secret_provider,
+                                     row, actor, 'operator')
+            return
+        version = get_version(db, row.tenant_id, row.project_id, row.version_id)
         check_execution_resources(db, request.app.state.connector_policy, request.app.state.secret_provider,
-                                  get_version(db, row.tenant_id, row.project_id, row.version_id),
-                                  actor, 'operator', preparation_id=row.id)
+                                  version, actor, 'operator', preparation_id=row.id)
+        if row.frozen['execution_facts']['target'].get('execution_writer'):
+            from .writer_credentials import check_execution_writer
+            check_execution_writer(db, request.app.state.connector_policy, request.app.state.secret_provider,
+                                   version, actor, 'operator', preparation_id=row.id)
         if datetime.now(timezone.utc) >= row.expires_at:
             raise HTTPException(409, '受管检查结束时准备单已过期，请重新准备')
 
@@ -232,6 +245,15 @@ def register_execution_routes(app, Db, Actor, project_scope):
                 raise HTTPException(409, '受管检查结束时授权或准备单已过期，请重新授权')
         except HTTPException as error:
             return denied(db, actor, row, 'commit.denied', error)
+        if row.tool == 'credential.rotate':
+            from .credential_rotation import commit_rotation
+            try:
+                with db.begin_nested():
+                    run = commit_rotation(db, request.app.state.connector_policy, request.app.state.secret_provider,
+                        request.app.state.evidence_signer, row, actor, payload, body.idempotency_key, digest)
+            except HTTPException as error:
+                return denied(db, actor, row, 'commit.denied', error)
+            return run_view(db, run)
         run_id, command_id = new_id(), new_id()
         run = ExecutionRun(id=run_id, tenant_id=tenant_id, project_id=project_id,
                            preparation_id=row.id, subject=actor.id, accepted_at=now)

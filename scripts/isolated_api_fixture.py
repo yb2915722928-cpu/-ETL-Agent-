@@ -31,7 +31,11 @@ def isolated_api(prefix, port):
             for table in Base.metadata.sorted_tables:
                 if db.scalar(text('SELECT to_regclass(:name)'), {'name': 'public.' + table.name}) is None:
                     continue  # Additive feature tables need not exist in the deployed baseline.
-                columns = ','.join(f'"{column.name}"' for column in table.columns)
+                baseline_columns = set(db.scalars(text('SELECT column_name FROM information_schema.columns '
+                    'WHERE table_schema=:schema AND table_name=:table'), {'schema': 'public', 'table': table.name}))
+                # New nullable/defaulted columns are intentionally not read from
+                # the older deployed baseline. Its rows stay untouched.
+                columns = ','.join(f'"{column.name}"' for column in table.columns if column.name in baseline_columns)
                 db.execute(text(f'INSERT INTO {schema}."{table.name}" ({columns}) SELECT {columns} FROM public."{table.name}"'))
         with session() as db:
             assert db.scalar(text('SELECT current_schema()')) == schema

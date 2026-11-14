@@ -121,6 +121,7 @@ class SecretReference(Base):
     version: Mapped[int] = mapped_column(Integer, default=1)
     nonce: Mapped[bytes] = mapped_column(LargeBinary)
     ciphertext: Mapped[bytes] = mapped_column(LargeBinary)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -132,6 +133,13 @@ class Connection(Base):
         ForeignKeyConstraint(['project_id', 'tenant_id'], ['projects.id', 'projects.tenant_id']),
         ForeignKeyConstraint(['secret_reference_id', 'tenant_id', 'project_id', 'secret_version'],
                              ['secret_references.id', 'secret_references.tenant_id', 'secret_references.project_id', 'secret_references.version']),
+        ForeignKeyConstraint(['writer_secret_reference_id', 'tenant_id', 'project_id', 'writer_secret_version'],
+                             ['secret_references.id', 'secret_references.tenant_id', 'secret_references.project_id', 'secret_references.version'],
+                             name='connection_writer_secret_fk'),
+        CheckConstraint("(writer_secret_reference_id IS NULL AND writer_secret_version IS NULL) OR "
+                        "(kind='doris' AND direction='target' AND writer_secret_reference_id IS NOT NULL "
+                        "AND writer_secret_version IS NOT NULL AND writer_secret_reference_id<>secret_reference_id)",
+                        name='connection_writer_shape'),
     )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     tenant_id: Mapped[str] = mapped_column(String(36))
@@ -143,6 +151,8 @@ class Connection(Base):
     resource_fingerprint: Mapped[str] = mapped_column(String(64))
     secret_reference_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     secret_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    writer_secret_reference_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    writer_secret_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     storage_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     source_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
     source_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)

@@ -1,0 +1,349 @@
+{
+  "schema": "real-network-isolation/v1",
+  "level": "network_isolation_probe",
+  "managed_l2_accepted": false,
+  "created_at": "2026-11-14T08:35:29.990166+00:00",
+  "run_token": "8aff553896354f4eb09a54d611e730f4",
+  "label": "etl.real-network=8aff553896354f4eb09a54d611e730f4",
+  "runtime_directory": ".runtime\\real-network-8aff55389635",
+  "phase": "unknown",
+  "keep_requested": false,
+  "resources": [
+    [
+      "container",
+      "etl-real-network-8aff55389635-engine"
+    ],
+    [
+      "container",
+      "etl-real-network-8aff55389635-gateway"
+    ],
+    [
+      "container",
+      "etl-real-network-8aff55389635-source"
+    ],
+    [
+      "network",
+      "etl-real-network-8aff55389635-internal"
+    ],
+    [
+      "image",
+      "etl-real-network-8aff55389635-tools:local"
+    ]
+  ],
+  "external_endpoint_addresses": {
+    "mysql": {
+      "etl-agent_default": "172.19.0.6",
+      "etl-connectors": "172.20.0.2"
+    },
+    "doris": {
+      "etl-agent_default": "172.19.0.7",
+      "etl-connectors": "172.20.0.10"
+    },
+    "postgres": {
+      "etl-agent_default": "172.19.0.8",
+      "etl-connectors": "172.20.0.3"
+    },
+    "redis": {
+      "etl-agent_default": "172.19.0.3"
+    }
+  },
+  "firewall": {
+    "netns": "net:[4026533848]",
+    "ipv4_rules": "*raw\n:PREROUTING ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n-A OUTPUT -d 127.0.0.11/32 -p udp -m udp --dport 53 -j DROP\n-A OUTPUT -d 127.0.0.11/32 -p tcp -m tcp --dport 53 -j DROP\nCOMMIT\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT DROP [0:0]\n-A OUTPUT -p udp -m udp --dport 53 -j DROP\n-A OUTPUT -p tcp -m tcp --dport 53 -j DROP\n-A OUTPUT -o lo -j ACCEPT\n-A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n-A OUTPUT -d 10.203.1.4/32 -p tcp -m tcp --dport 3306 -m conntrack --ctstate NEW -j ACCEPT\n-A OUTPUT -d 10.203.1.3/32 -p tcp -m tcp --dport 8001 -m conntrack --ctstate NEW -j ACCEPT\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n:DOCKER_OUTPUT - [0:0]\n:DOCKER_POSTROUTING - [0:0]\n-A OUTPUT -d 127.0.0.11/32 -j DOCKER_OUTPUT\n-A POSTROUTING -d 127.0.0.11/32 -j DOCKER_POSTROUTING\n-A DOCKER_OUTPUT -d 127.0.0.11/32 -p tcp -m tcp --dport 53 -j DNAT --to-destination 127.0.0.11:40625\n-A DOCKER_OUTPUT -d 127.0.0.11/32 -p udp -m udp --dport 53 -j DNAT --to-destination 127.0.0.11:50957\n-A DOCKER_POSTROUTING -s 127.0.0.11/32 -p tcp -m tcp --sport 40625 -j SNAT --to-source :53\n-A DOCKER_POSTROUTING -s 127.0.0.11/32 -p udp -m udp --sport 50957 -j SNAT --to-source :53\nCOMMIT\n",
+    "ipv6_rules": "*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT DROP [0:0]\n-A OUTPUT -o lo -j ACCEPT\n-A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\nCOMMIT\n",
+    "rules_sha256": "48da5d98342f95b79eb2d4ea20f53690fbf1aacc41c20645e6b102e8bca8fda1"
+  },
+  "engine_overview_from_gateway": {
+    "projectVersion": "2.3.12",
+    "gitCommitAbbrev": "aa70e2d"
+  },
+  "gateway_ingress_http": {
+    "network_probe_only": true
+  },
+  "engine_probe": {
+    "netns": "net:[4026533848]",
+    "checks": [
+      {
+        "id": "source_mysql",
+        "host": "10.203.1.4",
+        "port": 3306,
+        "expected": "allow",
+        "connected": true
+      },
+      {
+        "id": "ingress_http",
+        "host": "10.203.1.3",
+        "port": 8001,
+        "expected": "allow",
+        "connected": true
+      },
+      {
+        "id": "source_other_port",
+        "host": "10.203.1.4",
+        "port": 3307,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "gateway_other_port",
+        "host": "10.203.1.3",
+        "port": 8002,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "external_https",
+        "host": "1.1.1.1",
+        "port": 443,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "embedded_dns_tcp",
+        "host": "127.0.0.11",
+        "port": 53,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "doris_etl-agent_default_8030",
+        "host": "172.19.0.7",
+        "port": 8030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-agent_default_8040",
+        "host": "172.19.0.7",
+        "port": 8040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-agent_default_9030",
+        "host": "172.19.0.7",
+        "port": 9030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-connectors_8030",
+        "host": "172.20.0.10",
+        "port": 8030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-connectors_8040",
+        "host": "172.20.0.10",
+        "port": 8040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "doris_etl-connectors_9030",
+        "host": "172.20.0.10",
+        "port": 9030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "host_docker_internal_19030",
+        "host": "192.168.65.254",
+        "port": 19030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "host_docker_internal_18040",
+        "host": "192.168.65.254",
+        "port": 18040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "host_docker_internal_18030",
+        "host": "192.168.65.254",
+        "port": 18030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "internal_bridge_gateway_19030",
+        "host": "10.203.1.1",
+        "port": 19030,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "internal_bridge_gateway_18040",
+        "host": "10.203.1.1",
+        "port": 18040,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "internal_bridge_gateway_18030",
+        "host": "10.203.1.1",
+        "port": 18030,
+        "expected": "deny",
+        "connected": false,
+        "errno": null,
+        "error_type": "TimeoutError"
+      },
+      {
+        "id": "connector_bridge_gateway_19030",
+        "host": "172.19.0.1",
+        "port": 19030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "connector_bridge_gateway_18040",
+        "host": "172.19.0.1",
+        "port": 18040,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "connector_bridge_gateway_18030",
+        "host": "172.19.0.1",
+        "port": 18030,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "direct_postgres",
+        "host": "172.19.0.8",
+        "port": 5432,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      },
+      {
+        "id": "direct_redis",
+        "host": "172.19.0.3",
+        "port": 6379,
+        "expected": "deny",
+        "connected": false,
+        "errno": 101,
+        "error_type": "OSError"
+      }
+    ]
+  },
+  "gateway_control_probe": {
+    "netns": "net:[4026533770]",
+    "checks": [
+      {
+        "id": "mysql",
+        "host": "172.19.0.6",
+        "port": 3306,
+        "connected": true
+      },
+      {
+        "id": "doris",
+        "host": "172.19.0.7",
+        "port": 9030,
+        "connected": true
+      },
+      {
+        "id": "doris",
+        "host": "172.19.0.7",
+        "port": 8040,
+        "connected": true
+      },
+      {
+        "id": "postgres",
+        "host": "172.19.0.8",
+        "port": 5432,
+        "connected": true
+      },
+      {
+        "id": "redis",
+        "host": "172.19.0.3",
+        "port": 6379,
+        "connected": true
+      },
+      {
+        "id": "host_published_19030",
+        "host": "192.168.65.254",
+        "port": 19030,
+        "connected": true
+      },
+      {
+        "id": "host_published_18040",
+        "host": "192.168.65.254",
+        "port": 18040,
+        "connected": true
+      }
+    ]
+  },
+  "failed_phase": "engine_start_observation",
+  "error_type": "AttributeError",
+  "error_code": "redacted",
+  "cleanup": [
+    {
+      "kind": "container",
+      "name": "etl-real-network-8aff55389635-engine",
+      "outcome": "removed"
+    },
+    {
+      "kind": "container",
+      "name": "etl-real-network-8aff55389635-gateway",
+      "outcome": "removed"
+    },
+    {
+      "kind": "container",
+      "name": "etl-real-network-8aff55389635-source",
+      "outcome": "removed"
+    },
+    {
+      "kind": "network",
+      "name": "etl-real-network-8aff55389635-internal",
+      "outcome": "removed"
+    },
+    {
+      "kind": "image",
+      "name": "etl-real-network-8aff55389635-tools:local",
+      "outcome": "removed"
+    }
+  ],
+  "resource_state": "removed"
+}

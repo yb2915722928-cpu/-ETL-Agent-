@@ -4,6 +4,7 @@ Public seams for versioning: normalize_plan, assess_plan, freeze_facts. Callers
 must authorize the project before invoking assess_plan; references are scoped.
 """
 import json
+import os
 import re
 from typing import Annotated, Literal
 
@@ -45,6 +46,18 @@ class QualityRule(PlanModel):
     maximum: float | None = None
 
 
+class Cleaning(PlanModel):
+    # Cleaning changes mapped payload only, never source record identity.
+    field: Identifier
+    kind: Literal['trim']
+
+
+class Filter(PlanModel):
+    # Matches the original source value; a match is a rejected ErrorRecord.
+    field: Identifier
+    equals: str | int | float | bool | None
+
+
 class Budget(PlanModel):
     max_rows: int = 100000
     max_bytes: int = 268435456
@@ -56,10 +69,14 @@ class Budget(PlanModel):
 class EtlPlan(PlanModel):
     version: Literal['etl-plan-v1'] = 'etl-plan-v1'
     mode: Literal['bounded_full'] = 'bounded_full'
+    # Empty replacement is opt-in and remains visible in the frozen plan.
+    allow_empty: bool = False
     source: AssetRef
     target: AssetRef
     mappings: list[Mapping] = Field(min_length=1, max_length=64)
     quality: list[QualityRule] = Field(default_factory=list, max_length=64)
+    cleaning: list[Cleaning] = Field(default_factory=list, max_length=64)
+    filters: list[Filter] = Field(default_factory=list, max_length=64)
     budget: Budget = Field(default_factory=Budget)
     tools: list[str] = Field(default_factory=lambda: ['mysql.read', 'doris.write'], max_length=8)
 
@@ -72,6 +89,8 @@ def normalize_plan(raw) -> EtlPlan:
     plan = EtlPlan.model_validate(raw)
     plan.mappings.sort(key=lambda mapping: (mapping.target, mapping.source))
     plan.quality.sort(key=lambda rule: canonical_json(rule.model_dump()))
+    plan.cleaning.sort(key=lambda operation: canonical_json(operation.model_dump()))
+    plan.filters.sort(key=lambda condition: canonical_json(condition.model_dump()))
     plan.tools.sort()
     return plan
 
@@ -99,6 +118,55 @@ def column_type(value):
     if value in ('float', 'double', 'boolean', 'json'):
         return (value,)
     return None
+
+
+def quality_configuration(plan, source_schema, target_schema):
+    """Validate the finite cleaning/filter dialect against approved schemas.
+
+    Trim uses mapped target names. Filters use original source names and reject
+    matches, so an unmapped filter column still belongs to the source scan.
+    """
+    source = {column['name']: column for column in source_schema['columns']}
+    target = {column['name']: column for column in target_schema['columns']}
+    mappings = {item['target']: item['source'] for item in plan['mappings']}
+    primary = {name for name, column in source.items() if column.get('key') == 'PRI'}
+    cleaning, filters = plan.get('cleaning', []), plan.get('filters', [])
+    if not isinstance(cleaning, list) or not isinstance(filters, list):
+        raise ValueError('quality_configuration_invalid')
+    if len({operation.get('field') for operation in cleaning}) != len(cleaning):
+        raise ValueError('duplicate_cleaning_field')
+    for operation in cleaning:
+        field = operation.get('field')
+        if set(operation) != {'field', 'kind'} or operation.get('kind') != 'trim' or field not in mappings:
+            raise ValueError('unsupported_cleaning')
+        source_field = mappings[field]
+        if source_field not in source or field not in target:
+            raise ValueError('cleaning_field_missing')
+        if source_field in primary:
+            raise ValueError('source_primary_key_cleaning_forbidden')
+        if any(column_type(column['type']) is None or column_type(column['type'])[0] != 'text'
+               for column in (source[source_field], target[field])):
+            raise ValueError('cleaning_requires_text_field')
+    for condition in filters:
+        field = condition.get('field')
+        if set(condition) != {'field', 'equals'} or field not in source:
+            raise ValueError('unsupported_filter')
+        datatype = column_type(source[field]['type'])
+        value = condition['equals']
+        if datatype is None or datatype[0] not in ('integer', 'text'):
+            raise ValueError('filter_source_wire_type_unverified')
+        if value is not None and ((datatype[0] == 'text' and type(value) is not str)
+                                  or (datatype[0] == 'integer' and type(value) is not int)):
+            raise ValueError('filter_value_type_mismatch')
+        if datatype[0] == 'integer' and type(value) is int:
+            bits = datatype[1]
+            lower, upper = -(2 ** (bits - 1)), 2 ** (bits - 1) - 1
+            if not lower <= value <= upper:
+                raise ValueError('filter_integer_out_of_range')
+            if abs(value) > 9007199254740991:
+                raise ValueError('filter_integer_not_json_safe')
+    # Detach contract values from caller mutation; finite JSON validation rejects NaN.
+    return json.loads(canonical_json(cleaning)), json.loads(canonical_json(filters))
 
 
 def compatible(source, target):
@@ -132,8 +200,14 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
         return result
     gate('syntax', [])
     normalized = plan.model_dump()
+    # An absent new default must not change the digest of a legacy frozen plan.
+    # Explicit defaults remain frozen and reviewed, including empty operation lists.
+    for key in ('allow_empty', 'cleaning', 'filters'):
+        if key not in plan.model_fields_set:
+            normalized.pop(key)
     result['normalized_plan'] = normalized
     assets, resource_errors = {}, []
+    writer_binding = None
     for side, kind, direction in (('source', 'mysql', 'source'), ('target', 'doris', 'target')):
         ref = getattr(plan, side)
         connection = get_connection(db, tenant_id, project_id, ref.connection_id)
@@ -154,6 +228,12 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
             errors.append('档案与连接、资源或凭据版本不一致')
         if secret is None or (secret.tenant_id, secret.project_id, secret.version) != (tenant_id, project_id, connection.secret_version):
             errors.append('凭据引用及版本无效')
+        if side == 'target' and os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'real':
+            from .writer_credentials import execution_writer_binding
+            try:
+                writer_binding = execution_writer_binding(db, resource, connection)
+            except HTTPException as error:
+                errors.append(error.detail)
         schema = [{'name': table['name'], 'columns': table['columns']} for table in profile.content['tables']]
         if fingerprint(schema) != profile.schema_hash:
             errors.append('档案 Schema 指纹不一致')
@@ -193,6 +273,11 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
                 schema_errors.append({'path': 'mappings.' + m.target, 'code': 'type_mismatch', 'message': '类型未支持、精度损失或类型不兼容，禁止隐式转换'})
             if source[m.source]['nullable'] and not target[m.target]['nullable'] and m.target not in nonnull:
                 schema_errors.append({'path': 'mappings.' + m.target, 'code': 'nullability', 'message': '可空源映射至非空目标须显式非空质量规则'})
+        try:
+            quality_configuration(normalized, source_table, target_table)
+        except ValueError as error:
+            quality_errors.append({'path': 'cleaning/filters', 'code': str(error),
+                'message': '清洗仅支持非主键文本目标字段去空白；过滤须引用已批准的整型/文本源字段且值类型一致'})
         for rule in plan.quality:
             reason = None
             if rule.field not in mapped or rule.field not in target:
@@ -215,19 +300,40 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
     gate('mapping', mapping_errors)
     gate('schema', schema_errors)
     gate('quality', quality_errors)
+    real_contract = None
+    if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'real':
+        from .real_contract import real_execution_contract
+        real_errors = []
+        if source_table is not None and target_table is not None and not mapping_errors:
+            try:
+                real_contract = real_execution_contract(normalized, source_table, target_table)
+            except ValueError as error:
+                real_errors.append({'path': 'source', 'code': str(error),
+                                    'message': '真实路径需要非空稳定主键及已验证的整型/文本传输契约'})
+        else:
+            real_errors.append({'path': 'source', 'code': 'real_schema_unavailable',
+                                'message': '真实传输契约需要完整且有效的源目标结构与映射'})
+        gate('real_transport_contract', real_errors)
     if not all(g['passed'] for g in gates):
         return result
     facts = {'plan': {**normalized, 'source': {'table': plan.source.table}, 'target': {'table': plan.target.table}},
-             'runtime_supervision_contract': supervision_contract(normalized['budget']), 'versions': VERSIONS}
+             'runtime_supervision_contract': supervision_contract(normalized['budget'], allow_empty=plan.allow_empty), 'versions': VERSIONS}
     refs = {}
     for side, (connection, profile, table) in assets.items():
         facts[side] = {'connection_id': connection.id, 'resource_id': connection.resource_id,
                        'resource_fingerprint': connection.resource_fingerprint, 'schema_hash': profile.schema_hash,
                        'schema': table, 'secret_reference_id': connection.secret_reference_id, 'secret_version': connection.secret_version}
         refs[side] = {'profile_id': profile.id, 'schema_hash': profile.schema_hash}
+    if writer_binding is not None:
+        facts['target']['execution_writer'] = writer_binding
+    if real_contract is not None:
+        facts['real_execution_contract'] = real_contract
+    optional_quality = {key: normalized[key] for key in ('cleaning', 'filters') if key in normalized}
     dag = {'nodes': [{'id': 'source', 'label': 'MySQL / ' + plan.source.table},
                      {'id': 'mapping', 'label': '字段映射', 'mappings': normalized['mappings']},
-                     {'id': 'quality', 'label': '质量契约（未执行）', 'rules': normalized['quality']},
+                     {'id': 'quality', 'label': ('清洗、必需规则与显式过滤（未执行）' if optional_quality
+                                                else '质量契约（未执行）'),
+                      'rules': normalized['quality'], **optional_quality},
                      {'id': 'target', 'label': 'Doris / ' + plan.target.table}],
            'edges': [{'from': a, 'to': b} for a, b in (('source', 'mapping'), ('mapping', 'quality'), ('quality', 'target'))]}
     # JSON is a HOCON subset. This explicitly versioned review dialect is not
@@ -237,7 +343,9 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
                             'credential': f'secret://{assets["source"][0].secret_reference_id}/versions/{assets["source"][0].secret_version}'},
                         'target': {**facts['target'], 'table': plan.target.table,
                             'credential': f'secret://{assets["target"][0].secret_reference_id}/versions/{assets["target"][0].secret_version}'},
-                        'mappings': normalized['mappings'], 'quality': normalized['quality'], 'budget': normalized['budget'],
+                        'mappings': normalized['mappings'], **optional_quality,
+                         'quality': normalized['quality'], 'budget': normalized['budget'],
+                         **({'real_execution_contract': real_contract} if real_contract is not None else {}),
                          'runtime_supervision_contract': facts['runtime_supervision_contract']},
                        ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + '\n'
     result.update(passed=True, execution_facts=facts, profile_refs=refs, dag=dag, hocon=hocon)

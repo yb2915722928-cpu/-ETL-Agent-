@@ -1,0 +1,516 @@
+{
+  "schema": "real-managed-l2-tracer/v1",
+  "managed_l2_accepted": false,
+  "run_token": "a99ce2fd90b642cd90dc77fb3a976729",
+  "scenario": "publish",
+  "phase": "published",
+  "network_receipt_sha256": "af9870f8b9e89fad93f4b9d3574b64d0ad9366fb0d14b36b36a366de4af4181a",
+  "target_bootstrap": {
+    "table": "l2_schema_a99ce2fd90b6",
+    "phase": "created",
+    "database": "etl_agent_l2",
+    "schema_sha256": "317050c40d0b3ddf530f949a05ecb5f72998424135b5abc6b63c89ad19bd0a08"
+  },
+  "checked_at": "2026-11-14T18:08:10.495745+00:00",
+  "level": "real_managed_path_probe",
+  "public_approval_path_tested": true,
+  "postgresql_schema": "managed_l2_cf2374962ad147cea3a572dc3737ca80",
+  "target_table": "l2_schema_a99ce2fd90b6",
+  "run_id": "54a437e7-5572-4415-a989-37c368d9acb1",
+  "command_id": "12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+  "version_id": "6dbd5095-39b0-43fd-b34e-0cd332669700",
+  "preparation_id": "155fdb6f-9eb5-4ebf-a5c9-c4f9d0c6bc62",
+  "outbox_dispatched": true,
+  "status_history": [
+    {
+      "status": "queued",
+      "at": "2026-11-14T18:08:17.429982+00:00"
+    },
+    {
+      "status": "submitting",
+      "at": "2026-11-14T18:08:18.507403+00:00"
+    },
+    {
+      "status": "submitted",
+      "at": "2026-11-14T18:08:20.403521+00:00"
+    },
+    {
+      "status": "engine_finished_awaiting_quality",
+      "at": "2026-11-14T18:08:29.408831+00:00"
+    },
+    {
+      "status": "supervision_passed",
+      "at": "2026-11-14T18:08:29.682376+00:00"
+    }
+  ],
+  "engine_job_id": "9086129529805307128",
+  "attempt_phase": "submitted",
+  "supervision": {
+    "status": "finished",
+    "reasons": [],
+    "current_metrics": {
+      "source_read": 3,
+      "evaluated": 3,
+      "valid": 3,
+      "rejected": 0,
+      "final_output": 3,
+      "sink_bytes": 116,
+      "elapsed_seconds": 10.87651,
+      "throughput_rows_per_second": 0.27582377067643943,
+      "amplification": 1.0,
+      "reject_ratio": 0.0
+    },
+    "publication_veto": false,
+    "stop_request": null
+  },
+  "control": {
+    "real_submission": {
+      "reserved_at": "2026-11-14T18:08:18.444650+00:00"
+    },
+    "real_control": {
+      "status": "observed",
+      "ownership_retained": true
+    },
+    "external_sink": {
+      "admission_closed": true,
+      "quiescent": true,
+      "observed_at": "2026-11-14T18:08:29.187104+00:00"
+    },
+    "final_metrics": {
+      "status": "known",
+      "sample": {
+        "contract_version": "runtime-supervision-v1",
+        "source": "seatunnel-2.3.12-source+managed-doris-journal-v1",
+        "counter_epoch": "9086129529805307128:e969b4ec8ccb02dacf6b5da4edc5149e1b774b73ea98d56e728b2ed4a4c20a86",
+        "observed_at": "2026-11-14T18:08:29.187104+00:00",
+        "byte_kind": "measured",
+        "state": "finished",
+        "source_read": 3,
+        "evaluated": 3,
+        "valid": 3,
+        "rejected": 0,
+        "final_output": 3,
+        "sink_bytes": 116,
+        "elapsed_seconds": 10.87651
+      },
+      "received_at": "2026-11-14T18:08:29.212561+00:00",
+      "metrics": {
+        "source_read": 3,
+        "evaluated": 3,
+        "valid": 3,
+        "rejected": 0,
+        "final_output": 3,
+        "sink_bytes": 116,
+        "elapsed_seconds": 10.87651,
+        "throughput_rows_per_second": 0.27582377067643943,
+        "amplification": 1.0,
+        "reject_ratio": 0.0
+      },
+      "overshoot": {
+        "source_read": 0,
+        "sink_bytes": 0,
+        "elapsed_seconds": 0,
+        "amplification": 0,
+        "reject_ratio": 0
+      },
+      "post_detection_delta": {
+        "source_read": null,
+        "evaluated": null,
+        "valid": null,
+        "rejected": null,
+        "final_output": null,
+        "sink_bytes": null,
+        "elapsed_seconds": null
+      }
+    },
+    "termination": {
+      "confirmed": true,
+      "basis": "engine_terminal",
+      "engine_job_id": "9086129529805307128",
+      "job_name": "etl_agent_real_12d40f7d19da461ca0b98d1543fa8aae",
+      "engine_state": "FINISHED",
+      "confirmed_at": "2026-11-14T18:08:29.212561+00:00"
+    },
+    "real_finalization": {
+      "status": "quality_finalized",
+      "publication_eligible": true,
+      "published": false,
+      "ownership_retained": true
+    },
+    "quality_finalized": {
+      "run_id": "54a437e7-5572-4415-a989-37c368d9acb1",
+      "contract_sha256": "c89ffe608c2a6487566c8a256574de0238c89875ca94dbe32c22e6244bdec9e9",
+      "evaluated": 3,
+      "valid": 3,
+      "rejected": 0
+    },
+    "load_quiescence": {
+      "complete": true,
+      "admission_closed": true,
+      "load_quiescent": true,
+      "external_route_verified": true,
+      "object_identity_verified": true,
+      "engine_job_id": "9086129529805307128",
+      "route_command_ids": {
+        "valid": "0a46eb79-831c-44b4-b5ab-baed864a590d",
+        "rejected": "314b6a71-6c7c-4f2f-8557-71e04c27e3c4"
+      }
+    }
+  },
+  "quality": {
+    "run_id": "54a437e7-5572-4415-a989-37c368d9acb1",
+    "contract_sha256": "c89ffe608c2a6487566c8a256574de0238c89875ca94dbe32c22e6244bdec9e9",
+    "source_read": 3,
+    "parsed": 3,
+    "evaluated": 3,
+    "valid": 3,
+    "rejected": 0,
+    "final_written": {
+      "valid": 3,
+      "rejected": 0
+    },
+    "rule_hits": {},
+    "publication_veto": false,
+    "reasons": [],
+    "real_l2_qualified": false
+  },
+  "object_identities": {
+    "valid": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_5bebd95eaabea05f4fa19c23e245cceb",
+      "marker": "etl_agent_object:12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+      "partition_ids": [
+        "1794659092584"
+      ],
+      "schema": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "nullable": false
+        },
+        {
+          "name": "full_name",
+          "type": "varchar(80)",
+          "nullable": true
+        }
+      ],
+      "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+    },
+    "rejected": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_ef74460090f04cf86d7730675eed71c8",
+      "marker": "etl_agent_object:12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+      "partition_ids": [
+        "1794659092589"
+      ],
+      "schema": [
+        {
+          "name": "record_key",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "error_codes",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "field_names",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "record_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "run_id",
+          "type": "varchar(36)",
+          "nullable": false
+        },
+        {
+          "name": "contract_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        }
+      ],
+      "schema_sha256": "031782b1e67fe3f7eca72c56c1d8276e040cfad0616c4c1189f38490400dd2a1"
+    }
+  },
+  "load_batches": [
+    {
+      "phase": "receipt",
+      "label": "etl_9614d327a0817f2e9a02a0c3a8fba21b3b65109a9f9edc4bad3a65f931c25ddc",
+      "receipt": {
+        "Label": "etl_9614d327a0817f2e9a02a0c3a8fba21b3b65109a9f9edc4bad3a65f931c25ddc",
+        "TxnId": 3020,
+        "Status": "Success",
+        "LoadBytes": 37,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "7655e165f88dd1e29333a829521198ae39a53a85b6c9a8915bb678f53a5589cc"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_353250761ab4801f20eb89db4a07dd945f69ffd5dd471fcba1f14757b7741dd9",
+      "receipt": {
+        "Label": "etl_353250761ab4801f20eb89db4a07dd945f69ffd5dd471fcba1f14757b7741dd9",
+        "TxnId": 3021,
+        "Status": "Success",
+        "LoadBytes": 35,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "5b3674c0e723a8ec20fc52042dc7c3c1575c910c09d790ef4ed91ee18c7d776c"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_765b35705e25cfaa4bf7d1df71f3d58561d50d939585e872e7afdad8817020ed",
+      "receipt": {
+        "Label": "etl_765b35705e25cfaa4bf7d1df71f3d58561d50d939585e872e7afdad8817020ed",
+        "TxnId": 3022,
+        "Status": "Success",
+        "LoadBytes": 44,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "da895354481020942bc5fa3ad0bd8a6de6a6969f525d6e89364ceca1c289736f"
+    }
+  ],
+  "final_engine_observation": {
+    "job_id": "9086129529805307128",
+    "job_name": "etl_agent_real_12d40f7d19da461ca0b98d1543fa8aae",
+    "engine_state": "FINISHED",
+    "engine_terminal": true
+  },
+  "queried_rows": 3,
+  "data_equal": true,
+  "result_sha256": "0580aa757a2bc6c85dd758771a6ad0dba0e8c61f72c936aa8dede6108c92eb0f",
+  "publication_public_api": {
+    "accepted": true,
+    "intent_id": "71271fe8-b458-4912-9c92-adf002c3ab7d",
+    "phase_before_publish": "supervision_passed",
+    "before": {
+      "stable": {
+        "physical_cluster_id": "doris-265047353",
+        "database": "etl_agent_l2",
+        "table": "l2_schema_a99ce2fd90b6",
+        "marker": null,
+        "partition_ids": [
+          "1794659092579"
+        ],
+        "schema": [
+          {
+            "name": "id",
+            "type": "bigint(20)",
+            "nullable": false
+          },
+          {
+            "name": "full_name",
+            "type": "varchar(80)",
+            "nullable": true
+          }
+        ],
+        "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+      },
+      "shadow": {
+        "physical_cluster_id": "doris-265047353",
+        "database": "etl_agent_l2",
+        "table": "shadow_5bebd95eaabea05f4fa19c23e245cceb",
+        "marker": "etl_agent_object:12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+        "partition_ids": [
+          "1794659092584"
+        ],
+        "schema": [
+          {
+            "name": "id",
+            "type": "bigint(20)",
+            "nullable": false
+          },
+          {
+            "name": "full_name",
+            "type": "varchar(80)",
+            "nullable": true
+          }
+        ],
+        "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+      }
+    },
+    "intent_phase": "confirmed",
+    "intent_reason": null,
+    "snapshot": {
+      "id": "75748906-e177-4dfa-af74-c7a7b4ce3660",
+      "confirmed_at": "2026-11-14T18:08:30.267401+00:00",
+      "retain_until": "2026-11-21T18:08:30.267401+00:00",
+      "retention_seconds": 604800.0,
+      "identities": {
+        "before": {
+          "stable": {
+            "physical_cluster_id": "doris-265047353",
+            "database": "etl_agent_l2",
+            "table": "l2_schema_a99ce2fd90b6",
+            "marker": null,
+            "partition_ids": [
+              "1794659092579"
+            ],
+            "schema": [
+              {
+                "name": "id",
+                "type": "bigint(20)",
+                "nullable": false
+              },
+              {
+                "name": "full_name",
+                "type": "varchar(80)",
+                "nullable": true
+              }
+            ],
+            "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+          },
+          "shadow": {
+            "physical_cluster_id": "doris-265047353",
+            "database": "etl_agent_l2",
+            "table": "shadow_5bebd95eaabea05f4fa19c23e245cceb",
+            "marker": "etl_agent_object:12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+            "partition_ids": [
+              "1794659092584"
+            ],
+            "schema": [
+              {
+                "name": "id",
+                "type": "bigint(20)",
+                "nullable": false
+              },
+              {
+                "name": "full_name",
+                "type": "varchar(80)",
+                "nullable": true
+              }
+            ],
+            "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+          }
+        },
+        "after": {
+          "stable": {
+            "physical_cluster_id": "doris-265047353",
+            "database": "etl_agent_l2",
+            "table": "l2_schema_a99ce2fd90b6",
+            "marker": "etl_agent_object:12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+            "partition_ids": [
+              "1794659092584"
+            ],
+            "schema": [
+              {
+                "name": "id",
+                "type": "bigint(20)",
+                "nullable": false
+              },
+              {
+                "name": "full_name",
+                "type": "varchar(80)",
+                "nullable": true
+              }
+            ],
+            "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+          },
+          "shadow": {
+            "physical_cluster_id": "doris-265047353",
+            "database": "etl_agent_l2",
+            "table": "shadow_5bebd95eaabea05f4fa19c23e245cceb",
+            "marker": null,
+            "partition_ids": [
+              "1794659092579"
+            ],
+            "schema": [
+              {
+                "name": "id",
+                "type": "bigint(20)",
+                "nullable": false
+              },
+              {
+                "name": "full_name",
+                "type": "varchar(80)",
+                "nullable": true
+              }
+            ],
+            "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+          }
+        }
+      }
+    },
+    "after": {
+      "stable": {
+        "physical_cluster_id": "doris-265047353",
+        "database": "etl_agent_l2",
+        "table": "l2_schema_a99ce2fd90b6",
+        "marker": "etl_agent_object:12d40f7d-19da-461c-a0b9-8d1543fa8aae",
+        "partition_ids": [
+          "1794659092584"
+        ],
+        "schema": [
+          {
+            "name": "id",
+            "type": "bigint(20)",
+            "nullable": false
+          },
+          {
+            "name": "full_name",
+            "type": "varchar(80)",
+            "nullable": true
+          }
+        ],
+        "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+      },
+      "shadow": {
+        "physical_cluster_id": "doris-265047353",
+        "database": "etl_agent_l2",
+        "table": "shadow_5bebd95eaabea05f4fa19c23e245cceb",
+        "marker": null,
+        "partition_ids": [
+          "1794659092579"
+        ],
+        "schema": [
+          {
+            "name": "id",
+            "type": "bigint(20)",
+            "nullable": false
+          },
+          {
+            "name": "full_name",
+            "type": "varchar(80)",
+            "nullable": true
+          }
+        ],
+        "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+      }
+    },
+    "identities_swapped": true,
+    "formal_result_equal": true,
+    "retained_previous_rows": 0
+  },
+  "publication_path_accepted": true,
+  "happy_path_accepted": false,
+  "quality_split_accepted": false,
+  "unknown_path_accepted": false,
+  "cancel_path_accepted": false,
+  "reconciliation_final": [],
+  "ownership_retained": false,
+  "published": true,
+  "postgresql_schema_retained": true,
+  "runner_exit_code": 0,
+  "witness_errors": [],
+  "docker_cleanup": "removed"
+}

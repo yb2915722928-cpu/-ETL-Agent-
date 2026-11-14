@@ -1,0 +1,16 @@
+{
+  "schema": "real-managed-l2-tracer/v1",
+  "managed_l2_accepted": false,
+  "run_token": "07d15c80d99e4879948987cb20780c60",
+  "phase": "runner_failed",
+  "network_receipt_sha256": "2a886aa0dcf398b642d3c62b08d8d6f323f4b4800121efaea66499eb6a9c496f",
+  "checked_at": "2026-11-14T10:44:58.041979+00:00",
+  "level": "real_managed_path_probe",
+  "public_approval_path_tested": false,
+  "postgresql_schema": "managed_l2_b9c46ae04d8846b395eae4baa60f0514",
+  "failed_phase": "public_connections",
+  "error_type": "AssertionError",
+  "runner_exit_code": 1,
+  "witness_errors": [],
+  "docker_cleanup": "removed"
+}

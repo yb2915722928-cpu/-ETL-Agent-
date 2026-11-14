@@ -355,5 +355,17 @@ from .execution import register_execution_routes
 from . import execution_runtime  # Register additive execution tables before startup migration.
 register_execution_routes(app, Db, Actor, project_scope)
 
+# Register runtime tables before startup/isolated create_all and before any
+# execution view can issue queries against the additive facts.
+from . import managed_load, publication, quality_runtime, real_ingress, real_runtime, real_cleanup
+from .reconciliation import register_reconciliation_routes
+register_reconciliation_routes(app, Db, Actor, project_scope)
+
+from .real_publication import register_publication_routes
+register_publication_routes(app, Db, Actor, project_scope)
+
 from .run_control import register_control_routes
 register_control_routes(app, Db, Actor, project_scope)
+
+from .credential_rotation import register_credential_rotation_routes
+register_credential_rotation_routes(app, Db, Actor, project_scope)

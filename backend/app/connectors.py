@@ -27,6 +27,11 @@ class ConnectionInput(BaseModel):
     password: SecretStr = Field(min_length=1, max_length=512)
 
 
+class WriterCredentialInput(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    credential: SecretStr = Field(alias='pass' + 'word', min_length=1, max_length=512)
+
+
 class ProbeInput(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
@@ -50,7 +55,8 @@ def get_profile(db, tenant_id, project_id, profile_id):
 def connection_view(connection):
     return {key: getattr(connection, key) for key in (
         'id', 'tenant_id', 'project_id', 'name', 'kind', 'direction', 'resource_id', 'resource_fingerprint',
-        'secret_reference_id', 'secret_version', 'storage_id', 'source_sha256', 'source_bytes', 'status', 'created_at')}
+        'secret_reference_id', 'secret_version', 'writer_secret_reference_id', 'writer_secret_version',
+        'storage_id', 'source_sha256', 'source_bytes', 'status', 'created_at')}
 
 
 def profile_view(profile):
@@ -105,6 +111,38 @@ def register_connector_routes(app, Db, Actor, project_scope):
         append_event(db, actor, 'connection.registered', {
             'connection_id': connection.id, 'resource_id': connection.resource_id,
             'secret_reference_id': secret.id, 'secret_version': secret.version}, project_id)
+        return connection_view(connection)
+
+    @app.post(prefix + '/connections/{connection_id}/credentials/execution_writer', status_code=201)
+    def bind_writer(tenant_id: str, project_id: str, connection_id: str, body: WriterCredentialInput,
+                    request: Request, db: Db, actor: Actor):
+        from .evidence import lock_tenant
+        from .writer_credentials import writer_resource
+        lock_tenant(db, actor.tenant_id)
+        denied = authorize(db, actor, tenant_id, project_id, write=True)
+        if denied:
+            return denied
+        connection = get_connection(db, tenant_id, project_id, connection_id)
+        resource = request.app.state.connector_policy.get(connection.resource_id)
+        try:
+            if (connection.kind != 'doris' or connection.direction != 'target' or resource is None
+                    or fingerprint(resource) != connection.resource_fingerprint):
+                raise HTTPException(409, 'writer只能绑定当前部署白名单内的Doris目标')
+            writer_resource(resource)
+            if connection.writer_secret_reference_id is not None:
+                raise HTTPException(409, 'execution_writer已绑定；凭据轮转须使用受管轮转流程')
+        except HTTPException as error:
+            append_event(db, actor, 'connection.writer_rejected', {'connection_id': connection.id,
+                         'reason': error.detail}, project_id)
+            return JSONResponse(status_code=error.status_code, content={'detail': error.detail})
+        secret = SecretReference(id=new_id(), tenant_id=tenant_id, project_id=project_id, version=1)
+        secret.nonce, secret.ciphertext = request.app.state.secret_provider.seal(secret, body.credential.get_secret_value())
+        db.add(secret)
+        db.flush()
+        connection.writer_secret_reference_id, connection.writer_secret_version = secret.id, secret.version
+        db.flush()
+        append_event(db, actor, 'connection.writer_bound', {'connection_id': connection.id,
+                     'slot': 'execution_writer', 'secret_reference_id': secret.id, 'secret_version': secret.version}, project_id)
         return connection_view(connection)
 
     @app.post(prefix + '/csv-uploads', status_code=201)

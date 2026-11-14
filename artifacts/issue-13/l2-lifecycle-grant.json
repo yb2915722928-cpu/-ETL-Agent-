@@ -1,0 +1,92 @@
+{
+  "scope": "etl_agent_l2.*",
+  "account": "etl_l2_probe_writer",
+  "privileges": [
+    "Alter_priv",
+    "Drop_priv"
+  ],
+  "statement": "GRANT Alter_priv, Drop_priv ON etl_agent_l2.* TO 'etl_l2_probe_writer'@'%'",
+  "phase": "granted",
+  "real_l2_qualified": false,
+  "before": {
+    "etl_l2_probe_writer": [
+      {
+        "UserIdentity": "'etl_l2_probe_writer'@'%'",
+        "Comment": "",
+        "Password": "Yes",
+        "Roles": "",
+        "GlobalPrivs": null,
+        "CatalogPrivs": null,
+        "DatabasePrivs": "internal.etl_agent_l2: Select_priv,Load_priv,Create_priv; internal.information_schema: Select_priv; internal.mysql: Select_priv",
+        "TablePrivs": null,
+        "ColPrivs": null,
+        "ResourcePrivs": null,
+        "CloudClusterPrivs": null,
+        "CloudStagePrivs": null,
+        "StorageVaultPrivs": null,
+        "WorkloadGroupPrivs": "normal: Usage_priv",
+        "ComputeGroupPrivs": null
+      }
+    ],
+    "source_ro": [
+      {
+        "UserIdentity": "'source_ro'@'%'",
+        "Comment": "",
+        "Password": "Yes",
+        "Roles": "",
+        "GlobalPrivs": null,
+        "CatalogPrivs": null,
+        "DatabasePrivs": "internal.connector_source: Select_priv; internal.etl_agent_l2: Select_priv; internal.information_schema: Select_priv; internal.mysql: Select_priv",
+        "TablePrivs": null,
+        "ColPrivs": null,
+        "ResourcePrivs": null,
+        "CloudClusterPrivs": null,
+        "CloudStagePrivs": null,
+        "StorageVaultPrivs": null,
+        "WorkloadGroupPrivs": "normal: Usage_priv",
+        "ComputeGroupPrivs": null
+      }
+    ]
+  },
+  "after": {
+    "etl_l2_probe_writer": [
+      {
+        "UserIdentity": "'etl_l2_probe_writer'@'%'",
+        "Comment": "",
+        "Password": "Yes",
+        "Roles": "",
+        "GlobalPrivs": null,
+        "CatalogPrivs": null,
+        "DatabasePrivs": "internal.etl_agent_l2: Select_priv,Load_priv,Alter_priv,Create_priv,Drop_priv; internal.information_schema: Select_priv; internal.mysql: Select_priv",
+        "TablePrivs": null,
+        "ColPrivs": null,
+        "ResourcePrivs": null,
+        "CloudClusterPrivs": null,
+        "CloudStagePrivs": null,
+        "StorageVaultPrivs": null,
+        "WorkloadGroupPrivs": "normal: Usage_priv",
+        "ComputeGroupPrivs": null
+      }
+    ],
+    "source_ro": [
+      {
+        "UserIdentity": "'source_ro'@'%'",
+        "Comment": "",
+        "Password": "Yes",
+        "Roles": "",
+        "GlobalPrivs": null,
+        "CatalogPrivs": null,
+        "DatabasePrivs": "internal.connector_source: Select_priv; internal.etl_agent_l2: Select_priv; internal.information_schema: Select_priv; internal.mysql: Select_priv",
+        "TablePrivs": null,
+        "ColPrivs": null,
+        "ResourcePrivs": null,
+        "CloudClusterPrivs": null,
+        "CloudStagePrivs": null,
+        "StorageVaultPrivs": null,
+        "WorkloadGroupPrivs": "normal: Usage_priv",
+        "ComputeGroupPrivs": null
+      }
+    ]
+  },
+  "probe_unchanged": true
+}

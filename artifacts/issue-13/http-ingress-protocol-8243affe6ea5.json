@@ -1,0 +1,206 @@
+{
+  "level": "real_http_ingress_protocol_probe",
+  "managed_l2_accepted": false,
+  "exclusive_egress_accepted": false,
+  "container": "etl-http-ingress-8243affe6ea5",
+  "network": "etl-http-ingress-8243affe6ea5-network",
+  "image": "aefac91816d2",
+  "rest_port": 18082,
+  "receiver_port": 18083,
+  "runtime_directory": ".runtime\\etl-http-ingress-8243affe6ea5",
+  "phase": "completed",
+  "jobs": [
+    {
+      "mode": "accept",
+      "job_id": "4309617611092613162",
+      "job_name": "http_protocol_accept_8243affe6ea5",
+      "phase": "observed",
+      "submit_attempts": 1,
+      "samples": [
+        {
+          "elapsed_seconds": 0.0,
+          "associated": true,
+          "state": "PENDING",
+          "metrics_present": true,
+          "metrics": {
+            "SourceReceivedCount": "0",
+            "SinkWriteCount": "0",
+            "IntermediateQueueSize": "0"
+          },
+          "missing_metrics": []
+        },
+        {
+          "elapsed_seconds": 2.031,
+          "associated": true,
+          "state": "RUNNING",
+          "metrics_present": true,
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          },
+          "missing_metrics": []
+        },
+        {
+          "elapsed_seconds": 4.125,
+          "associated": true,
+          "state": "FINISHED",
+          "metrics_present": true,
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          },
+          "missing_metrics": []
+        }
+      ],
+      "receiver": [
+        {
+          "sha256": "f99bf928ef5a0a03bd1fa89e3661b039f180d2a7e134cc16799deff2ab302220",
+          "bytes": 31,
+          "single_json_object": true,
+          "field_names": [
+            "id",
+            "name"
+          ]
+        },
+        {
+          "sha256": "f574481f1edbce20932f1c7abdfb905e6ae87832d33908fcfe834d7d861c22d6",
+          "bytes": 32,
+          "single_json_object": true,
+          "field_names": [
+            "id",
+            "name"
+          ]
+        }
+      ],
+      "submit_id_matches": true,
+      "terminal_state": "FINISHED",
+      "post_terminal": [
+        {
+          "associated": true,
+          "state": "FINISHED",
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          }
+        },
+        {
+          "associated": true,
+          "state": "FINISHED",
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          }
+        }
+      ],
+      "request_count": 2,
+      "http_delivery_accepted": true,
+      "connector_fail_closed": false
+    },
+    {
+      "mode": "reject",
+      "job_id": "347748204447550721",
+      "job_name": "http_protocol_reject_8243affe6ea5",
+      "phase": "observed",
+      "submit_attempts": 1,
+      "samples": [
+        {
+          "elapsed_seconds": 0.0,
+          "associated": true,
+          "state": "SCHEDULED",
+          "metrics_present": true,
+          "metrics": {
+            "SourceReceivedCount": "0",
+            "SinkWriteCount": "0",
+            "IntermediateQueueSize": "0"
+          },
+          "missing_metrics": []
+        },
+        {
+          "elapsed_seconds": 2.016,
+          "associated": true,
+          "state": "RUNNING",
+          "metrics_present": true,
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          },
+          "missing_metrics": []
+        },
+        {
+          "elapsed_seconds": 4.047,
+          "associated": true,
+          "state": "FINISHED",
+          "metrics_present": true,
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          },
+          "missing_metrics": []
+        }
+      ],
+      "receiver": [
+        {
+          "sha256": "c44707652159fc684766d8e5fb2d27592154968deb8b0c386a7da70d6fcb397c",
+          "bytes": 30,
+          "single_json_object": true,
+          "field_names": [
+            "id",
+            "name"
+          ]
+        },
+        {
+          "sha256": "fb83fde4b6faaee89f39914455cf69550eb1198abaf70532b720a3ff80e6f5f1",
+          "bytes": 30,
+          "single_json_object": true,
+          "field_names": [
+            "id",
+            "name"
+          ]
+        }
+      ],
+      "submit_id_matches": true,
+      "terminal_state": "FINISHED",
+      "post_terminal": [
+        {
+          "associated": true,
+          "state": "FINISHED",
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          }
+        },
+        {
+          "associated": true,
+          "state": "FINISHED",
+          "metrics": {
+            "SourceReceivedCount": "2",
+            "SinkWriteCount": "2",
+            "IntermediateQueueSize": "0"
+          }
+        }
+      ],
+      "request_count": 2,
+      "http_delivery_accepted": false,
+      "connector_fail_closed": false
+    }
+  ],
+  "connector": {
+    "url": "https://repo.maven.apache.org/maven2/org/apache/seatunnel/connector-http-base/2.3.12/connector-http-base-2.3.12.jar",
+    "sha1": "8107813d6c987de4bd7769713aac44f2815ebf96",
+    "sha256": "a2a8ab002697dea5f070a8c77edd44f5c53da8ac8cb3ff26b71ccefcefac3ca9",
+    "maven_sha1_verified": true
+  },
+  "engine": {
+    "projectVersion": "2.3.12",
+    "gitCommitAbbrev": "aa70e2d"
+  },
+  "own_container_removed": true,
+  "own_network_removed": true
+}

@@ -1,0 +1,14 @@
+{
+  "level": "real_http_ingress_protocol_probe",
+  "managed_l2_accepted": false,
+  "exclusive_egress_accepted": false,
+  "container": "etl-http-ingress-4689d8839dbc",
+  "network": "etl-http-ingress-4689d8839dbc-network",
+  "image": "aefac91816d2",
+  "rest_port": 18082,
+  "receiver_port": 18083,
+  "runtime_directory": ".runtime\\etl-http-ingress-4689d8839dbc",
+  "phase": "unknown",
+  "jobs": [],
+  "error_type": "HTTPError"
+}

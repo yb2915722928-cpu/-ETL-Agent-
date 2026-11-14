@@ -37,6 +37,20 @@ async function prepare() {
     message.value = '已冻结本次操作。有效期固定24小时，批准不会延长；失效后须重新准备与审批。'
   })
 }
+async function commitRotation() {
+  await run(async () => {
+    const id = selected.value.id
+    try {
+      const issued = await props.api(`${base.value}/preparations/${id}/capabilities`, { method: 'POST', body: '{}' })
+      const result = await props.api(`${base.value}/preparations/${id}/commit`, { method: 'POST', body: JSON.stringify({
+        capability: issued.capability, idempotency_key: `rotation-${id}-${issued.capability.payload.jti}`,
+      }) })
+      await open(id)
+      rows.value = await props.api(`${base.value}/preparations`)
+      message.value = `凭据轮换已完成，运行 ${result.id}。连接页刷新可核对新版本；当前准备单的旧引用绑定已失效。`
+    } catch (cause) { await open(id); throw cause }
+  })
+}
 function canDecide(slot) {
   return selected.value?.validation.state === 'pending' && roles.value.includes(roleForSlot[slot]) &&
     props.accountId !== selected.value.maker_id && !selected.value.decisions.some(d => d.slot === slot || d.checker_id === props.accountId)
@@ -84,7 +98,12 @@ watch(() => props.projects, () => {
       <template v-if="selected">
         <section class="panel"><div class="panel-title"><h2>冻结事实与当前有效性</h2><span class="badge accent">{{ states[selected.validation.state] }}</span></div><div class="body">
           <p v-if="selected.validation.reasons.length" class="notice error">{{ selected.validation.reasons.join('；') }}</p>
-          <dl><dt>风险与原因</dt><dd>{{ selected.risk_level }} · {{ selected.frozen.risk_reason }}</dd><dt>申请人</dt><dd><code>{{ selected.maker_id }}</code> · 当前资格{{ selected.validation.current_eligibility.maker ? '有效' : '失效' }}</dd><dt>有效期</dt><dd>{{ time(selected.created_at) }} → {{ time(selected.expires_at) }}（不续期）</dd><dt>冻结指纹</dt><dd><code>{{ selected.frozen_sha256 }}</code></dd><dt>版本</dt><dd><code>{{ selected.version_id }}</code></dd><dt>检查方式</dt><dd>{{ selected.frozen.checks }}</dd><dt>数据分级</dt><dd>{{ selected.frozen.classification }}</dd></dl>
+          <dl><dt>风险与原因</dt><dd>{{ selected.risk_level }} · {{ selected.frozen.risk_reason }}</dd><dt>申请人</dt><dd><code>{{ selected.maker_id }}</code> · 当前资格{{ (selected.tool === 'credential.rotate' ? selected.validation.current_eligibility.operator : selected.validation.current_eligibility.maker) ? '有效' : '失效' }}</dd><dt>有效期</dt><dd>{{ time(selected.created_at) }} → {{ time(selected.expires_at) }}（不续期）</dd><dt>冻结指纹</dt><dd><code>{{ selected.frozen_sha256 }}</code></dd><dt>版本</dt><dd><code>{{ selected.version_id }}</code></dd><dt>检查方式</dt><dd>{{ selected.frozen.checks }}</dd><dt>数据分级</dt><dd>{{ selected.frozen.classification }}</dd></dl>
+          <template v-if="selected.tool === 'credential.rotate'">
+            <h3>凭据轮换冻结范围</h3><pre>{{ pretty(selected.frozen.rotation) }}</pre>
+            <p class="muted small">由 Operator 申请并提交，两名不同账号分别批准数据和安全槽。提交时重验当前引用和候选凭据；300秒授权窗口内完成原子版本切换。</p>
+            <button v-if="roles.includes('operator') && selected.validation.state === 'approved'" class="primary" :disabled="busy" @click="commitRotation">获取授权并提交凭据轮换</button>
+          </template>
           <details><summary>资源、Schema 与凭据版本</summary><pre>{{ pretty(selected.frozen.impact) }}</pre></details>
           <details><summary>质量规则、指标口径与预算</summary><pre>{{ pretty({ quality: selected.frozen.quality, metrics: selected.frozen.metrics, budget: selected.frozen.budget }) }}</pre></details>
           <details><summary>发布 / 恢复方案</summary><pre>{{ pretty(selected.frozen.recovery) }}</pre></details>

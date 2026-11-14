@@ -38,6 +38,7 @@ class RunControl(Base):
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     wake_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reconciliation_wake_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class ManagedControlEffect(Base):
@@ -80,7 +81,7 @@ def control_view(db, command_id):
     row = db.get(RunControl, command_id)
     return {**(row.facts if row else {}), 'termination': (row.facts if row else {}).get('termination', {'confirmed': False}),
         'final_metrics': (row.facts if row else {}).get('final_metrics', {'status': 'pending', 'overshoot': None}),
-        'lease': {key: getattr(row, key) for key in ('lease_owner', 'lease_token', 'last_seen_at', 'lease_expires_at', 'wake_at')} if row else None,
+        'lease': {key: getattr(row, key) for key in ('lease_owner', 'lease_token', 'last_seen_at', 'lease_expires_at', 'wake_at', 'reconciliation_wake_at')} if row else None,
         'effects': [{key: getattr(effect, key) for key in ('id', 'kind', 'actor_id', 'phase', 'envelope',
                     'request_sha256', 'result', 'created_at', 'updated_at')} for effect in effects_for(db, command_id)]}
 
@@ -88,12 +89,14 @@ def control_view(db, command_id):
 def check_bound_secrets(db, command):
     """Open the original references only; never consult a Connection replacement."""
     provider = SecretProvider()
-    for asset in command.envelope['payload']['resources'].values():
+    resources = list(command.envelope['payload']['resources'].values())
+    resources += [asset['execution_writer'] for asset in resources if asset.get('execution_writer')]
+    for asset in resources:
         reference_id = asset.get('secret_reference_id')
         if reference_id is None:
             continue
         ref = db.get(SecretReference, reference_id, populate_existing=True)
-        if ref is None or (ref.tenant_id, ref.project_id, ref.version) != (
+        if ref is None or ref.revoked_at is not None or (ref.tenant_id, ref.project_id, ref.version) != (
                 command.tenant_id, command.project_id, asset['secret_version']):
             raise HTTPException(409, '原绑定凭据引用或版本不可用；禁止切换凭据')
         try:
@@ -115,6 +118,12 @@ def check_running_authorization(db, command, run):
 def cleanup_binding(db, command, run, control):
     from .execution_runtime import EngineAttempt, TargetOwnership
     attempt = db.get(EngineAttempt, command.id)
+    if attempt is not None and attempt.request.get('adapter') == 'real':
+        from .real_cleanup import real_cleanup_binding
+        try:
+            return real_cleanup_binding(db, command, run, control)
+        except ValueError as error:
+            raise HTTPException(409, '真实清理条件未满足：' + str(error)) from None
     proof = control.facts.get('termination', {})
     if not proof.get('confirmed') or proof.get('basis') != 'engine_terminal':
         raise HTTPException(409, '尚未确认引擎终止；停止 ACK、失联或 lease 到期不能允许清理')
@@ -222,6 +231,18 @@ def final_facts(contract, sample, metrics, detection, now):
 
 
 def advance_control(command_id):
+    # Select the protocol before taking a tenant transaction: the real controller
+    # commits stop intentions and crosses its observation barrier in separate
+    # transactions. Re-entering the tenant lock from the L1 transaction deadlocks.
+    from . import execution_runtime as runtime
+    with runtime.Session() as routing_db:
+        original = routing_db.get(runtime.EngineAttempt, command_id)
+        use_real = original is not None and original.request.get('adapter') == 'real'
+    if use_real:
+        from .real_control import advance_real_control
+        from .real_runtime import ingress_service
+        return advance_real_control(command_id, sessions=runtime.Session,
+                                    ingress_factory=lambda original: ingress_service(sessions=runtime.Session))
     """One bounded step under command advisory lock; all effects commit before I/O."""
     from . import execution_runtime as runtime
     with runtime.Session.begin() as db:
@@ -244,7 +265,7 @@ def advance_control(command_id):
             return run.status
         if not attempt or not attempt.engine_job_id or supervision is None:
             return run.status
-        if attempt.request['engine_url'] != os.environ['L1_ENGINE_URL']:
+        if attempt.request['engine_url'] != runtime.engine_url():
             runtime.record(db, run, 'control.engine_unknown', {'reason': '原引擎配置变化', 'ownership_retained': True})
             return 'termination_pending'
         try:

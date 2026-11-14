@@ -12,6 +12,19 @@ const busy = ref(false)
 const form = reactive({ name: '', resource_id: '', password: '' })
 const project = computed(() => props.projects.find(p => p.id === projectId.value))
 const canProbe = computed(() => project.value?.roles.includes('maker'))
+const canRotate = computed(() => project.value?.roles.includes('operator'))
+const rotation = reactive({ slot: 'probe_readonly', credential: '' })
+async function prepareRotation() {
+  await run(async () => {
+    let prepared
+    try {
+      prepared = await props.api(`${base.value}/connections/${active.value.id}/credential-rotations`, {
+        method: 'POST', body: JSON.stringify(rotation),
+      })
+    } finally { rotation.credential = '' }
+    message.value = `轮换准备单 ${prepared.id} 已创建。请前往准备与审批，由两名独立人员分别承担数据和安全审批，再由 Operator 提交。`
+  })
+}
 const base = computed(() => `/api/tenants/${props.tenantId}/projects/${projectId.value}`)
 const resource = computed(() => resources.value.find(r => r.id === form.resource_id))
 const statusNames = { registered: '待探查', ready: '探查成功', failed: '探查失败' }
@@ -39,6 +52,7 @@ async function run(action) {
 async function load() {
   connections.value = []; resources.value = []; profiles.value = []; active.value = null
   form.password = ''; form.resource_id = ''; form.name = ''
+  rotation.credential = ''; rotation.slot = 'probe_readonly'
   csvForm.name = ''; csvForm.resource_id = ''; csvForm.file = null
   if (!projectId.value) return
   resources.value = await props.api(`${base.value}/connector-resources`)
@@ -46,6 +60,7 @@ async function load() {
 }
 async function select(connection) {
   active.value = connection; profiles.value = []
+  rotation.credential = ''; rotation.slot = 'probe_readonly'
   profiles.value = await props.api(`${base.value}/connections/${connection.id}/profiles`)
 }
 async function create() {
@@ -109,6 +124,14 @@ watch(() => props.projects, () => {
       <section v-if="active" class="panel"><div class="panel-title"><div><p class="eyebrow">METADATA PROFILE</p><h2>{{ active.name }} · 元数据档案</h2></div></div>
         <div v-if="active.kind === 'csv'" class="profile-details"><span>项目受管文件 · {{ active.source_bytes }} 字节</span><code>源 csv:{{ active.storage_id }}</code></div>
         <div v-else class="profile-details"><span>凭据版本 {{ active.secret_version }}</span><code>引用 {{ active.secret_reference_id }}</code></div>
+        <div v-if="active.writer_secret_reference_id" class="profile-details"><span>执行写入凭据版本 {{ active.writer_secret_version }}</span><code>引用 {{ active.writer_secret_reference_id }}</code></div>
+        <form v-if="canRotate && active.kind !== 'csv'" class="editor" @submit.prevent="prepareRotation">
+          <h3>申请凭据轮换 · Operator · P1</h3>
+          <div class="form-grid"><label>轮换职责槽<select v-model="rotation.slot" :disabled="busy"><option value="probe_readonly">受管只读探查凭据 · 当前版本 {{ active.secret_version }}</option><option v-if="active.writer_secret_reference_id" value="execution_writer">独立执行写入凭据 · 当前版本 {{ active.writer_secret_version }}</option></select></label>
+          <label>候选新凭据<input v-model="rotation.credential" :type="'pass' + 'word'" required maxlength="512" autocomplete="off" :disabled="busy"></label></div>
+          <p class="muted small">候选凭据仅加密保存。准备不会更换当前引用；双审批和提交成功后生成新引用与递增版本，旧绑定失效，使用旧版本的运行须安全停止。</p>
+          <button class="primary" :disabled="busy">生成轮换准备单</button>
+        </form>
         <p v-if="!profiles.length" class="panel-note">暂无成功档案。完成一次只读探查后，此处展示实际元数据。</p>
         <article v-for="profile in profiles" :key="profile.id" class="metadata-profile"><p class="muted">{{ new Date(profile.created_at).toLocaleString('zh-CN') }} · {{ profile.content.version_kind === 'file_format' ? '文件格式' : profile.content.version_kind === 'mysql_protocol_compatibility' ? 'MySQL 协议兼容版本' : '服务版本' }} {{ profile.content.server_version }} · {{ profile.content.policy_version }}</p><code>档案 {{ profile.id }}</code>
           <div v-for="table in profile.content.tables" :key="table.name" class="metadata-table"><h3>{{ profile.content.database }}.{{ table.schema ? table.schema + '.' : '' }}{{ table.name }}</h3><p class="muted">近似行数：{{ table.approx_rows ?? '暂无估计' }} · 近似字节：{{ table.approx_bytes ?? '暂无估计' }}（{{ table.statistics_kind === 'complete_file_scan' ? '文件完整扫描计数；字段类型为CSV文本' : '服务端估计，非精确扫描计数' }}）</p>

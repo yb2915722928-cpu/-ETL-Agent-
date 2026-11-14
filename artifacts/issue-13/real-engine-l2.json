@@ -1,0 +1,75 @@
+{
+  "conditions": [
+    {
+      "note": "真实引擎对 startTimestamp / finishedJobMetrics 尚未落定的作业与历史返回 500；客户端必须重试，不能据此判定未知作业或盲目再提交",
+      "reason": "job_info_race_retryable"
+    },
+    {
+      "reason": "measured_byte_source_unavailable",
+      "source": "doris_stream_load_record"
+    },
+    {
+      "consequence": "响应丢失只能靠提交响应里持久化的作业 ID 经 /job-info/{id} 核对；不能靠列举发现，也不能盲目再提交",
+      "detail": "GET /finished-jobs 对历史中 startTime 为空的作业返回 500，当前无法按名列举已结束作业",
+      "reason": "finished_jobs_history_poisoned"
+    }
+  ],
+  "deployment_changes": [
+    {
+      "change": "GRANT Create_priv ON etl_agent_l2.* TO etl_l2_probe_writer@'%'",
+      "evidence": "artifacts/issue-13/writer-grant.json",
+      "reason": "执行写入账号必须能在已批准库内物化本次运行的影子表；不放大到别的库或全局",
+      "target": "etl-connector-doris"
+    }
+  ],
+  "engine": {
+    "commit": "aa70e2d",
+    "jobs": [
+      "1173852315375894529",
+      "1173852315376091137",
+      "1173852315376287745",
+      "1173852315376484353"
+    ],
+    "version": "2.3.12"
+  },
+  "engine_estimate_bytes": 57,
+  "level": "L2",
+  "measured_bytes": null,
+  "passed": [
+    "real runtime pin: engine 2.3.12/aa70e2d, connector and driver digests verified",
+    "real submission and job association: job 1173852315375894529 correlated by id and env job name",
+    "real query semantics: job-info 3 source rows, unknown job echoes the requested id",
+    "real shadow comparison: 3 shadow rows equal the synthetic input, target table untouched",
+    "real minimal cancel: job 1173852315376091137 acknowledged {'jobId': '1173852315376091137'} and reached CANCELED with sink count frozen at 0",
+    "real unknown lock: lost receipt reconciled by the persisted job id 1173852315376287745; a blind resubmit would be a distinct job id 1173852315376484353 with a distinct write label, so it stays detectable"
+  ],
+  "real_transfer_gate": {
+    "allowed": false,
+    "conditions": [
+      {
+        "reason": "measured_byte_source_unavailable",
+        "source": {
+          "fields": [
+            "Label",
+            "Status",
+            "TotalRows",
+            "LoadedRows",
+            "FilteredRows",
+            "UnselectedRows",
+            "LoadBytes"
+          ],
+          "freshness": "bounded_by_fe_fetch_stream_load_record_interval_second(observed_120s)",
+          "kind": "measured",
+          "name": "doris_stream_load_record",
+          "owner": "execution_writer",
+          "query": "SHOW STREAM LOAD WHERE Label = '<label>'",
+          "unit": "byte"
+        }
+      }
+    ]
+  },
+  "root_deployment_change_note": "只按上面一条记录扩大执行写入账号在已批准库内的建表权限；未改动任何容器、镜像、端口或引擎配置",
+  "root_deployment_untouched": false,
+  "shadow_table": "shadow_customers_r20261114051000e",
+  "simulation_or_docs_filled": false
+}

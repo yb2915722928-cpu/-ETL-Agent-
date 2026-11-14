@@ -1,0 +1,37 @@
+{
+  "level": "real_object_transport_protocol_probe",
+  "managed_l2_accepted": false,
+  "run_id": "952d93e8-2588-4f12-984b-5059b6d61be2",
+  "command_id": "d3d67d20-fb56-407b-b888-534c7a8aeb6d",
+  "phase": "load_unknown",
+  "reason": "original_transport_response_unavailable",
+  "original_batch_never_resent": true,
+  "measured_bytes": null,
+  "retained_for_audit": true,
+  "exclusive_network_verified": false,
+  "trusted_backend_mapping_verified": false,
+  "object": {
+    "physical_cluster_id": "local-doris-protocol-probe-unqualified",
+    "database": "etl_agent_l2",
+    "table": "shadow_660a94238740a1fa2a34593b73a63387",
+    "marker": "etl_agent_object:d3d67d20-fb56-407b-b888-534c7a8aeb6d",
+    "partition_ids": [
+      "1794628092836"
+    ],
+    "schema": [
+      {
+        "name": "id",
+        "type": "int(11)",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "varchar(64)",
+        "nullable": true
+      }
+    ],
+    "schema_sha256": "012ed46e3d5b2109a61e77962f1535671e06dd27f5ec371586ef0565c9a33a2d"
+  },
+  "label": "etl_43d684b2e2e462eab170448a9a8a3f87d80bf3d9fa0e0628eb66325006d2163a",
+  "body_sha256": "8da5981ba2ac29f94450da0778f325f3b48b3e8c0e176d05bd73713cd75a4c2d"
+}

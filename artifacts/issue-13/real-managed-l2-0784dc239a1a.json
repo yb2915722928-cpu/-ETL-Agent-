@@ -1,0 +1,176 @@
+{
+  "schema": "real-managed-l2-tracer/v1",
+  "managed_l2_accepted": false,
+  "run_token": "0784dc239a1a45b583332c459ed1828c",
+  "scenario": "happy",
+  "phase": "submission_unknown",
+  "network_receipt_sha256": "188df0358dfcd279f0df5dc35f32946cec6c7e0840aa275c1fe1e08b62a37d18",
+  "target_bootstrap": {
+    "table": "l2_schema_0784dc239a1a",
+    "phase": "created",
+    "database": "etl_agent_l2",
+    "schema_sha256": "5e3f57567151660b7e73355a39b010fd9fd4cfbb4787b5dd12da961229595361"
+  },
+  "checked_at": "2026-11-14T10:59:16.083148+00:00",
+  "level": "real_managed_path_probe",
+  "public_approval_path_tested": true,
+  "postgresql_schema": "managed_l2_caae80a7f81a4939879ea0f7c74ca65c",
+  "target_table": "l2_schema_0784dc239a1a",
+  "run_id": "73bbcb57-4bfa-4c46-956b-83fd8897abfd",
+  "command_id": "55a72ab5-ecb9-42f2-af97-9c1d3ca88045",
+  "version_id": "bd29c789-b62c-413e-b11c-933881a177f5",
+  "preparation_id": "e6875dbc-8274-418e-86d7-8c1990da261c",
+  "outbox_dispatched": true,
+  "status_history": [
+    {
+      "status": "queued",
+      "at": "2026-11-14T10:59:25.047688+00:00"
+    },
+    {
+      "status": "submitting",
+      "at": "2026-11-14T10:59:26.736539+00:00"
+    },
+    {
+      "status": "submission_unknown",
+      "at": "2026-11-14T10:59:28.651428+00:00"
+    }
+  ],
+  "engine_job_id": "6302152490672760084",
+  "attempt_phase": "submission_unknown",
+  "supervision": {
+    "status": "awaiting_metrics",
+    "reasons": [],
+    "current_metrics": {},
+    "publication_veto": true,
+    "stop_request": null
+  },
+  "control": {},
+  "quality": null,
+  "object_identities": {
+    "valid": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_6879c0f4d969744dd1e7e39f68350c18",
+      "marker": "etl_agent_object:55a72ab5-ecb9-42f2-af97-9c1d3ca88045",
+      "partition_ids": [
+        "1794628092863"
+      ],
+      "schema": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "nullable": false
+        },
+        {
+          "name": "full_name",
+          "type": "varchar(80)",
+          "nullable": true
+        }
+      ],
+      "schema_sha256": "d77b21e62cff60654306b9ff283db1119c3a21832884e520873aa2ae72cb43db"
+    },
+    "rejected": {
+      "physical_cluster_id": "doris-265047353",
+      "database": "etl_agent_l2",
+      "table": "shadow_11a171bbc802a3239a66323fbb83bddf",
+      "marker": "etl_agent_object:55a72ab5-ecb9-42f2-af97-9c1d3ca88045",
+      "partition_ids": [
+        "1794628092868"
+      ],
+      "schema": [
+        {
+          "name": "record_key",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "error_codes",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "field_names",
+          "type": "varchar(8192)",
+          "nullable": false
+        },
+        {
+          "name": "record_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        },
+        {
+          "name": "run_id",
+          "type": "varchar(36)",
+          "nullable": false
+        },
+        {
+          "name": "contract_sha256",
+          "type": "varchar(64)",
+          "nullable": false
+        }
+      ],
+      "schema_sha256": "031782b1e67fe3f7eca72c56c1d8276e040cfad0616c4c1189f38490400dd2a1"
+    }
+  },
+  "load_batches": [
+    {
+      "phase": "receipt",
+      "label": "etl_9dd8721790b3e2c9d0e3b5cd1f933e44528fd420fe47f09a285c2fa9ef5e042a",
+      "receipt": {
+        "Label": "etl_9dd8721790b3e2c9d0e3b5cd1f933e44528fd420fe47f09a285c2fa9ef5e042a",
+        "TxnId": 2022,
+        "Status": "Success",
+        "LoadBytes": 37,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "e7f90dfd618ecb5fbf624ff7d1699ff9c52eb485079533287e3b05e7a4452a02"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_d7cea1b848bd0a37c389b66c966039b2f49cab9b8e2d01bcde0d8c469ed5350f",
+      "receipt": {
+        "Label": "etl_d7cea1b848bd0a37c389b66c966039b2f49cab9b8e2d01bcde0d8c469ed5350f",
+        "TxnId": 2023,
+        "Status": "Success",
+        "LoadBytes": 35,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "26586d0e2dd7d8958f493989a8229453752212b5e2d5b4e1b807b220a62b53ab"
+    },
+    {
+      "phase": "receipt",
+      "label": "etl_a62a8a06e553011cae7ee30f2392c13887c17e2bbaeb8bce7f2feab79cd0d01a",
+      "receipt": {
+        "Label": "etl_a62a8a06e553011cae7ee30f2392c13887c17e2bbaeb8bce7f2feab79cd0d01a",
+        "TxnId": 2024,
+        "Status": "Success",
+        "LoadBytes": 84,
+        "TwoPhaseCommit": "false",
+        "NumberTotalRows": 1,
+        "NumberLoadedRows": 1,
+        "NumberFilteredRows": 0,
+        "NumberUnselectedRows": 0
+      },
+      "response_sha256": "1810029e623c187be1cf0eaaf83625d42d112eb53cd111354eca5fc6a2e8ce13"
+    }
+  ],
+  "queried_rows": 3,
+  "data_equal": false,
+  "result_sha256": "c7055be8325bd18ccd579f3d79f44d68421621aa59f2a75ce6ab0c013297ea3b",
+  "happy_path_accepted": false,
+  "cancel_path_accepted": false,
+  "ownership_retained": true,
+  "published": false,
+  "postgresql_schema_retained": true,
+  "runner_exit_code": 1,
+  "witness_errors": [],
+  "docker_cleanup": "removed"
+}

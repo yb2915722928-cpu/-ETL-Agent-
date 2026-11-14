@@ -4,6 +4,7 @@ Commit/Worker callers authorize their scope, lock_tenant BEFORE get_preparation
 (lock=True), call explicit managed check_execution_resources, then pure
 validate_preparation in their transaction. No data-plane mutations occur here.
 """
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
@@ -11,7 +12,7 @@ from cryptography.exceptions import InvalidTag
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import DateTime, ForeignKeyConstraint, JSON, String, UniqueConstraint, select
+from sqlalchemy import CheckConstraint, DateTime, ForeignKeyConstraint, JSON, String, UniqueConstraint, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .connector_policy import fingerprint
@@ -26,7 +27,8 @@ from .versions import get_version, sha256
 POLICY_VERSION = 'preparation-policy-v1'
 TRIAL_LIMITS = {'max_rows': 10000, 'max_bytes': 16777216, 'max_seconds': 120}
 SLOTS = {'data': 'data_checker', 'security': 'security_checker'}
-TOOLS = {'pipeline.publish': ('P1', '正式目标发布意图，须独立数据与安全审批'),
+TOOLS = {'credential.rotate': ('P1', '登记凭据轮换须独立数据与安全双审批'),
+         'pipeline.publish': ('P1', '正式目标发布意图，须独立数据与安全审批'),
          'pipeline.trial': ('P2', '隔离写入/试运行意图，须独立数据与安全审批'),
          'metadata.read': ('P3', '仅受限只读元数据，使用现有白名单与探查预算')}
 
@@ -34,6 +36,8 @@ TOOLS = {'pipeline.publish': ('P1', '正式目标发布意图，须独立数据�
 class Preparation(Base):
     __tablename__ = 'preparations'
     __table_args__ = (
+        CheckConstraint("(tool='credential.rotate' AND version_id IS NULL) OR "
+                        "(tool<>'credential.rotate' AND version_id IS NOT NULL)", name='preparation_version_shape'),
         UniqueConstraint('id', 'tenant_id', 'project_id'),
         ForeignKeyConstraint(['version_id', 'tenant_id', 'project_id'],
                              ['pipeline_versions.id', 'pipeline_versions.tenant_id', 'pipeline_versions.project_id']),
@@ -43,7 +47,7 @@ class Preparation(Base):
     tenant_id: Mapped[str] = mapped_column(String(36))
     project_id: Mapped[str] = mapped_column(String(36))
     maker_id: Mapped[str] = mapped_column(String(36))
-    version_id: Mapped[str] = mapped_column(String(36))
+    version_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     tool: Mapped[str] = mapped_column(String(64))
     environment: Mapped[str] = mapped_column(String(32))
     risk_level: Mapped[str] = mapped_column(String(2))
@@ -187,6 +191,9 @@ def validate_preparation(db, policy, row, require_approved=True, check_expiry=Tr
     when accepting an authorization. Worker uses check_expiry=False after Commit;
     caller MUST additionally bind/allowlist tool, risk, subject and manifest.
     """
+    if row.tool == 'credential.rotate':
+        from .credential_rotation import validate_rotation_preparation
+        return validate_rotation_preparation(db, policy, row, require_approved, check_expiry, now)
     now = now or datetime.now(timezone.utc)
     reasons = []
     eligible = {'maker': current_role(db, row.tenant_id, row.project_id, row.maker_id, 'maker')}
@@ -265,13 +272,27 @@ def register_preparation_routes(app, Db, Actor, project_scope):
         if denied:
             return denied
         try:
+            if body.tool == 'credential.rotate':
+                raise HTTPException(409, '凭据轮换须由Operator在连接的受管轮换入口申请')
             require_current_role(db, tenant_id, project_id, actor.id, 'maker')
             version = get_version(db, tenant_id, project_id, body.version_id)
             checked = check_execution_resources(db, request.app.state.connector_policy,
                                                 request.app.state.secret_provider, version, actor, 'maker')
+            if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'real':
+                from .writer_credentials import check_execution_writer
+                check_execution_writer(db, request.app.state.connector_policy,
+                                       request.app.state.secret_provider, version, actor, 'maker')
             facts = checked['facts']
             if sha256(canonical_json(facts)) != version.execution_sha256:
                 raise HTTPException(409, '版本冻结事实与当前受管检查不同，请重新冻结版本')
+            publication_contract = None
+            if body.tool == 'pipeline.publish' and os.environ.get('EXECUTION_ADAPTER') == 'real':
+                from .real_publication import freeze_publication_contract
+                try:
+                    publication_contract = freeze_publication_contract(db, request.app.state.connector_policy,
+                        request.app.state.secret_provider, facts)
+                except Exception:
+                    raise HTTPException(409, '正式表实际身份或Schema不可确认；禁止准备发布，不会创建正式表') from None
         except HTTPException as error:
             append_event(db, actor, 'preparation.create_denied', {'reason': error.detail}, project_id)
             return JSONResponse(status_code=error.status_code, content={'detail': error.detail})
@@ -310,8 +331,11 @@ def register_preparation_routes(app, Db, Actor, project_scope):
                   'managed_check': checked['receipt'],
                   'checks': '查询页核对最新受管Profile与本地冻结事实；每次推进前独立P3受管检查实时核对外部Schema及只读权限，记录证据；样本统计丢弃，无外部变更',
                   'created_at': created.isoformat(), 'expires_at': expires.isoformat()}
+        if publication_contract is not None:
+            frozen['publication_contract'] = publication_contract
         from .runtime_supervision import supervision_contract
-        frozen['runtime_supervision_contract'] = (supervision_contract(frozen['budget'])
+        frozen['runtime_supervision_contract'] = (supervision_contract(
+            frozen['budget'], allow_empty=frozen['plan'].get('allow_empty') is True)
             if frozen['authorized_operation']['data_plane_mutation'] else None)
         row = Preparation(tenant_id=tenant_id, project_id=project_id, maker_id=actor.id, version_id=version.id,
                           tool=body.tool, environment=body.environment, risk_level=risk, frozen=frozen,
@@ -358,9 +382,26 @@ def register_preparation_routes(app, Db, Actor, project_scope):
                 raise HTTPException(409, '；'.join(validation['reasons']) or '此风险等级不接受人工审批')
             if any(d.slot == body.slot for d in existing):
                 raise HTTPException(409, '该职责槽已有不可修改的具名决定')
-            check_execution_resources(db, request.app.state.connector_policy, request.app.state.secret_provider,
-                                      get_version(db, tenant_id, project_id, row.version_id), actor,
-                                      SLOTS[body.slot], preparation_id=row.id)
+            if row.tool == 'credential.rotate':
+                from .credential_rotation import check_rotation_resources
+                check_rotation_resources(db, request.app.state.connector_policy, request.app.state.secret_provider,
+                                         row, actor, SLOTS[body.slot])
+            else:
+                check_execution_resources(db, request.app.state.connector_policy, request.app.state.secret_provider,
+                                          get_version(db, tenant_id, project_id, row.version_id), actor,
+                                          SLOTS[body.slot], preparation_id=row.id)
+                if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'real':
+                    from .writer_credentials import check_execution_writer
+                    check_execution_writer(db, request.app.state.connector_policy, request.app.state.secret_provider,
+                                           get_version(db, tenant_id, project_id, row.version_id), actor,
+                                           SLOTS[body.slot], preparation_id=row.id)
+            if row.frozen.get('publication_contract') is not None:
+                from .real_publication import check_publication_contract
+                try:
+                    check_publication_contract(db, request.app.state.connector_policy,
+                                              request.app.state.secret_provider, row)
+                except Exception:
+                    raise HTTPException(409, '正式表身份或Schema已漂移，请重新准备发布与双审批') from None
             decided_at = datetime.now(timezone.utc)
             if decided_at >= row.expires_at:
                 raise HTTPException(409, '准备单已超过24小时有效期，请重新准备与审批')

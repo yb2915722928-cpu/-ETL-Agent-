@@ -67,7 +67,7 @@ python .worktrees/review-fixes/scripts/verify_execution_database_retry.py --outp
 
 `backend/app/runtime_supervision.py` 的 `RuntimeSupervisionContract` 冻结默认 100000 条源读取记录、268435456 byte（256 MiB）sink 实测累计接受写入字节、600 秒、2 倍输出放大和 0.2 拒绝率。版本 facts/review.conf、Preparation、Capability/ManagedCommand 和运行监督表均绑定可审查契约；P2 使用准备单收紧后的预算。只读 metadata.read 不创建数据面监督。新增契约会改变 execution facts，旧版本须重新评估冻结后再准备；不会替换旧制品。
 
-计数边界为连接器发出的源记录、映射后按稳定键去重的质量判定（evaluated=valid+rejected，拒绝按记录一次）、质量和展开后的 sink 接收记录；放大比为 final_output/source_read，吞吐为 final_output/elapsed_seconds。字节只接受 `byte_kind=measured`，不接受估算、网络或扫描字节。零分母显示 `null`（中文页面“暂无数据”）。运行中只有拒绝率享受 evaluated<100 的观察期；最终小样本仍检查，其他预算没有豁免。空最终结果默认闭锁。
+计数边界为连接器发出的源记录、映射后按稳定键去重的质量判定（evaluated=valid+rejected，拒绝按记录一次）、质量和展开后的 sink 接收记录；放大比为 final_output/source_read，吞吐为 final_output/elapsed_seconds。字节只接受 `byte_kind=measured`，不接受估算、网络或扫描字节。零分母显示 `null`（中文页面“暂无数据”）。运行中只有拒绝率享受 evaluated<100 的观察期；最终小样本仍检查，其他预算没有豁免。空最终结果默认闭锁。计划显式批准 `allow_empty=true` 时，许可随版本、审批与监督合同冻结；只有终态完整观测、原始实测字节和全部精确零计数才允许空快照通过监督与发布门禁。该许可也允许满足原门禁的非空快照；缺计数、未知字节或许可不一致仍闭锁。
 
 Worker 在 `submitted` 后每约 2 秒继续 `drive`；观测超过 6 秒、缺失、未经实测、计数阶段不一致、来源/epoch 变化或累计回退均闭锁并清空当前可信显示值，历史原始观测保留在 `runtime_observations`。除 Engine 累计时长外，还以 Attempt 持久开始时间核验平台墙钟预算。`runtime_supervisions` 在接受事务创建，保存冻结契约、当前指标、监控状态、来源、原因与发布 veto；`supervision.observed` 和 `supervision.stop_requested` 控制证据同事务落库。只有最终可靠指标全部通过才解除监督 veto；这不是正式发布授权或真实发布。
 
@@ -95,7 +95,7 @@ npm run build --prefix frontend
 
 公开受管控制路由只有 `POST /api/tenants/{tenant_id}/projects/{project_id}/runs/{run_id}/{stop|cleanup}`（仅 stop/cleanup，其他 kind 为 404）。Operator 具名请求携带 `idempotency_key` 与 `reason`；同键同摘要返回既有效果，同键不同摘要 409。租约用 CAS 而非外部 fencing：过期租约记录 `control.lease_reconciled`（保留目标占有）后再取新租约，在途调用永不重放，只按持久效果 ID 回读核对。清理要求当前 Operator 职责、原绑定凭据可解密、终止已由 Engine 确认且无在途调用、最终指标已知，并按签名信封中的固定对象范围核对 TargetOwnership 后才释放；任一不符即 `unknown` 并保留占有。
 
-Worker 循环由 `backend/app/outbox_publisher.py` 的持久唤醒驱动：publish_once 合并 pending Outbox 与 `run_controls.wake_at <= clock_timestamp()`，使用与 driver 不同的 advisory lock 域。撤销 Operator/Maker 职责或原绑定凭据不可用时，排队命令在提交前被拒且不产生 Engine 作业；运行中命令闭锁受管停止并禁止发布。
+Worker 循环由 `backend/app/outbox_publisher.py` 的持久唤醒驱动：publish_once 分别查询执行 Outbox / `run_controls.wake_at`、`reconciliation_wake_at` 和发布意图 `recovery_at`，分别预约与派发，避免同一 command 的恢复任务被执行任务覆盖。各任务在 broker 调用前提交十五秒恢复期限，丢失 ACK 后仍可按原意图恢复；使用与 driver 不同的 advisory lock 域。撤销 Operator/Maker 职责或原绑定凭据不可用时，排队命令在提交前被拒且不产生 Engine 作业；运行中命令闭锁受管停止并禁止发布。
 
 `scripts/verify_run_control_l1.py` 验证公开 Operator 停止、ACK 不等于终止、延迟最终指标、真实超调与独立受管清理；`scripts/verify_run_control_recovery_l1.py` 验证撤销职责/原绑定凭据不可用时排队命令被拒且无 Engine 作业、运行中撤销闭锁派生停止、丢失停止回执后保持 `unknown` 并保留占有、过期租约只核对不重放、丢失清理回执同样在核对后才释放。#11 的 `scripts/verify_supervision_l1.py`（12 个公开监督场景）在本代码上回归通过：预算闭锁与持久否决不变，且预算达标的运行只有在 Engine 确认终止后才进入 `supervision_passed`；为此隔离 Engine 增加“当前观测已报告 finished 的作业自行终止”的能力（`l1_engine_fixture.py` 的 `current_state`），不再要求先有停止请求才能终止。三者都只动一次性 Schema、唯一 Redis 队列与临时 SQLite Engine，根容器与运行目录未改动。运行示例（在本工作树执行，`$baseline` 指向既有部署根目录）：
 
@@ -112,3 +112,33 @@ docker compose @mounts api python /tests/verify_run_control_recovery_l1.py /resu
 ```
 
 报告为 `artifacts/issue-12/l1.json` 与 `artifacts/issue-12/recovery-l1.json`，均显式记录 `root_deployment_untouched`、`worker_private_signing_key` 与 `zero_overshoot_or_real_etl_or_rollback_verified`。本阶段未连接 SeaTunnel，不执行真实 Doris 写入、数据搬运、正式发布或回退；取消不等于回退，也没有可恢复暂停。真实 L2 的字节来源与作业关联由 #13 单独验收。
+
+## #13–17：当前实现与证据边界（2026-11-15）
+
+这些工单尚未完成。真实执行只有在冻结合同、原凭据、实测运行时和当前独占网络证明全部成立时才准入；缺少部署证明时仍在创建 EngineAttempt 和目标占有之前闭锁。隔离验收环境已通过公开审批、Capability/Commit 和 Celery 提交真实 SeaTunnel 作业并取得 Doris 原始回执，但完整受管 L2 尚未通过。父工单 #1 保持打开。
+
+- 独立 writer 槽与 probe_readonly 分离。真实版本、Prepare、审批和 Commit 冻结 writer 的引用、版本及部署资源摘要；worker 使用原绑定解密。只读元数据探针仍拒绝 LOAD 权限。writer 默认仅接受原批准库内的 SELECT / LOAD / CREATE。清理或发布分别需要部署明确配置同库 Drop_priv / Alter_priv 并再次验证实际 grant；未配置的额外权限、全局权限和其他业务库权限仍拒绝，代码不自动授予权限。
+- SeaTunnel 固定 2.3.12 / aa70e2d；Doris 实测版本为 3.0.8-rc01 / 09b0cc49a60ffdd444df3e40e5f3dc180299b561。预选 Long 作业 ID 在外发前持久，唯一一次 POST 后仅按原 ID/name/status GET 核对。未知 ID 回显 jobId 不构成关联证明，重复 ID 的协议返回也不构成服务端幂等保证。
+- [受管写入 journal](../backend/app/managed_load.py) 在外发前提交批次意图，已发写入只有原始成功回执提供实测 LoadBytes。未结或未知写入不补零；观察到缺口、超过六秒未监督均永久关闭准入，迟到成功回执不能消除否决。两秒观察屏障与进行中写入相撞同样闭锁。
+- [内部 ingress](../backend/app/real_ingress.py) 对稳定源主键去重，把质量判定和单行写入回执逐一关联；token、业务原文和任意异常文本不进入持久事实。隔离验收已部署 ingress 和唯一出口网络，当前容器身份、完整网络端点、内部网络拓扑、防火墙及 UTF-8 配置由受信主机见证持续核验，见证超过两秒失效。[监督组合器](../backend/app/real_observation.py) 只使用原作业 SourceReceivedCount 与完整 journal；HTTP sink 的 SinkWriteCount 不作为 Doris 交付成功计数。首次提交预约以 PG 时钟持久固定六秒启动截止；首次可信样本前，原 ID 暂不可见或缺少 SourceReceivedCount 仅安排两秒后只读核对，不开启 journal 准入窗口、不补零。截止、停止、撤权和预算超限仍闭锁；重复投递或重启不能延长截止。准入还要求原命令的可信组合样本已经提交，journal 完整观测本身不能开放写入；两者的原始采样时间均须满足 200ms 窗口。本轮真实质量场景已验证启动后完整写入。完整授权预检移到等待窗口前，聚合后以 PG 当前时间检查原窗口；发送前及 TCP 连接后的实时授权仍保留。早到请求的 2500ms 等待短于六秒启动截止，以及样本提交耗尽 200ms 的活性边界仍未消除；旧冻结合同不静默改变。
+- Operator 主动核对具名签名意图、原作业只读 GET、真实 PG 故障恢复和中文页面已有实现；它不证明外部旧写静止、不释放占有。质量报告及中文事实区已有实现；本轮真实质量场景已核对 SeaTunnel → Doris 有效与拒绝两路，更多质量边界仍须按 #15 逐项验收。
+- 发布已接通已有正式表的 P1 双审批合同和公开发布入口，冻结正式表物理身份，原 Run 通过独立质量、监督和静止门禁后才能持久预约一次交换。真实 PG 验证已覆盖完整授权正向发布、交换响应丢失和结果提交失败后只读核对，旧快照至少保留七天；该 PG fixture 的 Doris Adapter 是测试 seam；另有本轮真实交换正向证据，故障注入的真实 Doris 交换恢复仍待验收。首次正式表创建和回退不由该发布入口自动执行。
+- 凭据轮转已通过公开 Operator P1 双审批、Capability/Commit、PG 原子回滚及真实 Celery L1 运行绑定验证：旧引用撤销触发原作业停止和发布否决，原凭据不可用时拒绝清理并保留目标占有。本轮真实轮转已确认旧引用撤销、新版本绑定和旧 preparation 失效。原作业在首次停止意图之前已自然 FINISHED；一个写入批次没有原回执，保持 unknown、发布否决、准入关闭和占有保留。该事实证明隔离保护，不能证明写入结算，也不能要求已经终止的原作业再变为 CANCELED。
+
+真实协议证据分别为 [预选 ID](../artifacts/issue-13/preselected-job-id.json)、[对象与单次写入](../artifacts/issue-13/doris-object-transport-after-fix.json) 和 [HTTP sink 实测](../artifacts/issue-13/http-ingress-protocol-8243affe6ea5.json)。单次 Doris 回执证明两行 / 51 字节；它不证明持续完整计量或独占出口。HTTP 实测中接收端全回 503，任务仍 FINISHED，说明必须独立核对 Doris 回执。首次 [transport 未知结果](../artifacts/issue-13/doris-object-transport.json) 保持 unknown，原批次未重送，字节仍未知。
+
+首次公开真实链路的 [失败报告](../artifacts/issue-13/real-managed-l2-0784dc239a1a.json) 记录了真实原始回执，但任务路由异常阻断监督，且 JVM 默认字符集损坏了非 ASCII 数据，因此明确不验收。任务路由已修复；后续引擎必须显式使用并实测 UTF-8，冻结传输合同和当前容器见证均校验该条件。旧运行保留原证据，不重送原批次，也不根据后续成功探针回填旧字节。
+
+后续 [准入锁竞争报告](../artifacts/issue-13/real-managed-l2-507673fd7c62.json) 中，原引擎 FINISHED、源计数为三，但仅两条 Doris 原始成功回执。第三条 HTTP 请求因观察线程持有屏障锁返回 503；连接器吞掉该失败，平台因此保留 final_metrics_pending、发布否决和原目标占有。修复只允许尚未判定或发送的已认证 POST 在屏障外最多等待 2500ms，等待由真实完整观察开启的 200ms 准入窗口；不会自行刷新观察时间。Doris 单次传输仍限 1500ms，监督仍为每两秒观察、六秒陈旧闭锁；观察与在途写入相撞仍立即闭锁。超时持久关闭准入，未授权请求不能关闭他人运行。
+
+实际数据面 CREATE、DROP 和单次 swap 均在 SQL 连接与权限检查结束后、紧邻变更语句前重新检查当前证明；每次 PUT 在连接建立后也执行原绑定及网络新鲜度检查，仍计入原传输时限。[验收库生命周期授权记录](../artifacts/issue-13/l2-lifecycle-grant.json) 仅增加现有合成库 writer 的 Alter_priv / Drop_priv，原只读探针授权未变；这份部署记录本身不代表运行或发布验收通过。
+
+新 [启动修复后真实质量报告](../artifacts/issue-13/real-managed-l2-f38407ae3b15.json) 已恢复原作业并产生可信样本，但仍因 `ingress_admission_timeout` 关闭准入；三条源记录没有进入质量判定或 Doris 批次。原样本时钟为 17:44:25.318329 UTC，监督记录时钟为 25.379637，200ms 准入窗口剩余最多 138.692ms；日志没有分阶段计时，尚不能区分等待查询与授权复验各自耗时。本报告不计通过，目标占有和隔离 PG 证据保留；引擎 FINISHED 不能弥补零交付。
+
+准入性能修复后的 [真实质量分流报告](../artifacts/issue-13/real-managed-l2-bf48f83b1f33.json) 完整核对三条源记录、两条有效记录、一条 FILTERED 拒绝记录，三份 Doris 原始成功回执合计 435 字节。清洗结果与错误归属均相等；最终拒绝率 1/3 超过冻结的 0.2，因此发布仍否决，场景验收通过不等于完整 L2 验收。[提交响应丢失报告](../artifacts/issue-13/real-managed-l2-7dcce81bbbf6.json) 实测上游仅一次提交、丢一次响应，后续 19 次原 ID GET 恢复原作业；三条中文记录与源相等，实测 116 字节，通过最终监督，未发布且占有保留。
+
+[公开取消与清理报告](../artifacts/issue-13/real-managed-l2-39138bab1c00.json) 确认原作业 CANCELED，之后经公开清理入口删除原两张影子表、释放占有，并保留 schema 占位表。[真实发布报告](../artifacts/issue-13/real-managed-l2-a99ce2fd90b6.json) 核对三行 / 116 字节、质量及监督通过、公开发布 intent confirmed、正式表与影子表物理身份互换，正式数据与源相等，旧空快照保留 604800 秒。此正向场景不覆盖实际交换响应丢失或 PG 确认失败。[真实轮转报告](../artifacts/issue-13/real-managed-l2-c54dc8879e06.json) 记录原绑定撤销、新绑定生效和旧 preparation 失效，但原作业最终 FINISHED、写入回执 unknown，保持发布否决和 owner；原报告按旧 runner 的 CANCELED 判定未通过。只读时序复核确认：18:05:21.015959 UTC 已预留该批次，21.243248 撤销旧引用，21.574 原作业 FINISHED，23.043734 才首次持久停止意图；缺少传输阶段证据，不能断言该批次从未发出。不改写历史报告、不重送原批次。新 [轮转安全隔离报告](../artifacts/issue-13/real-managed-l2-8b969a6e52d6.json) 通过公开 P1 双审批轮转，在原 run submitted 时撤销旧引用；旧 preparation 失效，新 preparation 绑定新引用，原签名 writer 未改变。原作业 FINISHED，两路 LoadRun 与 IngressBinding 均持久关闭，发布否决、owner 保留且旧绑定 cleanup 被拒；没有产生批次，报告范围仅为 safety_isolation_only，未证明运行中 STOP 导致 CANCELED。已提交 run 在撤权后重复 drive 不再倒退为 submission_unknown；仅观察到终态而 confirmed 的 effect 不再虚构 STOP 发送账本，真实发送预留仍禁止重发。所有单场景报告仍显式声明完整 managed_l2_accepted=false。
+
+历史 [real-engine-l2.json](../artifacts/issue-13/real-engine-l2.json) 的 level=L2 命名过宽，仅保留其协议探针历史，不计入当前受管 L2 验收。当前探针脚本与新报告显式声明 managed_l2_accepted=false 或 real_l2_qualified=false。
+
+本轮通过的控制面检查包括独立 writer 与迁移、PG journal、PG ingress、质量分流与原回执关联、主动核对、发布恢复、轮转原子性、固定六秒启动与两秒持久唤醒、可信样本提交前禁止入场、显式空发布许可、基线冻结摘要兼容和整数过滤精度，以及 [公开停止回归](../artifacts/issue-13/regression-control-l1.json) 和 [轮转原引用 L1](../artifacts/issue-13/rotation-bound-l1.json)。PG fixture 的 Doris/SeaTunnel seam 是注入适配器，不能替代真实引擎验收；L1 使用真实 API/PG/Redis/Celery，但数据引擎是隔离 HTTP fixture。
