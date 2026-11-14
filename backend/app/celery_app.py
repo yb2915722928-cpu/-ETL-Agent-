@@ -37,6 +37,8 @@ def execute(self, command_id):
                 or code in ('40001', '40P01', '55P03', '57P01', '57P02', '57P03')):
             raise self.retry(exc=error, countdown=10)
         raise
+    if state in ('submitted', 'stop_delivery_unknown'):
+        raise self.retry(countdown=2)
     if state in ('submission_unknown', 'busy'):
         raise self.retry(countdown=10)
     return state

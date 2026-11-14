@@ -1,0 +1,9 @@
+{
+  "passed": [
+    "Chinese stop/veto/reason and measured metrics rendered",
+    "missing metrics rendered as 暂无数据",
+    "zero denominator rendered as 暂无数据"
+  ],
+  "mode": "actual production Vue bundle with replay of persisted L1 HTTP facts",
+  "errors": []
+}

@@ -14,6 +14,7 @@ from .connector_policy import fingerprint
 from .connector_probe import POLICY_VERSION as CONNECTOR_POLICY_VERSION
 from .connectors import get_connection, get_profile
 from .models import SecretReference
+from .runtime_supervision import supervision_contract
 
 VERSIONS = {'canonicalization': 'sorted-json-v1', 'compiler': 'studio-plan-v1',
             'renderer': 'review-hocon-v1', 'capability': 'mysql-doris-projection-v1',
@@ -216,7 +217,8 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
     gate('quality', quality_errors)
     if not all(g['passed'] for g in gates):
         return result
-    facts = {'plan': {**normalized, 'source': {'table': plan.source.table}, 'target': {'table': plan.target.table}}, 'versions': VERSIONS}
+    facts = {'plan': {**normalized, 'source': {'table': plan.source.table}, 'target': {'table': plan.target.table}},
+             'runtime_supervision_contract': supervision_contract(normalized['budget']), 'versions': VERSIONS}
     refs = {}
     for side, (connection, profile, table) in assets.items():
         facts[side] = {'connection_id': connection.id, 'resource_id': connection.resource_id,
@@ -235,7 +237,8 @@ def assess_plan(db, policy, tenant_id, project_id, raw) -> dict:
                             'credential': f'secret://{assets["source"][0].secret_reference_id}/versions/{assets["source"][0].secret_version}'},
                         'target': {**facts['target'], 'table': plan.target.table,
                             'credential': f'secret://{assets["target"][0].secret_reference_id}/versions/{assets["target"][0].secret_version}'},
-                        'mappings': normalized['mappings'], 'quality': normalized['quality'], 'budget': normalized['budget']},
+                        'mappings': normalized['mappings'], 'quality': normalized['quality'], 'budget': normalized['budget'],
+                         'runtime_supervision_contract': facts['runtime_supervision_contract']},
                        ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + '\n'
     result.update(passed=True, execution_facts=facts, profile_refs=refs, dag=dag, hocon=hocon)
     return result
