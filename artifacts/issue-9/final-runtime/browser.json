@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-14T01:26:38.454Z",
+  "preparation_id": "944b3726-1bf9-4de0-a9a5-287afe48649a",
+  "run_id": "862f4f35-c686-4643-8bf8-262a1c0a60f6",
+  "passed": [
+    "Operator signs a five-minute Capability through Chinese UI",
+    "first Commit reached server and accepted; browser response deliberately aborted",
+    "ambiguous response preserves original capability and idempotency key; retry returns original unique run",
+    "UI and API show queued, not-started engine facts",
+    "Auditor can read original run without authorization/Commit actions"
+  ],
+  "page_errors": []
+}

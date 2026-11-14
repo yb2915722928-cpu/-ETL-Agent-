@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-11-14T01:26:20.020Z",
+  "level": "L1, not L2",
+  "read_run_id": "98c74135-467b-4b98-86ca-be5293cd7251",
+  "recovered_run_id": "b7b65c9c-ffae-488b-ac15-6935ff8a6f7d",
+  "blocked_run_id": "804ec20c-9738-406b-871f-a4aff457c260",
+  "passed": [
+    "Chinese Operator UI signs and commits a fresh P3 read; receipt is queued with no Engine job",
+    "Real Outbox/Celery completes the bounded read; refreshing UI displays persisted metadata_checked facts",
+    "Auditor UI displays the exact original job recovered after unknown submission and its retained physical-target isolation",
+    "Cross-project alias displays persisted target exclusion and no authorization controls for Auditor",
+    "UI explicitly limits execution to isolated L1 and states that data transfer, publication and cleanup are unimplemented"
+  ],
+  "page_errors": []
+}
