@@ -126,12 +126,14 @@ def get_run(db, tenant_id, project_id, run_id):
 
 
 def run_view(db, row):
+    from .execution_runtime import execution_view
     command = db.scalar(select(ManagedCommand).where(ManagedCommand.run_id == row.id))
     outbox = db.scalar(select(Outbox).where(Outbox.command_id == command.id))
     return {'id': row.id, 'tenant_id': row.tenant_id, 'project_id': row.project_id,
             'preparation_id': row.preparation_id, 'subject': row.subject, 'status': row.status,
             'engine_job_id': row.engine_job_id, 'accepted_at': row.accepted_at,
             'managed_command': command.envelope,
+            'execution': execution_view(db, command.id),
             'outbox': {key: getattr(outbox, key) for key in ('id', 'command_id', 'status', 'attempts', 'created_at')}}
 
 

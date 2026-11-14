@@ -19,6 +19,9 @@ class ResourcePolicy:
             if resource['kind'] not in ('mysql', 'doris', 'postgresql', 'csv'):
                 raise ValueError('连接白名单类型不合法或尚未实现')
             resource['direction'] = 'target' if resource['kind'] == 'doris' else 'source'
+            if os.environ.get('EXECUTION_ADAPTER', 'disabled') == 'l1' and resource['kind'] == 'doris':
+                if not isinstance(resource.get('physical_cluster_id'), str) or not resource['physical_cluster_id']:
+                    raise ValueError('L1 Doris 白名单必须声明稳定 physical_cluster_id，别名共享同一标识')
             if resource['kind'] == 'csv':
                 root = Path(resource['root'])
                 if not root.is_absolute() or not resource['projects'] or not all(isinstance(p, str) and p for p in resource['projects']):

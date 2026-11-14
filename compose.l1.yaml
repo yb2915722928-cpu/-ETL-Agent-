@@ -1,0 +1,90 @@
+# Explicit isolated L1 only. Reuses read-only synthetic connector TCP services.
+name: etl-agent-l1
+x-runtime: &runtime
+  DATABASE_URL: postgresql+psycopg://etl:${POSTGRES_PASSWORD}@postgres:5432/etl_l1
+  REDIS_URL: redis://redis:6379/0
+  SECRET_MASTER_KEY: ${SECRET_MASTER_KEY}
+  COMMAND_PUBLIC_KEY: ${COMMAND_PUBLIC_KEY}
+  CONNECTOR_RESOURCES_FILE: /policy/resources.json
+  EXECUTION_ADAPTER: l1
+  L1_ENGINE_URL: http://engine:8011
+  CELERY_VISIBILITY_TIMEOUT: '10'
+services:
+  postgres:
+    image: etl-agent-aliyun-postgres:3.22.2
+    environment:
+      POSTGRES_USER: etl
+      POSTGRES_DB: etl_l1
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [l1_postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U etl -d etl_l1']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: etl-agent-aliyun-redis:3.22.2
+    user: root
+    working_dir: /data
+    command: [redis-server, --appendonly, 'yes', --protected-mode, 'no']
+    volumes: [l1_redis:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  api:
+    image: etl-agent-l1-api:issue10
+    environment:
+      <<: *runtime
+      EVIDENCE_SIGNING_KEY: ${EVIDENCE_SIGNING_KEY}
+      BOOTSTRAP_DIR: /run/identity
+      COOKIE_SECURE: 'false'
+    volumes:
+      - ./.runtime/l1:/run/identity
+      - ./.runtime/l1/policy:/policy:ro
+    ports: ['127.0.0.1:8010:8000']
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  worker:
+    image: etl-agent-l1-api:issue10
+    environment: *runtime
+    volumes:
+      - ./.runtime/l1/policy:/policy:ro
+    command: [celery, -A, app.celery_app:celery, worker, --loglevel=INFO, --concurrency=2, --without-gossip, --without-mingle]
+    depends_on:
+      api: {condition: service_healthy}
+      engine: {condition: service_started}
+    restart: on-failure
+  publisher:
+    image: etl-agent-l1-api:issue10
+    environment: *runtime
+    command: [python, -m, app.outbox_publisher]
+    depends_on:
+      api: {condition: service_healthy}
+    restart: on-failure
+  engine:
+    image: etl-agent-l1-api:issue10
+    command: [python, /fixtures/l1_engine_fixture.py]
+    environment:
+      L1_FIXTURE_CONFIG: /config/fixture.json
+    volumes:
+      - ./scripts:/fixtures:ro
+      - ./.runtime/l1/fixture:/config:ro
+      - l1_engine:/data
+    ports: ['127.0.0.1:8011:8011']
+  web:
+    image: etl-agent-l1-web:issue10
+    ports: ['127.0.0.1:8090:80']
+    depends_on:
+      api: {condition: service_healthy}
+volumes:
+  l1_postgres:
+  l1_redis:
+  l1_engine:
